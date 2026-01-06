@@ -3,16 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste GitHub x Firebase</title>
+    <title>Quiz Legends - Área do Ian</title>
+    <style>
+        body { background: #010a13; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .caixa { border: 2px solid #c89b3c; padding: 20px; background: #091428; border-radius: 10px; max-width: 400px; margin: 0 auto; }
+        .gold { color: #c89b3c; font-size: 32px; font-weight: bold; margin: 15px 0; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 5px; border: 1px solid #c89b3c; background: #000; color: #fff; box-sizing: border-box; }
+        button { background: #c89b3c; color: black; padding: 15px; width: 100%; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; width: 100%; }
+        button:disabled { background: #555; }
+    </style>
 </head>
 <body>
-    <h2>TESTE DE RESGATE</h2>
-    <input type="text" id="chave" placeholder="Chave Pix">
-    <button id="btn">TESTAR AGORA</button>
+
+    <div class="caixa">
+        <h2 style="color: #c89b3c;">BEM-VINDO, IAN</h2>
+        <div class="gold">🟡 <span id="saldo_tela">CARREGANDO...</span></div>
+        <p>DIGITE SEU PIX PARA RESGATE (R$ 158,00)</p>
+        <input type="text" id="chave" placeholder="Sua chave Pix aqui">
+        <button id="btn">SOLICITAR RESGATE</button>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
@@ -25,22 +38,55 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const usuarioRef = doc(db, "usuarios", "Ian Felix");
 
+        // MOSTRAR SALDO EM TEMPO REAL NA TELA
+        onSnapshot(usuarioRef, (doc) => {
+            if (doc.exists()) {
+                const saldoFormatado = Number(doc.data().saldo).toLocaleString('pt-BR');
+                document.getElementById('saldo_tela').innerText = saldoFormatado;
+            } else {
+                document.getElementById('saldo_tela').innerText = "ERRO";
+            }
+        });
+
+        // FUNÇÃO DE RESGATE
         document.getElementById('btn').onclick = async () => {
+            const pix = document.getElementById('chave').value;
             const btn = document.getElementById('btn');
-            btn.innerText = "ENVIANDO PELO GITHUB...";
-            
+
+            if (pix.length < 3) return alert("Digite o Pix!");
+
+            btn.disabled = true;
+            btn.innerText = "VERIFICANDO SALDO...";
+
             try {
-                await addDoc(collection(db, "pedidos_resgate"), {
-                    pix: document.getElementById('chave').value,
-                    origem: "GitHub Pages",
-                    data: new Date().toISOString()
-                });
-                alert("✅ FUNCIONOU NO GITHUB!");
-                btn.innerText = "ENVIADO COM SUCESSO";
+                const snap = await getDoc(usuarioRef);
+                const saldoAtual = snap.data().saldo;
+                const custo = 15800;
+
+                if (saldoAtual >= custo) {
+                    // 1. Descontar no Firebase
+                    await updateDoc(usuarioRef, { saldo: increment(-custo) });
+
+                    // 2. Registrar o pedido para você pagar
+                    await addDoc(collection(db, "pedidos_resgate"), {
+                        usuario: "Ian Felix",
+                        pix: pix,
+                        valor: "R$ 158,00",
+                        status: "pendente",
+                        data: new Date().toLocaleString('pt-BR')
+                    });
+
+                    alert("✅ SOLICITADO!\nO Gold foi descontado e seu Pix está na fila.");
+                } else {
+                    alert("❌ Você não tem Gold suficiente!");
+                }
             } catch (e) {
-                alert("ERRO NO GITHUB: " + e.message);
-                btn.innerText = "ERRO";
+                alert("Erro técnico: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "SOLICITAR RESGATE";
             }
         };
     </script>
