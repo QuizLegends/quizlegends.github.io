@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área de Resgate - Quiz Legends</title>
+    <style>
+        body { background: #010a13; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .caixa { border: 2px solid #c89b3c; padding: 20px; background: #091428; border-radius: 10px; max-width: 400px; margin: 0 auto; }
+        .gold-valor { font-size: 36px; font-weight: bold; color: #fff; margin: 15px 0; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 5px; border: 1px solid #c89b3c; background: #000; color: #fff; box-sizing: border-box; }
+        button { background: #c89b3c; color: black; padding: 15px; width: 100%; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="caixa">
+        <h2 style="color: #c89b3c;">BEM-VINDO</h2>
+        <div style="font-size: 14px; color: #888;">Logado como: <b id="nome_user">...</b></div>
+        
+        <div class="gold-valor">🟡 <span id="saldo_tela">...</span></div>
+
+        <input type="text" id="chave" placeholder="Sua chave Pix">
+        <button id="btn">SOLICITAR RESGATE (158.000 Gold)</button>
+        <br><br>
+        <a href="index.html" style="color: #888; text-decoration: none; font-size: 12px;">Sair / Logoff</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, getDoc, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
+            authDomain: "quizlegends-f58fc.firebaseapp.com",
+            projectId: "quizlegends-f58fc",
+            storageBucket: "quizlegends-f58fc.firebasestorage.app",
+            messagingSenderId: "1050463164018",
+            appId: "1:1050463164018:web:91de002b8afc8e678f54eb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // PEGA O USUÁRIO QUE LOGOU
+        const usuarioLogado = localStorage.getItem("usuarioLogado");
+
+        if (!usuarioLogado) {
+            window.location.href = "index.html"; // Se não logou, volta pro login
+        } else {
+            document.getElementById('nome_user').innerText = usuarioLogado;
+            const usuarioRef = doc(db, "usuarios", usuarioLogado);
+
+            // ATUALIZA SALDO NA TELA
+            onSnapshot(usuarioRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    document.getElementById('saldo_tela').innerText = Number(snapshot.data().saldo).toLocaleString('pt-BR');
+                }
+            });
+
+            // BOTÃO RESGATE
+            document.getElementById('btn').onclick = async () => {
+                const pix = document.getElementById('chave').value;
+                if (pix.length < 5) return alert("Digite o Pix!");
+
+                try {
+                    const snap = await getDoc(usuarioRef);
+                    const saldo = snap.data().saldo;
+
+                    if (saldo >= 158000) {
+                        await updateDoc(usuarioRef, { saldo: increment(-158000) });
+                        await addDoc(collection(db, "pedidos_resgate"), {
+                            user: usuarioLogado,
+                            pix: pix,
+                            gold_antes: saldo,
+                            gold_depois: saldo - 158000,
+                            data: new Date().toLocaleString('pt-BR')
+                        });
+                        alert("Resgate realizado!");
+                    } else {
+                        alert("Saldo insuficiente!");
+                    }
+                } catch (e) { alert("Erro!"); }
+            };
+        }
+    </script>
+</body>
+</html>
