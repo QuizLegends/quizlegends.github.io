@@ -78,7 +78,7 @@
         
         <div class="hex-frame">
             <div id="quizContent">
-                <p id="perguntaTexto" style="text-align: center; font-size: 1rem; color: var(--gold-bright); font-weight: bold; margin: 0 0 10px 0;">Carregando Questões...</p>
+                <p id="perguntaTexto" style="text-align: center; font-size: 1rem; color: var(--gold-bright); font-weight: bold; margin: 0 0 10px 0;">Sincronizando...</p>
                 <div id="opcoes"></div>
                 <p id="avisoStatusQuiz"></p>
             </div>
@@ -128,18 +128,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // CONFIGURAÇÕES DO JOGO
         const REQUISITO_ACERTOS = 5;
         let metaAtual = 15800;
-        let acertosNoCiclo = 0;
         let usuarioLogado = localStorage.getItem("usuarioLogado");
 
         if (!usuarioLogado) window.location.href = "index.html";
 
         const userRef = doc(db, "usuarios", usuarioLogado);
         let goldDB = 0;
+        let acertosNoCiclo = 0; // Agora virá do Firebase
 
-        // PERGUNTAS (Banco de dados de perguntas)
         const perguntasBase = [
             { q: "Quem é o cego de Ionia?", a: ["Jax", "Lee Sin", "Yi", "Yone"], correct: "Lee Sin" },
             { q: "Região de Garen e Lux?", a: ["Noxus", "Ionia", "Demacia", "Piltover"], correct: "Demacia" },
@@ -150,10 +148,13 @@
             { q: "Quem é o Rei Destruído?", a: ["Mordekaiser", "Viego", "Thresh", "Karthus"], correct: "Viego" }
         ];
 
-        // SINCRONIZAÇÃO EM TEMPO REAL COM O SALDO
+        // SINCRONIZAÇÃO EM TEMPO REAL (Saldo e Acertos)
         onSnapshot(userRef, (doc) => {
             if (doc.exists()) {
-                goldDB = doc.data().saldo;
+                const data = doc.data();
+                goldDB = data.saldo || 0;
+                // Se o campo acertos não existir ainda no Firebase, ele assume 0
+                acertosNoCiclo = data.acertos || 0; 
                 atualizarInterface();
             }
         });
@@ -191,11 +192,14 @@
                 const btn = document.createElement('button');
                 btn.className = "option-btn";
                 btn.innerText = opt;
-                btn.onclick = () => {
+                btn.onclick = async () => {
                     if (opt === q.correct) {
                         btn.classList.add('btn-correct');
-                        acertosNoCiclo++;
-                        updateDoc(userRef, { saldo: increment(10) });
+                        // Salva acerto e saldo no Firebase
+                        await updateDoc(userRef, { 
+                            saldo: increment(10),
+                            acertos: increment(1)
+                        });
                     } else {
                         btn.classList.add('btn-wrong');
                     }
@@ -209,21 +213,25 @@
             const overlay = document.getElementById('adOverlay');
             overlay.style.display = 'flex';
             let tempo = 5;
-            const timer = setInterval(() => {
+            const timer = setInterval(async () => {
                 tempo--;
                 document.getElementById('adTimer').innerText = tempo;
                 if (tempo <= 0) {
                     clearInterval(timer);
                     overlay.style.display = 'none';
-                    updateDoc(userRef, { saldo: increment(300) });
-                    acertosNoCiclo = 0; 
+                    
+                    // Reset de acertos e bónus de Gold no Firebase
+                    await updateDoc(userRef, { 
+                        saldo: increment(300),
+                        acertos: 0 
+                    });
+                    
                     document.getElementById('adTimer').innerText = "5";
                     carregarQuestao();
                 }
             }, 1000);
         };
 
-        // LÓGICA DE RESGATE CORRIGIDA (Cálculo perfeito Antes e Depois)
         document.getElementById('btnResgate').onclick = async () => {
             const pix = document.getElementById('chavePix').value;
             const btn = document.getElementById('btnResgate');
@@ -235,11 +243,9 @@
             btn.innerText = "PROCESSANDO...";
 
             try {
-                // Captura o valor exato ANTES da mudança no banco
                 const saldoAntes = goldDB;
                 const saldoDepois = goldDB - metaAtual;
 
-                // 1. Grava no Admin com os valores calculados no momento
                 await addDoc(collection(db, "pedidos_resgate"), {
                     user: usuarioLogado,
                     pix: pix,
@@ -248,7 +254,6 @@
                     data: new Date().toLocaleString('pt-BR')
                 });
 
-                // 2. Só então desconta do usuário
                 await updateDoc(userRef, { saldo: increment(-metaAtual) });
 
                 alert("PEDIDO ENVIADO COM SUCESSO!");
