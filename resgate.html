@@ -2,33 +2,119 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Área de Resgate - Quiz Legends</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quiz Legends - Game</title>
     <style>
-        body { background: #010a13; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .caixa { border: 2px solid #c89b3c; padding: 20px; background: #091428; border-radius: 10px; max-width: 400px; margin: 0 auto; }
-        .gold-valor { font-size: 36px; font-weight: bold; color: #fff; margin: 15px 0; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 5px; border: 1px solid #c89b3c; background: #000; color: #fff; box-sizing: border-box; }
-        button { background: #c89b3c; color: black; padding: 15px; width: 100%; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        :root { 
+            --bg-dark: #010a13; --lol-blue: #091428; --gold: #c89b3c; 
+            --gold-dark: #785a28; --gold-bright: #f0e6d2; --text: #f0e6d2;
+            --ad-space: 75px; --correct: #28a745; --wrong: #dc3545;
+        }
+        html, body { 
+            font-family: 'Segoe UI', sans-serif; background: radial-gradient(circle, #051421 0%, #010a13 100%);
+            color: var(--text); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center;
+            height: 100vh; width: 100vw; overflow: hidden; overscroll-behavior-y: contain;
+        }
+        .app-container { flex: 1; display: flex; flex-direction: column; padding: 10px 0; gap: 8px; width: 94%; max-width: 400px; box-sizing: border-box; }
+        .header-section { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; flex-shrink: 0; width: 100%; box-sizing: border-box; }
+        .title-legends h1 {
+            font-size: 1.1rem; margin: 0; color: var(--gold); text-transform: uppercase;
+            background: linear-gradient(to bottom, var(--gold-bright), var(--gold), var(--gold-dark));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .coin-badge { border: 1px solid var(--gold); padding: 4px 10px; background: rgba(1, 10, 19, 0.8); color: var(--gold); font-weight: bold; font-size: 0.8rem; }
+        
+        .hex-frame {
+            background: var(--lol-blue); border: 2px solid var(--gold); position: relative; padding: 12px; flex: 1;
+            display: flex; flex-direction: column; justify-content: center; box-sizing: border-box;
+            clip-path: polygon(4% 0, 96% 0, 100% 8%, 100% 92%, 96% 100%, 4% 100%, 0 92%, 0 8%);
+        }
+        .hex-frame::after {
+            content: ""; position: absolute; top: 3px; left: 3px; right: 3px; bottom: 3px; border: 1px solid var(--gold-dark); 
+            pointer-events: none; clip-path: polygon(4% 0, 96% 0, 100% 8%, 100% 92%, 96% 100%, 4% 100%, 0 92%, 0 8%);
+        }
+
+        .resgate-selector { display: flex; justify-content: space-between; gap: 4px; margin-bottom: 8px; }
+        .resgate-opt {
+            flex: 1; background: #010a13; border: 1px solid var(--gold-dark); color: var(--gold);
+            padding: 6px 2px; font-size: 0.65rem; font-weight: bold; cursor: pointer; text-align: center;
+            transition: 0.3s;
+        }
+        .resgate-opt.active { background: var(--gold); color: #000; border-color: var(--gold-bright); box-shadow: 0 0 8px var(--gold); }
+
+        .option-btn { 
+            background: #1e2328; border: 1px solid var(--gold-dark); color: var(--gold-bright); padding: 10px; 
+            margin: 4px 0; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.8rem;
+        }
+        .btn-correct { background-color: var(--correct) !important; border-color: #fff !important; color: white !important; }
+        .btn-wrong { background-color: var(--wrong) !important; border-color: #fff !important; color: white !important; }
+        
+        .video-btn { 
+            background: linear-gradient(to bottom, #c8a355, #785a28); border: 1px solid var(--gold-bright); 
+            color: #f0e6d2; padding: 12px; width: 100%; font-weight: bold; text-transform: uppercase; cursor: pointer; margin-bottom: 6px; font-size: 0.7rem;
+        }
+        .video-btn:disabled { background: #1a1a1a; border-color: #444; color: #666; cursor: not-allowed; filter: grayscale(1); }
+        
+        .ad-banner-footer {
+            height: var(--ad-space); width: 100%; background: #000; display: flex; align-items: center; 
+            justify-content: center; color: var(--gold); font-size: 0.8rem; font-weight: bold; border-top: 2px solid var(--gold); flex-shrink: 0;
+        }
+        .progress-bg { background: #000; height: 10px; border: 1px solid var(--gold-dark); margin-top: 4px; }
+        .progress-fill { background: var(--gold); height: 100%; width: 0%; transition: 0.7s; }
+        
+        input { width: 100%; padding: 8px; background: #010a13; color: white; border: 1px solid var(--gold-dark); margin-bottom: 6px; box-sizing: border-box; font-size: 0.8rem; }
+        #avisoStatusQuiz { text-align: center; font-size: 0.85rem; color: var(--gold); font-weight: bold; margin-top: 8px; text-transform: uppercase; }
+        .contador-verde { color: #28a745; font-size: 1.1rem; }
+        #adOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div class="caixa">
-        <h2 style="color: #c89b3c;">BEM-VINDO</h2>
-        <div style="font-size: 14px; color: #888;">Logado como: <b id="nome_user">...</b></div>
+    <div class="app-container">
+        <div class="header-section">
+            <div class="title-legends"><h1>QUIZ LEGENDS</h1></div>
+            <div class="coin-badge">🟡 <span id="goldAmount">...</span> GOLD</div>
+        </div>
         
-        <div class="gold-valor">🟡 <span id="saldo_tela">...</span></div>
+        <div class="hex-frame">
+            <div id="quizContent">
+                <p id="perguntaTexto" style="text-align: center; font-size: 1rem; color: var(--gold-bright); font-weight: bold; margin: 0 0 10px 0;">Carregando Questões...</p>
+                <div id="opcoes"></div>
+                <p id="avisoStatusQuiz"></p>
+            </div>
+            <div id="avisoQuiz" style="text-align: center; display: none; font-weight: bold; font-size: 0.9rem;"></div>
+        </div>
 
-        <input type="text" id="chave" placeholder="Sua chave Pix">
-        <button id="btn">SOLICITAR RESGATE (158.000 Gold)</button>
-        <br><br>
-        <a href="index.html" style="color: #888; text-decoration: none; font-size: 12px;">Sair / Logoff</a>
+        <div class="hex-frame">
+            <button id="btnVideo" class="video-btn">📺 ASSISTA ANÚNCIOS (300 GOLD)</button>
+            
+            <div class="progress-bg"><div id="progressBar" class="progress-fill"></div></div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--gold); margin: 4px 0;">
+                <span id="txtMeta">Meta: 15.8k Gold</span>
+                <span id="txtPorcentagem">0%</span>
+            </div>
+            
+            <div class="resgate-selector">
+                <div class="resgate-opt active" onclick="setResgate(this, 15800)">R$ 0,50 PIX</div>
+                <div class="resgate-opt" onclick="setResgate(this, 31500)">R$ 1,00 PIX</div>
+                <div class="resgate-opt" onclick="setResgate(this, 150000)">R$ 5,00 PIX</div>
+            </div>
+
+            <input type="text" id="chavePix" placeholder="CHAVE PIX PARA RECEBER">
+            <button class="option-btn" id="btnResgate" style="margin: 0; background: #091428; border-color: var(--gold);">SOLICITAR RESGATE PIX</button>
+        </div>
+    </div>
+
+    <div class="ad-banner-footer">ESPAÇO DO ANÚNCIO (BANNER)</div>
+
+    <div id="adOverlay">
+        <div style="color: white; font-size: 1.2rem; margin-bottom: 10px;">Publicidade...</div>
+        <div id="adTimer" style="font-size: 5rem; color: var(--gold);">5</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, getDoc, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, increment, getDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
@@ -42,47 +128,121 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // PEGA O USUÁRIO QUE LOGOU
-        const usuarioLogado = localStorage.getItem("usuarioLogado");
+        // CONFIGURAÇÕES DO JOGO
+        const REQUISITO_ACERTOS = 5;
+        let metaAtual = 15800;
+        let acertosNoCiclo = 0;
+        let usuarioLogado = localStorage.getItem("usuarioLogado");
 
-        if (!usuarioLogado) {
-            window.location.href = "index.html"; // Se não logou, volta pro login
-        } else {
-            document.getElementById('nome_user').innerText = usuarioLogado;
-            const usuarioRef = doc(db, "usuarios", usuarioLogado);
+        if (!usuarioLogado) window.location.href = "index.html";
 
-            // ATUALIZA SALDO NA TELA
-            onSnapshot(usuarioRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    document.getElementById('saldo_tela').innerText = Number(snapshot.data().saldo).toLocaleString('pt-BR');
-                }
-            });
+        const userRef = doc(db, "usuarios", usuarioLogado);
+        let goldDB = 0;
 
-            // BOTÃO RESGATE
-            document.getElementById('btn').onclick = async () => {
-                const pix = document.getElementById('chave').value;
-                if (pix.length < 5) return alert("Digite o Pix!");
+        // PERGUNTAS (Sincronizado com seu design)
+        const perguntasBase = [
+            { q: "Quem é o cego de Ionia?", a: ["Jax", "Lee Sin", "Yi", "Yone"], correct: "Lee Sin" },
+            { q: "Região de Garen e Lux?", a: ["Noxus", "Ionia", "Demacia", "Piltover"], correct: "Demacia" },
+            { q: "Qual a irmã da Jinx?", a: ["Vi", "Lux", "Caitlyn", "Diana"], correct: "Vi" },
+            { q: "Qual campeão usa um poste?", a: ["Darius", "Jax", "Garen", "Sion"], correct: "Jax" },
+            { q: "Quem criou o Blitzcrank?", a: ["Viktor", "Jayce", "Ekko", "Singed"], correct: "Viktor" }
+        ];
 
-                try {
-                    const snap = await getDoc(usuarioRef);
-                    const saldo = snap.data().saldo;
+        // SINCRONIZAÇÃO COM FIREBASE
+        onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+                goldDB = doc.data().saldo;
+                atualizarInterface();
+            }
+        });
 
-                    if (saldo >= 158000) {
-                        await updateDoc(usuarioRef, { saldo: increment(-158000) });
-                        await addDoc(collection(db, "pedidos_resgate"), {
-                            user: usuarioLogado,
-                            pix: pix,
-                            gold_antes: saldo,
-                            gold_depois: saldo - 158000,
-                            data: new Date().toLocaleString('pt-BR')
-                        });
-                        alert("Resgate realizado!");
-                    } else {
-                        alert("Saldo insuficiente!");
-                    }
-                } catch (e) { alert("Erro!"); }
-            };
+        function atualizarInterface() {
+            document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
+            document.getElementById('txtMeta').innerText = "Meta: " + (metaAtual / 1000).toFixed(1) + "k Gold";
+            let progresso = Math.min((goldDB / metaAtual) * 100, 100);
+            document.getElementById('progressBar').style.width = progresso + "%";
+            document.getElementById('txtPorcentagem').innerText = Math.floor(progresso) + "%";
+
+            const btnVideo = document.getElementById('btnVideo');
+            if (acertosNoCiclo < REQUISITO_ACERTOS) {
+                btnVideo.disabled = true;
+                document.getElementById('avisoStatusQuiz').innerHTML = `Acerte mais <span class="contador-verde">${REQUISITO_ACERTOS - acertosNoCiclo}</span> para liberar anúncios`;
+            } else {
+                btnVideo.disabled = false;
+                document.getElementById('avisoStatusQuiz').innerText = "VÍDEOS LIBERADOS!";
+            }
         }
+
+        window.setResgate = (el, valor) => {
+            metaAtual = valor;
+            document.querySelectorAll('.resgate-opt').forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+            atualizarInterface();
+        }
+
+        // LÓGICA DO QUIZ
+        function carregarQuestao() {
+            const q = perguntasBase[Math.floor(Math.random() * perguntasBase.length)];
+            document.getElementById('perguntaTexto').innerText = q.q;
+            const container = document.getElementById('opcoes');
+            container.innerHTML = "";
+            q.a.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    if (opt === q.correct) {
+                        btn.classList.add('btn-correct');
+                        acertosNoCiclo++;
+                        updateDoc(userRef, { saldo: increment(10) });
+                    } else {
+                        btn.classList.add('btn-wrong');
+                    }
+                    setTimeout(carregarQuestao, 1000);
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        // LÓGICA ANÚNCIO
+        document.getElementById('btnVideo').onclick = () => {
+            const overlay = document.getElementById('adOverlay');
+            overlay.style.display = 'flex';
+            let tempo = 5;
+            const timer = setInterval(() => {
+                tempo--;
+                document.getElementById('adTimer').innerText = tempo;
+                if (tempo <= 0) {
+                    clearInterval(timer);
+                    overlay.style.display = 'none';
+                    updateDoc(userRef, { saldo: increment(300) });
+                    acertosNoCiclo = 0; // Reseta o ciclo
+                    document.getElementById('adTimer').innerText = "5";
+                    carregarQuestao();
+                }
+            }, 1000);
+        };
+
+        // SOLICITAR RESGATE
+        document.getElementById('btnResgate').onclick = async () => {
+            const pix = document.getElementById('chavePix').value;
+            if (goldDB < metaAtual) return alert("SALDO INSUFICIENTE!");
+            if (pix.length < 5) return alert("INSIRA UMA CHAVE PIX!");
+
+            try {
+                await updateDoc(userRef, { saldo: increment(-metaAtual) });
+                await addDoc(collection(db, "pedidos_resgate"), {
+                    user: usuarioLogado,
+                    pix: pix,
+                    gold_antes: goldDB,
+                    gold_depois: goldDB - metaAtual,
+                    data: new Date().toLocaleString('pt-BR')
+                });
+                alert("PEDIDO ENVIADO COM SUCESSO!");
+            } catch (e) { alert("ERRO AO PROCESSAR"); }
+        };
+
+        carregarQuestao();
     </script>
 </body>
 </html>
