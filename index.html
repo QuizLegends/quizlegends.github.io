@@ -60,11 +60,11 @@
                     status.innerText = "✅ TUDO OK! O campo 'saldo' foi encontrado.";
                 } else {
                     tela.innerText = "CAMPO?";
-                    status.innerText = "❌ ERRO: O documento 'Ian Felix' existe, mas não achei o campo escrito 'saldo' (minúsculo) dentro dele.";
+                    status.innerText = "❌ ERRO: O documento 'IanFelix' existe, mas não achei o campo escrito 'saldo' (minúsculo) dentro dele.";
                 }
             } else {
                 tela.innerText = "ID?";
-                status.innerText = "❌ ERRO: Não existe um documento com o nome 'Ian Felix' dentro da coleção 'usuarios'. Verifique espaços ou letras maiúsculas.";
+                status.innerText = "❌ ERRO: Não existe um documento com o nome 'IanFelix' dentro da coleção 'usuarios'. Verifique espaços ou letras maiúsculas.";
             }
         }, (error) => {
             document.getElementById('status').innerText = "❌ ERRO DE PERMISSÃO: Verifique as Regras do Firebase. " + error.message;
