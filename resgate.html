@@ -70,6 +70,15 @@
             display: flex; align-items: center; justify-content: center;
             color: var(--gold); font-size: 0.8rem; font-weight: bold; z-index: 1000;
         }
+
+        /* Estilo para o link de privacidade discreto */
+        .disclaimer-link {
+            text-align: center;
+            font-size: 10px;
+            opacity: 0.4;
+            margin-top: 5px;
+        }
+        .disclaimer-link a { color: var(--gold); text-decoration: none; }
     </style>
 </head>
 <body>
@@ -108,11 +117,16 @@
             <input type="text" id="chavePix" placeholder="SUA CHAVE PIX">
             <button class="option-btn" id="btnResgate" style="margin: 0; background: #091428; border-color: var(--gold); padding: 15px;">SOLICITAR RESGATE PIX</button>
         </div>
+
+        <div class="disclaimer-link">
+            Ao jogar você concorda com nossa <a href="politica.html">Política de Privacidade</a>
+        </div>
     </div>
 
     <div class="footer-ad-space">ESPAÇO PARA ANÚNCIO</div>
 
     <script type="module">
+        // ... (O restante do seu script Firebase e lógica de jogo permanecem iguais)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         
@@ -256,7 +270,6 @@
             }
         };
 
-        // --- LÓGICA ATUALIZADA COM EMBARALHADOR (SHUFFLE) ---
         function carregarQuestao() {
             const container = document.getElementById('opcoes');
             const texto = document.getElementById('perguntaTexto');
@@ -267,16 +280,12 @@
                 return;
             }
 
-            // Sorteia a pergunta
             const q = bancoPerguntas[Math.floor(Math.random() * bancoPerguntas.length)];
             
-            // CRIAÇÃO DO ARRAY EMBARALHADO
-            // Mapeamos as opções para objetos que guardam se são a correta
             let opcoesEmbaralhadas = q.opcoes.map((opt, index) => {
                 return { texto: opt, correta: index === q.correta };
             });
 
-            // Algoritmo de embaralhamento simples (Shuffle)
             opcoesEmbaralhadas.sort(() => Math.random() - 0.5);
 
             texto.innerText = q.pergunta;
@@ -296,7 +305,6 @@
                         await updateDoc(userRef, { saldo: increment(10), acertos: increment(1) });
                     } else {
                         btn.classList.add('btn-wrong');
-                        // Localiza e destaca a opção correta entre os botões embaralhados
                         opcoesEmbaralhadas.forEach((obj, i) => {
                             if(obj.correta) btns[i].classList.add('btn-correct');
                         });
