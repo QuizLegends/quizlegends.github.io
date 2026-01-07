@@ -5,34 +5,191 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Quiz Legends</title>
     <style>
-        body { background: #010a13; color: white; font-family: sans-serif; text-align: center; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-box { border: 2px solid #c89b3c; padding: 35px; background: #091428; border-radius: 10px; width: 320px; box-shadow: 0 0 25px rgba(200, 155, 60, 0.2); }
-        h2 { color: #c89b3c; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; font-size: 22px; }
-        input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 5px; border: 1px solid #c89b3c; background: #000; color: #fff; box-sizing: border-box; font-size: 16px; }
-        input:focus { outline: none; border-color: #fff; box-shadow: 0 0 5px #c89b3c; }
-        button { background: #c89b3c; color: black; padding: 14px; width: 100%; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 15px; font-size: 16px; transition: 0.3s; }
-        button:hover { background: #e2b75a; transform: scale(1.02); }
-        .footer-links { margin-top: 20px; font-size: 14px; color: #888; }
-        .footer-links a { color: #c89b3c; text-decoration: none; font-weight: bold; }
-        .footer-links a:hover { text-decoration: underline; }
-        #msg { margin-top: 15px; font-size: 13px; color: #ff4444; min-height: 18px; }
+        :root {
+            --ouro: #c89b3c;
+            --ouro-claro: #f0e6d2;
+            --fundo-escuro: #010a13;
+            --azul-hextech: #0ac8b9;
+        }
+
+        body { 
+            background: radial-gradient(circle at center, #091428 0%, #010a13 100%);
+            color: white; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Partículas de Fundo Sutis */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .login-box { 
+            position: relative;
+            border: 1px solid var(--ouro); 
+            padding: 40px; 
+            background: rgba(9, 20, 40, 0.95); 
+            border-radius: 4px; 
+            width: 350px; 
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(200, 155, 60, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: 1;
+        }
+
+        /* Detalhe de canto estilo moldura antiga */
+        .login-box::after {
+            content: "";
+            position: absolute;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 1px solid rgba(200, 155, 60, 0.3);
+            pointer-events: none;
+            border-radius: 6px;
+        }
+
+        .logo-area {
+            margin-bottom: 20px;
+        }
+
+        .logo-circle {
+            width: 70px;
+            height: 70px;
+            border: 2px solid var(--ouro);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #010a13;
+            box-shadow: 0 0 15px var(--ouro);
+        }
+
+        h2 { 
+            color: var(--ouro-claro); 
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            margin-bottom: 30px; 
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 14px 15px; 
+            border-radius: 2px; 
+            border: 1px solid #3c3c41; 
+            background: #1e2328; 
+            color: #f0e6d2; 
+            box-sizing: border-box; 
+            font-size: 14px; 
+            transition: 0.3s;
+            outline: none;
+        }
+
+        input:focus { 
+            border-color: var(--ouro); 
+            background: #2a2e33;
+            box-shadow: inset 0 0 10px rgba(200, 155, 60, 0.1);
+        }
+
+        button { 
+            background: var(--ouro); 
+            color: #010a13; 
+            padding: 15px; 
+            width: 100%; 
+            border: 1px solid var(--ouro); 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 2px; 
+            margin-top: 10px; 
+            font-size: 13px; 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover { 
+            background: #d4af37;
+            box-shadow: 0 0 20px rgba(200, 155, 60, 0.4);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #444;
+            border-color: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .footer-links { 
+            margin-top: 30px; 
+            font-size: 12px; 
+            color: #a09b8c; 
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+        }
+
+        .footer-links a { 
+            color: var(--ouro); 
+            text-decoration: none; 
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .footer-links a:hover { color: #fff; }
+
+        #msg { 
+            margin-top: 15px; 
+            font-size: 13px; 
+            color: #ff4e50; 
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
 
     <div class="login-box">
-        <h2>ENTRAR</h2>
+        <div class="logo-area">
+            <div class="logo-circle">
+                <span style="color:var(--ouro); font-size: 30px; font-weight: bold;">L</span>
+            </div>
+        </div>
         
-        <input type="text" id="user" placeholder="Nome de Usuário">
-        <input type="password" id="pass" placeholder="Sua Senha">
+        <h2>LOGIN</h2>
         
-        <button id="btnLogin">ACESSAR MINHA CONTA</button>
+        <div class="input-group">
+            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off">
+        </div>
+        
+        <div class="input-group">
+            <input type="password" id="pass" placeholder="SENHA">
+        </div>
+        
+        <button id="btnLogin">Acessar Conta</button>
         
         <div id="msg"></div>
 
         <div class="footer-links">
-            Não tem uma conta?<br>
-            <a href="cadastro.html">Cadastre-se agora</a>
+            AINDA NÃO POSSUI UMA CONTA?<br><br>
+            <a href="cadastro.html">CRIE UMA AGORA</a>
         </div>
     </div>
 
@@ -40,6 +197,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+        // Configuração permanece a mesma
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
             authDomain: "quizlegends-f58fc.firebaseapp.com",
@@ -59,37 +217,29 @@
             const btn = document.getElementById('btnLogin');
 
             if (!usuarioInput || !senhaInput) {
-                msg.innerText = "Preencha todos os campos!";
+                msg.innerText = "Campos obrigatórios vazios!";
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = "AUTENTICANDO...";
-            msg.innerText = "";
+            btn.innerText = "Autenticando...";
 
             try {
                 const docRef = doc(db, "usuarios", usuarioInput);
                 const snap = await getDoc(docRef);
 
-                if (snap.exists()) {
-                    const dados = snap.data();
-                    if (dados.senha === senhaInput) {
-                        localStorage.setItem("usuarioLogado", usuarioInput);
-                        window.location.href = "resgate.html";
-                    } else {
-                        msg.innerText = "Senha incorreta!";
-                        btn.disabled = false;
-                        btn.innerText = "ACESSAR MINHA CONTA";
-                    }
+                if (snap.exists() && snap.data().senha === senhaInput) {
+                    localStorage.setItem("usuarioLogado", usuarioInput);
+                    window.location.href = "resgate.html";
                 } else {
-                    msg.innerText = "Usuário não encontrado!";
+                    msg.innerText = "Credenciais inválidas.";
                     btn.disabled = false;
-                    btn.innerText = "ACESSAR MINHA CONTA";
+                    btn.innerText = "Acessar Conta";
                 }
             } catch (e) {
-                msg.innerText = "Erro ao conectar com o servidor.";
+                msg.innerText = "Servidor indisponível no momento.";
                 btn.disabled = false;
-                btn.innerText = "ACESSAR MINHA CONTA";
+                btn.innerText = "Acessar Conta";
             }
         };
     </script>
