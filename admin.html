@@ -12,25 +12,23 @@
     <link rel="apple-touch-icon" href="icone-admin.png">
 
     <style>
-        body { background: #010a13; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; margin: 0; }
+        body { background: #010a13; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
         #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #010a13; display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .lock-box { border: 2px solid #c89b3c; padding: 40px; background: #091428; border-radius: 10px; text-align: center; width: 300px; box-shadow: 0 0 20px rgba(200, 155, 60, 0.2); }
         #painel_conteudo { display: none; max-width: 800px; margin: 0 auto; }
         h2 { color: #c89b3c; border-bottom: 2px solid #c89b3c; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
-        input { padding: 14px; border-radius: 5px; border: 1px solid #c89b3c; background: #000; color: #fff; width: 100%; box-sizing: border-box; margin-bottom: 15px; font-size: 16px; }
-        button.btn-entrar { background: #c89b3c; color: black; border: none; padding: 14px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        button.btn-entrar:hover { background: #f0c36d; }
+        input { padding: 14px; border-radius: 5px; border: 1px solid #c89b3c; background: #000; color: #fff; width: 100%; box-sizing: border-box; margin-bottom: 15px; font-size: 16px; outline: none; }
+        button.btn-entrar { background: #c89b3c; color: black; border: none; padding: 14px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; }
         
-        .pedido-card { background: #091428; border: 1px solid #c89b3c; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-direction: column; position: relative; }
-        .info b { color: #c89b3c; }
-        .pix-box { background: #000; padding: 8px; border-radius: 4px; color: #00ffcc; font-family: monospace; font-size: 1.1em; margin: 10px 0; border: 1px dashed #444; }
+        .pedido-card { background: #091428; border: 1px solid #c89b3c; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; flex-direction: column; }
+        .pix-box { background: #000; padding: 12px; border-radius: 4px; color: #00ffcc; font-family: monospace; font-size: 1.1em; margin: 10px 0; border: 1px dashed #444; word-break: break-all; }
         
-        .saldos-container { margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 5px; border-left: 4px solid #c89b3c; font-size: 14px; }
-        .alerta-hacker { border-left-color: #ff4444 !important; background: rgba(255, 0, 0, 0.1) !important; animation: blink 2s infinite; }
+        .saldos-container { margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 5px; border-left: 4px solid #c89b3c; font-size: 14px; line-height: 1.6; }
+        .alerta-hacker { border-left-color: #ff4444 !important; background: rgba(255, 0, 0, 0.15) !important; animation: blink 1.5s infinite; }
         
         .btn-pago { background: #28a745; color: white; border: none; padding: 15px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; width: 100%; font-size: 16px; }
         
-        @keyframes blink { 50% { border-left-color: transparent; } }
+        @keyframes blink { 50% { opacity: 0.6; } }
     </style>
 </head>
 <body>
@@ -48,10 +46,10 @@
 
     <div id="painel_conteudo">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>FILA DE RESGATES</h2>
+            <h2 style="margin:0;">PEDIDOS PIX</h2>
             <button onclick="location.reload()" style="background:#444; color:white; border:none; padding:8px 15px; cursor:pointer; border-radius:5px">Sair</button>
         </div>
-        <div id="lista_pedidos">Carregando notificações...</div>
+        <div id="lista_pedidos">Carregando solicitações...</div>
     </div>
 
     <script type="module">
@@ -72,60 +70,71 @@
         const db = getFirestore(app);
         const audio = document.getElementById("notifSound");
 
+        function enviarNotificacaoVisual() {
+            if (Notification.permission === "granted") {
+                const n = new Notification("💰 NOVO RESGATE!", {
+                    body: "Um usuário solicitou um novo PIX agora.",
+                    icon: "icone-admin.png",
+                    vibrate: [200, 100, 200]
+                });
+                n.onclick = () => { window.focus(); n.close(); };
+            }
+        }
+
         function iniciarPainel() {
             const q = query(collection(db, "resgates"), orderBy("timestamp", "desc"));
             
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('lista_pedidos');
                 
-                // Som de notificação para novos pedidos
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added" && !snapshot.metadata.fromCache) {
-                        audio.play().catch(e => console.log("Áudio aguardando interação"));
+                        audio.play().catch(() => {});
+                        enviarNotificacaoVisual();
                     }
                 });
 
                 container.innerHTML = "";
                 if (snapshot.empty) {
-                    container.innerHTML = "<p style='color:#888; text-align:center;'>Nenhuma solicitação no momento.</p>";
+                    container.innerHTML = "<p style='color:#888; text-align:center;'>Nenhum pedido pendente.</p>";
                     return;
                 }
 
                 snapshot.forEach((pedido) => {
                     const data = pedido.data();
                     const id = pedido.id;
-
-                    // Lógica de verificação de fraude (se saldo anterior era menor que o custo)
                     const suspeito = Number(data.goldAnterior) < Number(data.valorGold);
 
                     const card = document.createElement('div');
                     card.className = 'pedido-card';
                     card.innerHTML = `
                         <div class="info">
-                            <p><b>ID Usuário:</b> ${data.usuarioId}</p>
+                            <p><b>Usuário:</b> ${data.usuarioId}</p>
                             <p><b>Chave PIX:</b></p>
                             <div class="pix-box">${data.chavePix}</div>
-                            <p><b>Valor a Transferir:</b> <span style="color:#28a745; font-weight:bold; font-size:1.2em;">R$ ${data.valorReais}</span></p>
+                            <p><b>Valor:</b> <span style="color:#28a745; font-weight:bold; font-size:1.3em;">R$ ${data.valorReais}</span></p>
                             
                             <div class="saldos-container ${suspeito ? 'alerta-hacker' : ''}">
                                 <b>Relatório de Saldo:</b><br>
-                                • Saldo Anterior: ${Number(data.goldAnterior || 0).toLocaleString('pt-BR')} Gold<br>
-                                • Custo do Saque: -${Number(data.valorGold || 0).toLocaleString('pt-BR')} Gold<br>
-                                • Saldo Atual: ${Number(data.goldPosResgate || 0).toLocaleString('pt-BR')} Gold
-                                ${suspeito ? '<br><br><b style="color:#ff4444;">⚠️ ATENÇÃO: USUÁRIO SEM SALDO SUFICIENTE!</b>' : ''}
+                                • Anterior: ${Number(data.goldAnterior || 0).toLocaleString('pt-BR')} Gold<br>
+                                • Retirada: -${Number(data.valorGold || 0).toLocaleString('pt-BR')} Gold<br>
+                                • Atual: ${Number(data.goldPosResgate || 0).toLocaleString('pt-BR')} Gold
+                                ${suspeito ? '<br><br><b style="color:#ff4444;">⚠️ SALDO INSUFICIENTE DETECTADO!</b>' : ''}
                             </div>
                         </div>
                         <button class="btn-pago" onclick="confirmarPagamento('${id}')">MARCAR COMO PAGO</button>
                     `;
                     container.appendChild(card);
                 });
-            }, (error) => {
-                document.getElementById('lista_pedidos').innerHTML = "<p style='color:red'>Erro de permissão ou índice. Verifique o console.</p>";
             });
         }
 
         document.getElementById('btn_acessar').onclick = () => {
             if (document.getElementById('admin_pass').value === SENHA_MESTRA) {
+                // Solicita permissão de notificação ao entrar
+                if ("Notification" in window) {
+                    Notification.requestPermission();
+                }
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('painel_conteudo').style.display = 'block';
                 iniciarPainel();
@@ -135,12 +144,8 @@
         };
 
         window.confirmarPagamento = async (id) => {
-            if (confirm("Você confirma que já fez o PIX? O pedido será removido da lista.")) {
-                try {
-                    await deleteDoc(doc(db, "resgates", id));
-                } catch (e) {
-                    alert("Erro ao remover: " + e.message);
-                }
+            if (confirm("Confirmar pagamento e remover da lista?")) {
+                await deleteDoc(doc(db, "resgates", id));
             }
         };
     </script>
