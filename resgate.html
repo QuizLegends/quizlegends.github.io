@@ -8,7 +8,7 @@
         :root { 
             --bg-dark: #010a13; --lol-blue: #091428; --gold: #c89b3c; 
             --gold-dark: #785a28; --gold-bright: #f0e6d2; --text: #f0e6d2;
-            --ad-space: 90px; 
+            --ad-space: 80px; /* Ajustado para 80px conforme solicitado */
             --correct: #28a745; --wrong: #dc3545;
         }
         html, body { 
@@ -20,7 +20,9 @@
         .app-container { 
             flex: 1; display: flex; flex-direction: column; 
             padding: 10px 0; gap: 10px; width: 94%; max-width: 400px; 
-            box-sizing: border-box; margin-bottom: var(--ad-space); justify-content: center; 
+            box-sizing: border-box; 
+            margin-bottom: var(--ad-space); /* Garante que o conteúdo não fique sob o banner */
+            justify-content: center; 
         }
         
         .header-section { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; flex-shrink: 0; }
@@ -71,14 +73,15 @@
             color: var(--gold); font-size: 0.8rem; font-weight: bold; z-index: 1000;
         }
 
-        /* Estilo para o link de privacidade discreto */
+        /* Link de Privacidade discreto posicionado acima do banner */
         .disclaimer-link {
             text-align: center;
             font-size: 10px;
-            opacity: 0.4;
-            margin-top: 5px;
+            opacity: 0.5;
+            margin-top: 15px;
+            color: var(--text);
         }
-        .disclaimer-link a { color: var(--gold); text-decoration: none; }
+        .disclaimer-link a { color: var(--gold); text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -126,7 +129,6 @@
     <div class="footer-ad-space">ESPAÇO PARA ANÚNCIO</div>
 
     <script type="module">
-        // ... (O restante do seu script Firebase e lógica de jogo permanecem iguais)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         
