@@ -35,6 +35,10 @@
         }
         @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
+        .modal-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 12px; font-size: 1.1rem; }
+        .modal-text { font-size: 0.9rem; line-height: 1.4; color: var(--gold-bright); margin-bottom: 20px; }
+        .modal-footer { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        
         .modal-btn-confirm { 
             background: linear-gradient(to bottom, var(--gold), var(--gold-dark)); border: 1px solid var(--gold-bright);
             color: #000; padding: 12px 20px; font-weight: 900; text-transform: uppercase; cursor: pointer; width: 100%;
@@ -54,7 +58,6 @@
         .btn-correct { background-color: var(--correct) !important; border-color: #fff !important; }
         .btn-wrong { background-color: var(--wrong) !important; border-color: #fff !important; }
         
-        /* Botão de Vídeo Dinâmico */
         .video-btn { 
             background: #1e2328; border: 1px solid #333; color: #666; 
             padding: 12px; width: 100%; font-weight: bold; text-transform: uppercase; cursor: not-allowed; font-size: 0.75rem; margin-top: 8px; transition: 0.3s;
@@ -131,6 +134,10 @@
 
         function openModal(title, text, type = 'alert', onConfirm = null) {
             mTitle.innerText = title; mText.innerText = text; mFooter.innerHTML = '';
+            
+            // Forçamos o título a ser sempre dourado no modal
+            mTitle.style.color = "var(--gold)";
+
             if (type === 'confirm') {
                 const bC = document.createElement('button'); bC.className = 'modal-btn-confirm'; bC.innerText = 'CONFIRMAR E ENVIAR';
                 bC.onclick = () => { onConfirm(); };
@@ -183,7 +190,6 @@
                 btnV.disabled = true; btnV.classList.remove('active');
                 aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR VÍDEO`;
             } else {
-                // META ATINGIDA - MOSTRANDO APENAS O TEXTO DOURADO COM CONTADOR VERDE
                 btnV.disabled = false; btnV.classList.add('active');
                 aviso.innerHTML = `<span style="color:var(--gold)">META ATINGIDA!</span><br>ASSISTA <span style="color:#28a745">${3-videosAssistidos}</span> VÍDEOS PARA LIBERAR O QUIZ`;
             }
@@ -203,7 +209,9 @@
             try {
                 await addDoc(collection(db, "resgates"), { usuarioId: usuarioLogado, chavePix: chave, valorGold: metaAtual, valorReais: "R$ " + valorReaisMeta, status: "Pendente", data: new Date().toLocaleString('pt-BR'), timestamp: Date.now() });
                 await updateDoc(userRef, { saldo: increment(-metaAtual) });
+                
                 openModal("SOLICITAÇÃO FEITA COM SUCESSO", "O envio do Pix pode demorar até 2 horas, devido à alta demanda de solicitações!");
+                
                 document.getElementById('chavePix').value = "";
             } catch (e) { openModal("ERRO", "Falha ao processar."); }
         }
@@ -223,8 +231,7 @@
         function carregarQuestao() {
             const c = document.getElementById('opcoes'), t = document.getElementById('perguntaTexto');
             if (acertosNoCiclo >= 10) { 
-                t.innerText = ""; // Limpa o título da pergunta
-                c.innerHTML = ""; // Limpa as opções
+                t.innerText = ""; c.innerHTML = ""; 
                 return; 
             }
             const q = bancoPerguntas[Math.floor(Math.random()*bancoPerguntas.length)];
@@ -242,6 +249,7 @@
             });
         }
         
+        // Pull to refresh
         let sY = 0; window.addEventListener('touchstart', (e) => { if(window.scrollY === 0) sY = e.touches[0].pageY; }, {passive:true});
         window.addEventListener('touchmove', (e) => {
             const p = e.touches[0].pageY - sY;
