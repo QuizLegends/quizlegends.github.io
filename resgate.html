@@ -115,6 +115,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        
+        // IMPORTAÇÃO DO BANCO DE PERGUNTAS EXTERNO
+        import { bancoPerguntas } from './pergunta.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
@@ -134,14 +137,6 @@
         const userRef = doc(db, "usuarios", usuarioLogado);
         
         let goldDB, acertosNoCiclo, videosAssistidos, totalVideosHoje, jogoInicializado = false;
-
-        const perguntasBase = [
-            { q: "Quem é o cego de Ionia?", a: ["Jax", "Lee Sin", "Yi", "Yone"], correct: "Lee Sin" },
-            { q: "Região de Garen e Lux?", a: ["Noxus", "Ionia", "Demacia", "Piltover"], correct: "Demacia" },
-            { q: "Qual a irmã da Jinx?", a: ["Vi", "Lux", "Caitlyn", "Diana"], correct: "Vi" },
-            { q: "Qual campeão usa um poste?", a: ["Darius", "Jax", "Garen", "Sion"], correct: "Jax" },
-            { q: "Quem criou o Blitzcrank?", a: ["Viktor", "Jayce", "Ekko", "Singed"], correct: "Viktor" }
-        ];
 
         onSnapshot(userRef, async (docSnap) => {
             if (docSnap.exists()) {
@@ -227,7 +222,6 @@
             atualizarInterface();
         }
 
-        // --- FUNÇÃO DE RESGATE ATUALIZADA PARA O SEU PAINEL ADMIN ---
         document.getElementById('btnResgate').onclick = async () => {
             const chave = document.getElementById('chavePix').value;
             if (goldDB < metaAtual) { 
@@ -239,7 +233,6 @@
                 return; 
             }
 
-            // Captura os valores antes de subtrair
             const saldoAnterior = goldDB;
             const saldoResultante = goldDB - metaAtual;
 
@@ -249,39 +242,39 @@
                     chavePix: chave,
                     valorGold: metaAtual,
                     valorReais: "R$ " + valorReaisMeta,
-                    
-                    // Campos para evitar o NaN no seu painel
                     goldAnterior: saldoAnterior,
                     goldPosResgate: saldoResultante,
-                    
                     status: "Pendente",
                     data: new Date().toLocaleString('pt-BR'),
                     timestamp: Date.now()
                 });
 
                 await updateDoc(userRef, { saldo: increment(-metaAtual) });
-                alert("Solicitação de R$ " + valorReaisMeta + " enviada com sucesso!");
+                alert("Solicitação enviada!");
                 document.getElementById('chavePix').value = "";
             } catch (e) {
                 alert("Erro ao processar resgate.");
             }
         };
 
+        // --- LÓGICA DE CARREGAMENTO USANDO O ARQUIVO EXTERNO ---
         function carregarQuestao() {
             const container = document.getElementById('opcoes');
             const texto = document.getElementById('perguntaTexto');
 
             if (acertosNoCiclo >= 10) {
                 texto.innerText = "Meta de acertos atingida!";
-                container.innerHTML = "<p style='text-align:center; color:var(--gold);'>Assista aos anúncios abaixo para ganhar mais Gold e liberar novas questões.</p>";
+                container.innerHTML = "<p style='text-align:center; color:var(--gold);'>Assista aos anúncios abaixo para liberar novas questões.</p>";
                 return;
             }
 
-            const q = perguntasBase[Math.floor(Math.random() * perguntasBase.length)];
-            texto.innerText = q.q;
+            // Sorteia uma pergunta do banco carregado do arquivo pergunta.js
+            const q = bancoPerguntas[Math.floor(Math.random() * bancoPerguntas.length)];
+            
+            texto.innerText = q.pergunta;
             container.innerHTML = "";
 
-            q.a.forEach(opt => {
+            q.opcoes.forEach((opt, index) => {
                 const btn = document.createElement('button');
                 btn.className = "option-btn";
                 btn.innerText = opt;
@@ -289,13 +282,16 @@
                     const btns = container.querySelectorAll('button');
                     btns.forEach(b => b.disabled = true);
 
-                    if (opt === q.correct) {
+                    // Verifica se o índice clicado é o índice correto definido no objeto
+                    if (index === q.correta) {
                         btn.classList.add('btn-correct');
                         await updateDoc(userRef, { saldo: increment(10), acertos: increment(1) });
                     } else {
                         btn.classList.add('btn-wrong');
+                        // Mostra a correta para o usuário aprender
+                        btns[q.correta].classList.add('btn-correct');
                     }
-                    setTimeout(carregarQuestao, 800);
+                    setTimeout(carregarQuestao, 1200);
                 };
                 container.appendChild(btn);
             });
