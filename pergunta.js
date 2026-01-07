@@ -100,3 +100,4 @@ export const bancoPerguntas = [
     { pergunta: "Qual campeão é o príncipe de Demacia?", opcoes: ["Jarvan IV", "Garen", "Lux", "Galio"], correta: 0 },
     { pergunta: "Qual campeão é o artesão da guerra?", opcoes: ["Pantheon", "Aatrox", "Mordekaiser", "Sion"], correta: 0 },
     { pergunta: "Qual campeão é uma gárgula?", opcoes: ["Galio", "Malphite", "Maokai", "Ivern"], correta: 0 }
+];
