@@ -1,0 +1,22 @@
+{
+  "name": "Quiz Legends",
+  "short_name": "QuizLegends",
+  "description": "Desafie seus conhecimentos e ganhe recompensas!",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#010a13",
+  "theme_color": "#c89b3c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icone-jogo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icone-jogo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
