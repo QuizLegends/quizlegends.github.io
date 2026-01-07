@@ -116,7 +116,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         
-        // IMPORTAÇÃO DO BANCO DE PERGUNTAS EXTERNO
         import { bancoPerguntas } from './pergunta.js';
 
         const firebaseConfig = {
@@ -223,13 +222,13 @@
         }
 
         document.getElementById('btnResgate').onclick = async () => {
-            const chave = document.getElementById('chavePix').value;
+            const chave = document.getElementById('chavePix').value.trim();
             if (goldDB < metaAtual) { 
                 alert("Saldo insuficiente para esta meta!"); 
                 return; 
             }
             if (chave.length < 5) { 
-                alert("Chave PIX inválida!"); 
+                alert("Insira uma chave PIX válida!"); 
                 return; 
             }
 
@@ -250,14 +249,14 @@
                 });
 
                 await updateDoc(userRef, { saldo: increment(-metaAtual) });
-                alert("Solicitação enviada!");
+                alert("Solicitação de resgate enviada com sucesso!");
                 document.getElementById('chavePix').value = "";
             } catch (e) {
-                alert("Erro ao processar resgate.");
+                alert("Erro ao processar resgate. Tente novamente.");
             }
         };
 
-        // --- LÓGICA DE CARREGAMENTO USANDO O ARQUIVO EXTERNO ---
+        // --- LÓGICA ATUALIZADA COM EMBARALHADOR (SHUFFLE) ---
         function carregarQuestao() {
             const container = document.getElementById('opcoes');
             const texto = document.getElementById('perguntaTexto');
@@ -268,28 +267,39 @@
                 return;
             }
 
-            // Sorteia uma pergunta do banco carregado do arquivo pergunta.js
+            // Sorteia a pergunta
             const q = bancoPerguntas[Math.floor(Math.random() * bancoPerguntas.length)];
             
+            // CRIAÇÃO DO ARRAY EMBARALHADO
+            // Mapeamos as opções para objetos que guardam se são a correta
+            let opcoesEmbaralhadas = q.opcoes.map((opt, index) => {
+                return { texto: opt, correta: index === q.correta };
+            });
+
+            // Algoritmo de embaralhamento simples (Shuffle)
+            opcoesEmbaralhadas.sort(() => Math.random() - 0.5);
+
             texto.innerText = q.pergunta;
             container.innerHTML = "";
 
-            q.opcoes.forEach((opt, index) => {
+            opcoesEmbaralhadas.forEach((opcaoObj) => {
                 const btn = document.createElement('button');
                 btn.className = "option-btn";
-                btn.innerText = opt;
+                btn.innerText = opcaoObj.texto;
+                
                 btn.onclick = async () => {
                     const btns = container.querySelectorAll('button');
                     btns.forEach(b => b.disabled = true);
 
-                    // Verifica se o índice clicado é o índice correto definido no objeto
-                    if (index === q.correta) {
+                    if (opcaoObj.correta) {
                         btn.classList.add('btn-correct');
                         await updateDoc(userRef, { saldo: increment(10), acertos: increment(1) });
                     } else {
                         btn.classList.add('btn-wrong');
-                        // Mostra a correta para o usuário aprender
-                        btns[q.correta].classList.add('btn-correct');
+                        // Localiza e destaca a opção correta entre os botões embaralhados
+                        opcoesEmbaralhadas.forEach((obj, i) => {
+                            if(obj.correta) btns[i].classList.add('btn-correct');
+                        });
                     }
                     setTimeout(carregarQuestao, 1200);
                 };
