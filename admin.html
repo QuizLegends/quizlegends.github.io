@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Quiz Legends v2</title>
+    <title>Admin - Quiz Legends v3</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#010a13">
@@ -43,25 +43,14 @@
     <div id="painel_conteudo">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="margin:0;">PEDIDOS PIX</h2>
-            <button onclick="localStorage.clear(); location.reload();" style="background:#444; color:white; border:none; padding:8px 15px; cursor:pointer; border-radius:5px">Limpar & Sair</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:#444; color:white; border:none; padding:8px 15px; cursor:pointer; border-radius:5px">Reiniciar</button>
         </div>
         <div id="lista_pedidos">Sincronizando banco de dados...</div>
     </div>
 
     <script type="module">
-        // FORÇAR ATUALIZAÇÃO DO SERVICE WORKER ANTIGO
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for(let registration of registrations) { registration.unregister(); }
-            });
-            navigator.serviceWorker.register('sw.js?v=2').then(reg => {
-                console.log("Novo Service Worker v2 registrado!");
-                reg.update();
-            });
-        }
-
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, deleteDoc, query, orderBy, clearIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-messaging.js";
 
         const SENHA_MESTRA = "Belial10"; 
@@ -79,6 +68,15 @@
         const messaging = getMessaging(app);
         const audio = document.getElementById("notifSound");
 
+        // --- LIMPEZA DE CACHE DO FIREBASE (PARA DESTRAVAR GUIA NORMAL) ---
+        clearIndexedDbPersistence(db).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.log("Persistência já ativa em outra aba.");
+            } else if (err.code == 'unimplemented') {
+                console.log("O navegador não suporta persistência.");
+            }
+        });
+
         async function registrarPush() {
             try {
                 const permission = await Notification.requestPermission();
@@ -86,10 +84,10 @@
                     const token = await getToken(messaging, { 
                         vapidKey: "BLlYRA_DSLn_ACEEdqKEwACeDkrPfny85TnEFvCHDY9zktsOCPga-cAWjTeYS2UCReH43o9oUQFDjVoyxJhiKc0" 
                     });
-                    if (token) console.log("Token PWA ativo!");
+                    if (token) console.log("Token Ativo!");
                 }
             } catch (err) {
-                console.log("Erro no Push:", err);
+                console.log("Erro Push:", err);
             }
         }
 
@@ -137,8 +135,8 @@
                     container.appendChild(card);
                 });
             }, (error) => {
-                console.error("Erro Firestore:", error);
-                container.innerHTML = "<p style='color:red'>Erro de sincronização. Recarregue a página.</p>";
+                console.error("Erro Firebase:", error);
+                document.getElementById('lista_pedidos').innerHTML = "<p style='color:red'>Erro de conexão. Verifique se há bloqueadores de anúncios ativos.</p>";
             });
         }
 
