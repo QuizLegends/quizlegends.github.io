@@ -122,7 +122,7 @@
         </div>
         
         <div class="input-group">
-            <input type="password" id="pass" placeholder="SENHA (MÍN. 6 DÍGITOS + 1 LETRA)">
+            <input type="password" id="pass" placeholder="SENHA">
         </div>
 
         <div class="policy-group">
@@ -183,7 +183,6 @@
             }
 
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            // REGEX PARA PELO MENOS UMA LETRA
             const temLetra = /[a-zA-Z]/.test(senha);
 
             if (!usuario || !email || !policy) {
