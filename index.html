@@ -7,7 +7,7 @@
     
     <link rel="manifest" href="manifest-jogo.json">
     <meta name="theme-color" content="#c89b3c">
-    <link rel="apple-touch-icon" href="icone-192.png">
+    <link rel="apple-touch-icon" href="app-192.png">
 
     <style>
         :root {
@@ -152,14 +152,15 @@
             text-transform: uppercase;
         }
 
-        /* Estilo do link de instalação discreto */
+        /* Link de instalação discreto */
         #btnInstall {
-            display: none; /* Começa escondido */
+            display: none; 
             font-size: 10px;
             opacity: 0.6;
             margin-top: 15px;
             text-decoration: underline;
             cursor: pointer;
+            color: var(--ouro);
         }
     </style>
 </head>
@@ -211,23 +212,23 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- LÓGICA DO PWA E LINK DE INSTALAÇÃO ---
+        // --- LÓGICA DO PWA ---
         let deferredPrompt;
         const btnInstall = document.getElementById('btnInstall');
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                // Registramos com um parâmetro para forçar atualização se necessário
+                navigator.serviceWorker.register('sw.js?v=2')
                     .then(reg => console.log('PWA ativo'))
-                    .catch(err => console.log('Erro SW:', err));
+                    .catch(err => console.error('Erro SW:', err));
             });
         }
 
-        // Captura o evento de instalação
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            btnInstall.style.display = 'block'; // Só mostra o link se for instalável
+            btnInstall.style.display = 'block'; 
         });
 
         btnInstall.addEventListener('click', async () => {
@@ -245,8 +246,8 @@
             btnInstall.style.display = 'none';
             deferredPrompt = null;
         });
-        // --- FIM DA LÓGICA PWA ---
 
+        // --- LÓGICA DE LOGIN ---
         document.getElementById('btnLogin').onclick = async () => {
             const usuarioInput = document.getElementById('user').value.trim();
             const senhaInput = document.getElementById('pass').value;
