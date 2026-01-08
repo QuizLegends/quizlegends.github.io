@@ -9,6 +9,7 @@
             --ouro: #c89b3c;
             --ouro-brilhante: #f0e6d2;
             --fundo-profundo: #010a13;
+            --card-azul: #091428;
         }
 
         body { 
@@ -42,6 +43,7 @@
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 30px rgba(200, 155, 60, 0.1);
             text-align: center;
             box-sizing: border-box;
+            z-index: 1;
         }
 
         .login-title { 
@@ -141,9 +143,72 @@
             margin-top: 25px;
             font-size: 13px;
         }
+
+        /* --- ESTILO DO NOVO MODAL CUSTOMIZADO --- */
+        #modal-sucesso {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card-azul);
+            border: 2px solid var(--ouro);
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 300px;
+            width: 85%;
+            box-shadow: 0 0 30px rgba(200, 155, 60, 0.4);
+            animation: surgindo 0.3s ease-out;
+        }
+
+        .modal-content h3 {
+            color: var(--ouro);
+            margin: 0 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 20px;
+        }
+
+        .modal-content p {
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .btn-modal {
+            background: var(--ouro);
+            color: #010a13;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        @keyframes surgindo {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
+
+    <div id="modal-sucesso">
+        <div class="modal-content">
+            <h3 id="modal-titulo">Lendário!</h3>
+            <p id="modal-msg">Sua conta foi criada com sucesso.</p>
+            <button class="btn-modal" id="btnFecharModal">INICIAR JORNADA</button>
+        </div>
+    </div>
 
     <div class="login-box">
         <label class="login-title">Nova Conta</label>
@@ -188,7 +253,18 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // FUNÇÃO PARA VALIDAR SENHA FRACA
+        // Função para mostrar o Modal
+        function mostrarSucesso(titulo, mensagem) {
+            document.getElementById('modal-titulo').innerText = titulo;
+            document.getElementById('modal-msg').innerText = mensagem;
+            document.getElementById('modal-sucesso').style.display = 'flex';
+        }
+
+        // Evento para fechar modal e redirecionar
+        document.getElementById('btnFecharModal').onclick = () => {
+            window.location.href = "index.html";
+        };
+
         function senhaEhFraca(s) {
             const sequencias = ["123456", "654321", "111111", "222222", "333333", "444444", "555555", "000000", "123123", "abcabc"];
             return sequencias.includes(s);
@@ -201,22 +277,18 @@
             const msg = document.getElementById('msg');
             const btn = document.getElementById('btnCadastrar');
 
-            // LIMPAR MENSAGEM ANTERIOR
             msg.innerText = "";
 
-            // VALIDAÇÕES BÁSICAS
             if (!usuario || !senha) {
                 msg.innerText = "Preencha todos os campos!";
                 return;
             }
 
-            // VALIDAÇÃO DE TAMANHO DA SENHA (MÍNIMO 6 DÍGITOS)
             if (senha.length < 6) {
                 msg.innerText = "A SENHA DEVE TER NO MÍNIMO 6 DÍGITOS!";
                 return;
             }
 
-            // VALIDAÇÃO DE SENHA SEQUENCIAL
             if (senhaEhFraca(senha)) {
                 msg.innerText = "SENHA MUITO FRACA! NÃO USE SEQUÊNCIAS.";
                 return;
@@ -255,8 +327,8 @@
                         dataCadastro: new Date().toLocaleString('pt-BR')
                     });
 
-                    alert("Sua jornada lendária começou! Conta criada.");
-                    window.location.href = "index.html";
+                    // CHAMA O MODAL EM VEZ DO ALERT
+                    mostrarSucesso("CONTA CRIADA", "Sua jornada lendária começou! Clique abaixo para entrar no jogo.");
                 }
             } catch (e) {
                 msg.innerText = "Erro ao cadastrar. Tente novamente.";
