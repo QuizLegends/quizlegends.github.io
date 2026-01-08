@@ -201,6 +201,8 @@
         
         <button id="btnLogin">Entrar no Reino</button>
         
+        <a href="recuperar.html" style="color: var(--ouro); text-decoration: none; font-size: 11px; display: block; margin-top: 15px; font-weight: bold; opacity: 0.8;">ESQUECI MINHA SENHA</a>
+        
         <div id="msg"></div>
 
         <div class="footer-links">
@@ -271,7 +273,6 @@
 
         // --- LÓGICA DE LOGIN ---
         document.getElementById('btnLogin').onclick = async () => {
-            // MUDANÇA AQUI: Removido o .toLowerCase() para respeitar Maiúsculas
             const usuarioInput = document.getElementById('user').value.trim();
             const senhaInput = document.getElementById('pass').value;
             const msg = document.getElementById('msg');
