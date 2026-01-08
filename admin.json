@@ -1,0 +1,16 @@
+{
+  "name": "Painel Admin",
+  "short_name": "Admin",
+  "start_url": "admin.html",
+  "display": "standalone",
+  "background_color": "#010a13",
+  "theme_color": "#010a13",
+  "icons": [
+    {
+      "src": "admin.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
