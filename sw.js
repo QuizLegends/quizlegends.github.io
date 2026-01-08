@@ -16,23 +16,26 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
         body: payload.notification.body,
-        icon: 'icone-192.png' // Alterado para o ícone padrão do jogo
+        icon: 'admin.png' // Usando o ícone do admin que você renomeou
     };
     self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// 3. LÓGICA PWA - CACHE ESSENCIAL
-const CACHE_NAME = 'quiz-legends-v1';
+// 3. LÓGICA PWA - CACHE ESSENCIAL (NOMES ATUALIZADOS)
+const CACHE_NAME = 'quiz-legends-v2'; // Mudamos para v2 para forçar o navegador a limpar o lixo antigo
 const ASSETS_TO_CACHE = [
+    './',
     'index.html',
     'manifest-jogo.json',
-    'icone-192.png',
-    'icone-512.png'
+    'app-192.png',
+    'app-512.png',
+    'admin.png'
 ];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
+            // Tentamos adicionar um por um para evitar que um erro em um ícone trave tudo
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
@@ -49,7 +52,7 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Evento Fetch (Obrigatório para o botão de instalar aparecer)
+// Evento Fetch (Crucial para o link de instalação aparecer)
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         fetch(event.request).catch(() => {
