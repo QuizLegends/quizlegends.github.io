@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>        
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Quiz Legends</title>
@@ -118,6 +117,8 @@
             letter-spacing: 2px;
         }
 
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+
         .botoes-auxiliares {
             display: flex;
             justify-content: space-between;
@@ -209,7 +210,7 @@
         <label class="login-title">Acesso ao Reino</label>
         
         <div class="input-group">
-            <input type="email" id="user" placeholder="E-MAIL" autocomplete="off">
+            <input type="email" id="user" placeholder="E-MAIL" autocomplete="on">
         </div>
         
         <div class="input-group">
@@ -219,7 +220,7 @@
         <button id="btnLogin">Entrar no Reino</button>
         
         <div class="botoes-auxiliares">
-            <a href="recuperar.html">RECUPERAR SENHA</a>
+            <a href="recuperar.html">ESQUECI MINHA SENHA</a>
             <a href="cadastro.html">CRIAR CONTA</a>
         </div>
         
@@ -231,7 +232,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
@@ -245,7 +246,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // FUNÇÃO EXIBIR MODAL (MANTIDA IGUAL A SUA)
+        // FUNÇÃO EXIBIR MODAL
         function exibirModal(titulo, mensagem, corTitulo) {
             const modal = document.getElementById('modal-alerta');
             const tituloH3 = document.getElementById('modal-titulo');
@@ -275,16 +276,16 @@
             btn.innerText = "AUTENTICANDO...";
 
             try {
-                // Tenta logar usando o serviço de autenticação oficial
                 await signInWithEmailAndPassword(auth, emailInput, senhaInput);
-                // Se der certo, o Firebase cria a sessão e redirecionamos
                 window.location.href = "resgate.html";
             } catch (error) {
                 console.error(error);
                 let mensagemErro = "E-mail ou senha incorretos.";
                 
                 if (error.code === 'auth/invalid-email') mensagemErro = "Formato de e-mail inválido.";
-                if (error.code === 'auth/user-not-found') mensagemErro = "Invocador não encontrado.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    mensagemErro = "Credenciais inválidas. Tente novamente.";
+                }
                 
                 exibirModal("ACESSO NEGADO", mensagemErro, "var(--erro)");
                 btn.disabled = false;
@@ -292,7 +293,7 @@
             }
         };
 
-        // --- MANTENDO LÓGICA DO SEU PWA ---
+        // --- PWA E SERVICE WORKER ---
         let deferredPrompt;
         const btnInstall = document.getElementById('btnInstall');
 
