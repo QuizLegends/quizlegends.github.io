@@ -336,4 +336,34 @@
                     const all = c.querySelectorAll('button'); all.forEach(x => x.disabled = true);
                     if (o.correta) { 
                         b.classList.add('btn-correct'); 
-                        await updateDoc(userRef, { sald
+                        await updateDoc(userRef, { saldo: increment(10), acertos: increment(1) }); 
+                    }
+                    else { 
+                        b.classList.add('btn-wrong'); 
+                        all.forEach(btnInner => {
+                            const corretaOriginal = opts.find(opt => opt.texto === btnInner.innerText && opt.correta);
+                            if(corretaOriginal) btnInner.classList.add('btn-correct');
+                        }); 
+                    }
+                    setTimeout(carregarQuestao, 1200);
+                };
+                c.appendChild(b);
+            });
+        }
+        
+        let sY = 0; window.addEventListener('touchstart', (e) => { if(window.scrollY === 0) sY = e.touches[0].pageY; }, {passive:true});
+        window.addEventListener('touchmove', (e) => {
+            const p = e.touches[0].pageY - sY;
+            if(window.scrollY === 0 && p > 0) {
+                const m = Math.min(p*0.5, 80);
+                document.getElementById('pull-to-refresh').style.transform = `translateY(${m}px)`;
+                document.getElementById('main-content').style.transform = `translateY(${m}px)`;
+            }
+        }, {passive:true});
+        window.addEventListener('touchend', () => {
+            if (new WebKitCSSMatrix(window.getComputedStyle(document.getElementById('pull-to-refresh')).transform).m42 >= 60) location.reload();
+            else { document.getElementById('pull-to-refresh').style.transform = 'translateY(0)'; document.getElementById('main-content').style.transform = 'translateY(0)'; }
+        });
+    </script>
+</body>
+</html>
