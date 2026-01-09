@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <meta name="clckd" content="72eed521da4bcfb12e1d9d0089d4c492" />
+    
     <meta name="monetag" content="1c60255a133066275a558c891b1f4a9b">
     
     <meta charset="UTF-8">
@@ -252,7 +254,6 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Adicionamos a Monetag ao sw.js aqui internamente se necessário
                 navigator.serviceWorker.register('sw.js?v=2')
                     .then(reg => console.log('PWA ativo'))
                     .catch(err => console.error('Erro SW:', err));
