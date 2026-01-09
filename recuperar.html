@@ -54,7 +54,7 @@
         <div class="modal-content">
             <h3 id="modal-titulo">AVISO</h3>
             <p id="modal-msg"></p>
-            <button onclick="document.getElementById('modal-alerta').style.display='none'" style="padding:10px; width:100%; background:var(--ouro); border:none; font-weight:bold;">ENTENDIDO</button>
+            <button id="btnAcaoModal" style="padding:10px; width:100%; background:var(--ouro); border:none; font-weight:bold; cursor:pointer;">ENTENDIDO</button>
         </div>
     </div>
 
@@ -62,26 +62,25 @@
         <label class="login-title">Recuperar Acesso</label>
         
         <div id="step1">
-            <p style="font-size: 13px; color: #ccc; margin-bottom: 20px;">Digite o e-mail cadastrado na sua conta.</p>
+            <p style="font-size: 13px; color: #ccc; margin-bottom: 20px;">Digite o e-mail cadastrado para receber o link de redefinição.</p>
             <input type="email" id="emailBusca" placeholder="SEU E-MAIL">
-            <button id="btnVerificar">Verificar E-mail</button>
+            <button id="btnVerificar">Enviar Link</button>
         </div>
 
         <div id="step2" class="step-2">
-            <p style="font-size: 13px; color: #ccc;">Conta encontrada!</p>
-            <p id="usuarioEncontrado" style="color: var(--ouro); font-weight: bold; font-size: 18px; margin-bottom: 20px;"></p>
-            
-            <input type="password" id="novaSenha" placeholder="NOVA SENHA">
-            <button id="btnRedefinir">Alterar Senha</button>
+            <p style="font-size: 13px; color: #ccc;">Pergaminho enviado!</p>
+            <p id="usuarioEncontrado" style="color: var(--ouro); font-weight: bold; font-size: 16px; margin-bottom: 20px;"></p>
+            <p style="font-size: 12px; color: #fff;">Verifique sua caixa de entrada e spam.</p>
+            <button onclick="window.location.href='index.html'">Voltar ao Login</button>
         </div>
         
         <div id="msg"></div>
-        <a href="index.html" style="color: var(--ouro); text-decoration: none; font-size: 12px; display: block; margin-top: 25px; font-weight: bold;">VOLTAR AO LOGIN</a>
+        <a href="index.html" style="color: var(--ouro); text-decoration: none; font-size: 12px; display: block; margin-top: 25px; font-weight: bold;">CANCELAR</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, doc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
@@ -93,73 +92,49 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        let usuarioDocumentoId = ""; // Guardará o nome do usuário encontrado
+        const auth = getAuth(app);
 
         function alerta(titulo, texto, cor) {
+            const modal = document.getElementById('modal-alerta');
             document.getElementById('modal-titulo').innerText = titulo;
             document.getElementById('modal-titulo').style.color = cor;
             document.getElementById('modal-msg').innerText = texto;
-            document.getElementById('modal-alerta').style.display = 'flex';
+            modal.style.display = 'flex';
+            document.getElementById('btnAcaoModal').onclick = () => modal.style.display = 'none';
         }
 
-        // --- VERIFICAR E-MAIL ---
+        // --- ENVIAR E-MAIL DE RECUPERAÇÃO ---
         document.getElementById('btnVerificar').onclick = async () => {
             const email = document.getElementById('emailBusca').value.trim();
             const btn = document.getElementById('btnVerificar');
             const msg = document.getElementById('msg');
 
-            if(!email) { msg.innerText = "Digite o e-mail!"; return; }
+            if(!email) { msg.innerText = "DIGITE O SEU E-MAIL!"; return; }
             
-            btn.disabled = true; btn.innerText = "BUSCANDO...";
+            btn.disabled = true; 
+            btn.innerText = "ENVIANDO...";
             msg.innerText = "";
 
             try {
-                const q = query(collection(db, "usuarios"), where("email", "==", email));
-                const querySnapshot = await getDocs(q);
+                // O Firebase envia um link seguro para o e-mail do usuário
+                await sendPasswordResetEmail(auth, email);
 
-                if (querySnapshot.empty) {
-                    alerta("ERRO", "Nenhuma conta encontrada com este e-mail.", "#ff4e50");
-                    btn.disabled = false; btn.innerText = "Verificar E-mail";
-                } else {
-                    // Encontrou!
-                    querySnapshot.forEach((doc) => {
-                        usuarioDocumentoId = doc.id; // O ID é o nome do usuário
-                    });
-
-                    document.getElementById('step1').style.display = 'none';
-                    document.getElementById('step2').style.display = 'block';
-                    document.getElementById('usuarioEncontrado').innerText = "Usuário: " + usuarioDocumentoId;
-                }
-            } catch (e) {
-                alerta("FALHA", "Erro ao conectar ao servidor.", "#ff4e50");
-                btn.disabled = false; btn.innerText = "Verificar E-mail";
-            }
-        };
-
-        // --- REDEFINIR SENHA ---
-        document.getElementById('btnRedefinir').onclick = async () => {
-            const novaSenha = document.getElementById('novaSenha').value;
-            const btn = document.getElementById('btnRedefinir');
-
-            if(novaSenha.length < 6) { 
-                document.getElementById('msg').innerText = "A senha deve ter 6+ dígitos!"; 
-                return; 
-            }
-
-            btn.disabled = true; btn.innerText = "SALVANDO...";
-
-            try {
-                const userRef = doc(db, "usuarios", usuarioDocumentoId);
-                await updateDoc(userRef, { senha: novaSenha });
-
-                alerta("SUCESSO", "Sua senha foi atualizada com sucesso!", "#c89b3c");
+                // Se o e-mail existir, avançamos para o Step 2 (Design preservado)
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+                document.getElementById('usuarioEncontrado').innerText = email;
                 
-                setTimeout(() => { window.location.href = "index.html"; }, 2500);
             } catch (e) {
-                alerta("ERRO", "Não foi possível mudar a senha.", "#ff4e50");
-                btn.disabled = false; btn.innerText = "Alterar Senha";
+                btn.disabled = false; 
+                btn.innerText = "Enviar Link";
+                
+                if (e.code === 'auth/user-not-found') {
+                    alerta("ERRO", "Nenhum invocador encontrado com este e-mail.", "#ff4e50");
+                } else if (e.code === 'auth/invalid-email') {
+                    msg.innerText = "FORMATO DE E-MAIL INVÁLIDO!";
+                } else {
+                    alerta("FALHA", "Erro ao conectar ao servidor.", "#ff4e50");
+                }
             }
         };
     </script>
