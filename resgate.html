@@ -20,7 +20,6 @@
             overscroll-behavior-y: contain;
         }
 
-        /* --- ESTILOS DO MODAL --- */
         #custom-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9); z-index: 3000; align-items: center; justify-content: center;
@@ -52,7 +51,6 @@
             clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
         }
 
-        /* --- DESIGN GERAL --- */
         .header-section { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; width: 100%; box-sizing: border-box;}
         .title-legends h1 { font-size: 1.6rem; margin: 0; color: var(--gold); text-transform: uppercase; background: linear-gradient(to bottom, var(--gold-bright), var(--gold), var(--gold-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
@@ -86,7 +84,6 @@
         #pull-to-refresh { position: fixed; top: -60px; left: 0; width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; z-index: 2000; transition: transform 0.2s ease; }
         .refresh-badge { border: 2px solid var(--gold); padding: 8px 20px; background: rgba(9, 20, 40, 0.95); color: var(--gold); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%); }
         .app-container { flex: 1; display: flex; flex-direction: column; padding: 15px 0; gap: 10px; width: 94%; max-width: 400px; box-sizing: border-box; margin-bottom: var(--ad-space); justify-content: center; transition: transform 0.2s ease; }
-
     </style>
 </head>
 <body>
@@ -190,7 +187,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- REFERÊNCIAS DE UI ---
         const modal = document.getElementById('custom-modal');
         const mTitle = document.getElementById('m-title');
         const mContent = document.getElementById('modal-body-content');
@@ -211,7 +207,6 @@
             modal.style.display = 'flex';
         }
 
-        // --- SISTEMA DE ELOS (ATUALIZADO PARA XP NO BANCO E PDL NA TELA) ---
         const configElo = [];
         const divisoes = ["V", "IV", "III", "II", "I"];
         const coresElos = {
@@ -235,15 +230,12 @@
             });
         }
 
-        // Aplicação da nova escala sugerida
         gerarEloComDivisoes("FERRO", 0, 2500);
         gerarEloComDivisoes("PRATA", 2500, 5000);
         gerarEloComDivisoes("OURO", 5000, 15000);
         gerarEloComDivisoes("PLATINA", 15000, 25000);
         gerarEloComDivisoes("ESMERALDA", 25000, 40000);
         gerarEloComDivisoes("DIAMANTE", 40000, 60000);
-
-        // Elos de Topo
         configElo.push({ nome: "MESTRE", min: 60000, max: 80000, bg: "#5a1f7a", color: "#dfb3f7", bar: "#9b59b6" });
         configElo.push({ nome: "GRÃO-MESTRE", min: 80000, max: 100000, bg: "#7a1f1f", color: "#f7b3b3", bar: "#e74c3c" });
         configElo.push({ nome: "DESAFIANTE", min: 100000, max: 9999999, bg: "#1a4a5a", color: "#b3e7f7", bar: "#3498db" });
@@ -252,19 +244,16 @@
             return configElo.find(e => valorXP >= e.min && valorXP < e.max) || configElo[configElo.length - 1]; 
         }
 
-        // MODAL DE LISTA DE ELOS
         document.getElementById('btnVerElos').onclick = () => {
             mTitle.innerText = "SISTEMA DE LIGA";
             let html = `<div style="text-align:left; margin-bottom:15px; font-size:0.7rem; color:var(--gold-bright); border-bottom:1px solid var(--gold-dark); padding-bottom:10px;">
                 ✅ ACERTO: <span style="color:#28a745">+10 PDL</span> / ❌ ERRO: <span style="color:#dc3545">-2 PDL</span>
             </div>`;
-            
             const marcosVisuais = [
                 {n: "FERRO V", p: "0"}, {n: "PRATA V", p: "2.500"}, {n: "OURO V", p: "5.000"},
                 {n: "PLATINA V", p: "15.000"}, {n: "ESMERALDA V", p: "25.000"}, {n: "DIAMANTE V", p: "40.000"},
                 {n: "MESTRE", p: "60.000"}, {n: "GRÃO-MESTRE", p: "80.000"}, {n: "DESAFIANTE", p: "100.000"}
             ];
-
             marcosVisuais.forEach(item => {
                 const eloRef = configElo.find(x => x.nome === item.n) || configElo.find(x => x.nome === item.n.split(' ')[0]);
                 html += `
@@ -273,65 +262,59 @@
                     <span>${item.p} PDL</span>
                 </div>`;
             });
-
             mContent.innerHTML = html;
             mFooter.innerHTML = `<button class="modal-btn-confirm" onclick="document.getElementById('custom-modal').style.display='none'">FECHAR</button>`;
             modal.style.display = 'flex';
         };
 
-        // --- VARIÁVEIS DE ESTADO ---
         let metaAtual = 195000, valorReaisMeta = "0,50";
         let goldDB, acertosNoCiclo, videosAssistidos, totalVideosHoje, jogoInicializado = false;
-        let pdlInterno = 0; // Isso lerá o 'xp' do Firebase
+        let pdlInterno = 0; 
         let userRef = null, nomeUsuario = "Usuário";
+        let carregadoPelaPrimeiraVez = false;
 
-        // --- CONEXÃO FIREBASE ---
         onAuthStateChanged(auth, (user) => {
             if (user) { 
                 userRef = doc(db, "usuarios", user.uid); 
-                inicializarSistema(); 
+                onSnapshot(userRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        processarDadosUsuario(data);
+                        if (!carregadoPelaPrimeiraVez) {
+                            carregadoPelaPrimeiraVez = true;
+                            carregarQuestao(); 
+                        }
+                    }
+                });
             } else { 
                 window.location.href = "index.html"; 
             }
         });
 
-        function inicializarSistema() {
-            onSnapshot(userRef, async (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    const hoje = new Date().toLocaleDateString('pt-BR');
-
-                    // Reset diário
-                    if (data.ultimaDataAcesso !== hoje) { 
-                        await updateDoc(userRef, { totalVideosHoje: 0, videosAssistidos: 0, acertos: 0, ultimaDataAcesso: hoje }); 
-                        return; 
-                    }
-
-                    const acAnterior = acertosNoCiclo;
-                    goldDB = data.saldo || 0;
-                    acertosNoCiclo = data.acertos || 0;
-                    videosAssistidos = data.videosAssistidos || 0;
-                    totalVideosHoje = data.totalVideosHoje || 0;
-                    nomeUsuario = data.nome || "Usuário";
-                    pdlInterno = data.xp || 0; // MAPEAMENTO XP -> PDL
-                    
-                    atualizarInterface();
-
-                    // Lógica para recarregar pergunta após ciclo de anúncios
-                    if (jogoInicializado && acertosNoCiclo === 0 && acAnterior >= 10) carregarQuestao();
-                    if (!jogoInicializado) { jogoInicializado = true; carregarQuestao(); }
-                }
-            });
+        async function processarDadosUsuario(data) {
+            const hoje = new Date().toLocaleDateString('pt-BR');
+            if (data.ultimaDataAcesso !== hoje) { 
+                await updateDoc(userRef, { totalVideosHoje: 0, videosAssistidos: 0, acertos: 0, ultimaDataAcesso: hoje }); 
+                return; 
+            }
+            const acAnterior = acertosNoCiclo;
+            goldDB = data.saldo || 0;
+            acertosNoCiclo = data.acertos || 0;
+            videosAssistidos = data.videosAssistidos || 0;
+            totalVideosHoje = data.totalVideosHoje || 0;
+            nomeUsuario = data.nome || "Usuário";
+            pdlInterno = data.xp || 0; 
+            atualizarInterface();
+            if (jogoInicializado && acertosNoCiclo === 0 && acAnterior >= 10) carregarQuestao();
+            jogoInicializado = true;
         }
 
         function atualizarInterface() {
-            // Moedas e Barra de Resgate
             document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
             document.getElementById('limitDiario').innerText = `${totalVideosHoje}/35`;
             document.getElementById('progressBar').style.width = Math.min((goldDB/metaAtual)*100, 100) + "%";
             document.getElementById('txtPorcentagem').innerText = Math.floor(Math.min((goldDB/metaAtual)*100, 100)) + "%";
             
-            // Elo e PDL
             const info = getEloInfo(pdlInterno);
             const eloBadge = document.getElementById('txtElo');
             eloBadge.innerText = info.nome;
@@ -340,14 +323,12 @@
             eloBadge.style.borderColor = info.bar;
 
             const percXP = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
-            const xpFill = document.getElementById('xpMiniFill');
-            xpFill.style.width = Math.min(percXP, 100) + "%";
-            xpFill.style.backgroundColor = info.bar;
+            document.getElementById('xpMiniFill').style.width = Math.min(percXP, 100) + "%";
+            document.getElementById('xpMiniFill').style.backgroundColor = info.bar;
 
             let metaTexto = metaAtual >= 1000000 ? (metaAtual/1000000).toFixed(1) + "M" : (metaAtual/1000).toFixed(0) + "k";
             document.getElementById('txtMeta').innerText = `Meta: ${metaTexto}`;
             
-            // Botões de Vídeo
             const btnV = document.getElementById('btnVideo');
             const btnVXP = document.getElementById('btnVideoXP');
             const aviso = document.getElementById('avisoStatusQuiz');
@@ -365,7 +346,6 @@
             }
         }
 
-        // --- LÓGICA DE RESGATE ---
         window.setResgate = (el, v, r) => { 
             metaAtual = v; valorReaisMeta = r; 
             document.querySelectorAll('.resgate-opt').forEach(o => o.classList.remove('active')); 
@@ -401,7 +381,6 @@
             } catch (e) { openModal("ERRO", "Falha ao processar resgate."); }
         }
 
-        // --- LÓGICA DE VÍDEOS RECOMPENSADOS ---
         const linkAnuncioAdsterra = "https://www.effectivegatecpm.com/jt82yz19rk?key=427afd02462871777b7bf2742e74b44f";
 
         document.getElementById('btnVideo').onclick = () => processarVideo(true);
@@ -410,10 +389,8 @@
         async function processarVideo(isMoeda) {
             const btn = isMoeda ? document.getElementById('btnVideo') : document.getElementById('btnVideoXP');
             if(btn.disabled || !btn.classList.contains('active')) return;
-            
             window.open(linkAnuncioAdsterra, '_blank');
             btn.disabled = true; btn.classList.remove('active');
-            
             let tempo = 10; 
             const intervalo = setInterval(async () => {
                 btn.innerText = `PROCESSANDO... ${tempo}s`;
@@ -442,10 +419,8 @@
             openModal("RECOMPENSA", "Você recebeu 300 PDL!");
         }
 
-        // --- LÓGICA DO QUIZ ---
         function carregarQuestao() {
             const c = document.getElementById('opcoes'), t = document.getElementById('perguntaTexto');
-            
             if (totalVideosHoje >= 35 && acertosNoCiclo >= 10) {
                 t.innerText = "LIMITE DIÁRIO ATINGIDO, VOLTE AMANHÃ!";
                 t.style.color = "var(--gold)"; c.innerHTML = ""; return;
@@ -453,14 +428,11 @@
             if (acertosNoCiclo >= 10) { 
                 t.innerText = "META DE ACERTOS ATINGIDA!"; t.style.color = "var(--gold)"; c.innerHTML = ""; return; 
             }
-
             t.style.color = "var(--gold-bright)";
             const q = bancoPerguntas[Math.floor(Math.random()*bancoPerguntas.length)];
             let opts = q.opcoes.map((o, i) => { return { texto: o, correta: i === q.correta }; }).sort(() => Math.random() - 0.5);
-            
             t.innerText = q.pergunta; 
             c.innerHTML = "";
-            
             opts.forEach((o) => {
                 const b = document.createElement('button'); 
                 b.className = "option-btn"; 
@@ -468,7 +440,6 @@
                 b.onclick = async () => {
                     const all = c.querySelectorAll('button'); 
                     all.forEach(x => x.disabled = true);
-                    
                     if (o.correta) { 
                         b.classList.add('btn-correct'); 
                         await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10) }); 
@@ -485,7 +456,6 @@
             });
         }
         
-        // --- PULL TO REFRESH LOGIC ---
         let sY = 0; 
         window.addEventListener('touchstart', (e) => { if(window.scrollY === 0) sY = e.touches[0].pageY; }, {passive:true});
         window.addEventListener('touchmove', (e) => {
