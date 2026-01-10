@@ -117,13 +117,13 @@
         <div class="hex-frame">
             <div class="progress-bg" style="background: #000; height: 10px; border: 1px solid var(--gold-dark);"><div id="progressBar" style="background: var(--gold); height: 100%; width: 0%;"></div></div>
             <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--gold); margin: 5px 0; font-weight: bold;">
-                <span id="txtMeta">Meta: 15.8k</span>
+                <span id="txtMeta">Meta: 195k</span>
                 <span id="txtPorcentagem">0%</span>
             </div>
             <div class="resgate-selector">
-                <div class="resgate-opt active" onclick="setResgate(this, 15800, '0,50')">R$ 0,50</div>
-                <div class="resgate-opt" onclick="setResgate(this, 31500, '1,00')">R$ 1,00</div>
-                <div class="resgate-opt" onclick="setResgate(this, 150000, '5,00')">R$ 5,00</div>
+                <div class="resgate-opt active" onclick="setResgate(this, 195000, '0,50')">R$ 0,50</div>
+                <div class="resgate-opt" onclick="setResgate(this, 390000, '1,00')">R$ 1,00</div>
+                <div class="resgate-opt" onclick="setResgate(this, 1950000, '5,00')">R$ 5,00</div>
             </div>
             <input type="text" id="chavePix" placeholder="SUA CHAVE PIX">
             <button class="option-btn" id="btnResgate" style="margin: 0; background: #091428; border-color: var(--gold); padding: 15px;">SOLICITAR RESGATE PIX</button>
@@ -184,7 +184,8 @@
             modal.style.display = 'flex';
         }
 
-        let metaAtual = 15800, valorReaisMeta = "0,50";
+        // VARIÁVEL DE INICIALIZAÇÃO DA META ATUALIZADA
+        let metaAtual = 195000, valorReaisMeta = "0,50";
         let goldDB, acertosNoCiclo, videosAssistidos, totalVideosHoje, jogoInicializado = false;
         let userRef = null;
         let nomeUsuario = "Usuário";
@@ -229,7 +230,10 @@
             document.getElementById('limitDiario').innerText = `${totalVideosHoje}/35`;
             document.getElementById('progressBar').style.width = Math.min((goldDB/metaAtual)*100, 100) + "%";
             document.getElementById('txtPorcentagem').innerText = Math.floor(Math.min((goldDB/metaAtual)*100, 100)) + "%";
-            document.getElementById('txtMeta').innerText = `Meta: ${(metaAtual/1000).toFixed(1)}k`;
+            
+            // Lógica para exibir K ou M na meta para não quebrar o layout
+            let metaTexto = metaAtual >= 1000000 ? (metaAtual/1000000).toFixed(2) + "M" : (metaAtual/1000).toFixed(0) + "k";
+            document.getElementById('txtMeta').innerText = `Meta: ${metaTexto}`;
             
             const btnV = document.getElementById('btnVideo'), aviso = document.getElementById('avisoStatusQuiz');
             
@@ -243,7 +247,6 @@
                 btnV.disabled = false; btnV.classList.add('active');
                 aviso.innerHTML = `ASSISTA <span style="color:#28a745">${3-videosAssistidos}</span> ANÚNCIOS PARA LIBERAR O QUIZ`;
             } else {
-                // Caso em que já assistiu os 3, mas o snapshot ainda não resetou os acertos
                 btnV.disabled = true; btnV.classList.remove('active');
                 aviso.innerText = "CARREGANDO NOVO QUIZ...";
             }
@@ -317,7 +320,6 @@
                 totalVideosHoje: increment(1) 
             };
 
-            // Se for o terceiro vídeo, resetamos o ciclo para voltar ao quiz imediatamente
             if (proximoVideoCount >= 3) { 
                 dadosUpdate.acertos = 0; 
                 dadosUpdate.videosAssistidos = 0; 
@@ -328,7 +330,6 @@
                 await updateDoc(userRef, dadosUpdate);
                 document.getElementById('btnVideo').innerText = "📺 ASSISTIR ANÚNCIO (+300 Moedas)";
                 
-                // Pequeno delay para o Firestore propagar e carregar a questão limpa
                 setTimeout(() => {
                     openModal("RECOMPENSA", "Você recebeu 300 moedas!");
                     carregarQuestao();
@@ -346,7 +347,6 @@
                 c.innerHTML = "";
                 return;
             }
-            // Se acertos >= 10, exibe tela de bloqueio do vídeo
             if (acertosNoCiclo >= 10) { 
                 t.innerText = "META DE ACERTOS ATINGIDA!"; 
                 t.style.color = "var(--gold)"; 
