@@ -339,14 +339,12 @@
             if (acertosNoCiclo < 10) {
                 aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
             } else if (videosAssistidos < 3) {
-                // CONTADOR VERDE DENTRO DA FRASE DOURADA
                 aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS PARA LIBERAR O QUIZ</span>`;
             } else {
                 aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
             }
         }
 
-        // --- ANIMAÇÃO FLUTUANTE ---
         function showFloatingPDL(text, color, x, y) {
             const el = document.createElement('div');
             el.className = 'floating-pdl';
@@ -358,7 +356,6 @@
             setTimeout(() => el.remove(), 1000);
         }
 
-        // --- FLUXO DE ANÚNCIO COM TRAVA ---
         document.getElementById('btnVideo').onclick = () => iniciarFluxoAnuncio(true);
         document.getElementById('btnVideoXP').onclick = () => iniciarFluxoAnuncio(false);
 
@@ -443,7 +440,6 @@
             });
         }
 
-        // --- PULL TO REFRESH ---
         let sY = 0;
         const pullDiv = document.getElementById('pull-to-refresh');
         const mainDiv = document.getElementById('main-content');
@@ -475,14 +471,23 @@
         };
     </script>
 
-    <div id="footer-ad-container" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: rgba(0, 0, 0, 0.9); display: flex; justify-content: center; align-items: center; z-index: 9999; border-top: 2px solid #c89b3c;">
+    <div id="footer-ad-container" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: rgba(0, 0, 0, 0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; border-top: 2px solid #c89b3c;">
         <div id="adsterra-banner">
             <script type="text/javascript">
-                atOptions = { 'key' : '9d949437435848a43658514844336585', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+                atOptions = {
+                    'key' : '48065e37c41fa1904ce5bbacf7c25eb4',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
             </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/9d949437435848a43658514844336585/invoke.js"></script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/48065e37c41fa1904ce5bbacf7c25eb4/invoke.js"></script>
         </div>
     </div>
 </body>
 </html>
+                    
+        
+            
             
