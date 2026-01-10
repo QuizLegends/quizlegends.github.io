@@ -241,6 +241,9 @@
                         return; 
                     }
                     
+                    // Salva valor anterior para checar transição
+                    const acertosAnteriores = acertosNoCiclo;
+
                     goldDB = data.saldo || 0; 
                     acertosNoCiclo = data.acertos || 0; 
                     videosAssistidos = data.videosAssistidos || 0; 
@@ -249,7 +252,17 @@
                     xpDB = data.xp || 0;
                     
                     atualizarInterface();
-                    if (!jogoInicializado) { jogoInicializado = true; carregarQuestao(); }
+
+                    // LÓGICA DE VOLTA AUTOMÁTICA: 
+                    // Se o jogo já estava rodando, e os acertos resetaram (viraram 0), volta pro quiz
+                    if (jogoInicializado && acertosNoCiclo === 0 && acertosAnteriores >= 10) {
+                        carregarQuestao();
+                    }
+
+                    if (!jogoInicializado) { 
+                        jogoInicializado = true; 
+                        carregarQuestao(); 
+                    }
                 }
             });
         }
