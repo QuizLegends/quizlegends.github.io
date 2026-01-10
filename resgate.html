@@ -164,7 +164,7 @@
             <a href="politica.html" class="link-politica-quadro">Política de Privacidade</a>
         </div>
     </div>
-<script type="module">
+        <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -235,7 +235,11 @@
         configElo.push({ nome: "GRÃO-MESTRE", min: 80000, max: 100000, bg: "#7a1f1f", color: "#f7b3b3", bar: "#e74c3c" });
         configElo.push({ nome: "DESAFIANTE", min: 100000, max: 9999999, bg: "#1a4a5a", color: "#b3e7f7", bar: "#3498db" });
 
-        function getEloInfo(valorXP) { return configElo.find(e => valorXP >= e.min && valorXP < e.max) || configElo[configElo.length - 1]; }
+        // TRAVA 1: Se o PDL for 0 ou menor, ele trava no primeiro elo da lista (FERRO V)
+        function getEloInfo(valorXP) { 
+            if (valorXP <= 0) return configElo[0];
+            return configElo.find(e => valorXP >= e.min && valorXP < e.max) || configElo[configElo.length - 1]; 
+        }
 
         onAuthStateChanged(auth, (user) => {
             if (user) { 
@@ -416,7 +420,10 @@
                         await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10) });
                     } else {
                         b.classList.add('btn-wrong'); showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
-                        await updateDoc(userRef, { xp: increment(-2) });
+                        
+                        // TRAVA 2: Impede que o PDL no banco de dados fique menor que zero
+                        let novoXP = Math.max(0, pdlInterno - 2); 
+                        await updateDoc(userRef, { xp: novoXP });
                     }
                     setTimeout(carregarQuestao, 1200);
                 };
@@ -488,4 +495,7 @@
         </div>
     </div>
 </body>
-</html>
+</html>    
+        
+
+                            
