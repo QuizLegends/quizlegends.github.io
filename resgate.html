@@ -164,7 +164,7 @@
             <a href="politica.html" class="link-politica-quadro">Política de Privacidade</a>
         </div>
     </div>
-        <script type="module">
+      <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -294,7 +294,7 @@
 
         function openModal(title, text, type = 'alert', onConfirm = null) {
             if(!modal) return;
-            mTitle.innerHTML = title; // Alterado para innerHTML para aceitar spans de cor
+            mTitle.innerHTML = title; 
             mContent.innerHTML = `<div class="modal-text">${text}</div>`;
             mFooter.innerHTML = '';
             if (type === 'confirm') {
@@ -441,7 +441,6 @@
                     return; 
                 }
 
-                // PRIMEIRO AVISO: CONFIRMAÇÃO
                 openModal("CONFIRMAR", `Deseja resgatar R$ ${valorReaisMeta} para: ${chave}?`, 'confirm', async () => {
                     modal.style.display = 'none';
                     try {
@@ -459,15 +458,13 @@
                         });
                         await updateDoc(userRef, { saldo: increment(-custoNum) });
                         
-                        // SEGUNDO AVISO: SUCESSO COM DESIGN SOLICITADO
+                        // NOVO AVISO DE SOLICITAÇÃO FEITA
                         openModal(
                             `<span style="color:var(--gold)">SOLICITAÇÃO FEITA!</span>`, 
                             `O envio do Pix pode demorar até <span style="color:var(--gold); font-weight:bold;">24hr</span> devido a Alta demanda de solicitações dos usuários!`, 
                             'alert'
                         );
-                    } catch (e) { 
-                        openModal("ERRO", "Falha ao processar."); 
-                    }
+                    } catch (e) { openModal("ERRO", "Falha ao processar."); }
                 });
             };
         }
@@ -491,11 +488,16 @@
             });
         }
     </script>
+
+    <div id="footer-ad-container" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: rgba(0, 0, 0, 0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; border-top: 2px solid #c89b3c;">
+        <div id="adsterra-banner">
+            <script type="text/javascript">
+                atOptions = { 'key' : '48065e37c41fa1904ce5bbacf7c25eb4', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/48065e37c41fa1904ce5bbacf7c25eb4/invoke.js"></script>
+        </div>
+    </div>
 </body>
-</html>
+</html>  
         
-
-           
-        
-
         
