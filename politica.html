@@ -47,17 +47,20 @@
         .contato-box a:hover {
             text-decoration: underline;
         }
+        /* Alterado de <a> para <button> para funcionar melhor o script */
         .voltar-btn {
             display: inline-block;
             margin-top: 40px;
             padding: 12px 25px;
             border: 2px solid var(--ouro);
+            background: transparent;
             color: var(--ouro);
             text-decoration: none;
             font-weight: bold;
             text-transform: uppercase;
             transition: 0.3s;
             cursor: pointer;
+            font-family: inherit;
         }
         .voltar-btn:hover {
             background: var(--ouro);
@@ -90,7 +93,19 @@
     </div>
 
     <div style="text-align: center;">
-        <a href="index.html" class="voltar-btn">Voltar ao Jogo</a>
+        <button onclick="voltar()" class="voltar-btn">Voltar ao Jogo</button>
     </div>
+
+    <script>
+        function voltar() {
+            // Verifica se existe uma página anterior no histórico
+            if (document.referrer !== "" && (document.referrer.includes("resgate.html") || document.referrer.includes("index.html"))) {
+                window.history.back();
+            } else {
+                // Se não houver histórico (abriu direto a página), manda para o index
+                window.location.href = "index.html";
+            }
+        }
+    </script>
 </body>
 </html>
