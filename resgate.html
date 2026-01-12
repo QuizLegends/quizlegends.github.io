@@ -468,63 +468,63 @@
             }
         });
 
-        async function finalizarRecompensa() {
-            if (!chaveSeguranca) {
-                modal.style.display = 'none';
-                openModal("SISTEMA DE SEGURANÇA", "Ação inválida.");
-                return;
-            }
-            chaveSeguranca = false; 
-            let up = {}; let msg = "";
-            const eloAntes = getEloInfo(pdlInterno).nome;
+          async function finalizarRecompensa() {
+    if (!chaveSeguranca) {
+        modal.style.display = 'none';
+        openModal("SISTEMA DE SEGURANÇA", "Tentativa de fraude detectada. Assista o anúncio até o fim.");
+        return;
+    }
+    chaveSeguranca = false;
+    modal.style.display = 'none';
+    let up = {}; let msg = "";
+    const eloAntes = getEloInfo(pdlInterno).nome;
 
-            // Atualiza as variáveis locais para o código saber o progresso
-            videosAssistidos++; 
-            totalVideosHoje++;
+    if (tipoRecompensa === "moeda") {
+        up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
+        msg = "Ganhou 500 moedas!";
+        // Atualiza localmente para a lógica do próximo vídeo funcionar
+        videosAssistidos++; 
+    } else if (tipoRecompensa === "pdl") {
+        up = { xp: increment(500), videosAssistidos: increment(1) };
+        msg = "Ganhou 500 PDL!";
+        pdlInterno += 500; 
+        videosAssistidos++;
+    } else if (tipoRecompensa === "livre") {
+        up = { saldo: increment(10), xp: increment(100) };
+        msg = "Bônus Livre: +10 Moedas e +100 PDL!";
+        pdlInterno += 100;
+    }
 
-            if (tipoRecompensa === "moeda") {
-                up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
-                msg = "Você recebeu 500 moedas!";
-            } else if (tipoRecompensa === "pdl") {
-                up = { xp: increment(500), videosAssistidos: increment(1) };
-                msg = "Você recebeu 500 PDL!";
-                pdlInterno += 500; 
-            } else if (tipoRecompensa === "livre") {
-                up = { saldo: increment(10), xp: increment(100) };
-                msg = "Bónus Livre: +10 Moedas e +100 PDL!";
-                pdlInterno += 100;
-            }
-
-            try {
-                await updateDoc(userRef, up);
-                
-                // --- NOVA LÓGICA DE FLUXO ---
-                if (videosAssistidos >= 3) {
-                    // CASO: Completou os 3 anúncios
-                    acertosNoCiclo = 0; 
-                    modal.style.display = 'none';
-                    openModal("SISTEMA", "Quiz Liberado! Bom jogo."); // Aviso rápido antes de voltar
-                    carregarQuestao();
-                } else {
-                    // CASO: Ainda faltam anúncios (1 ou 2)
-                    const faltam = 3 - videosAssistidos;
-                    openModal("PROGRESSO", `Anúncio contabilizado! Assista mais ${faltam} para liberar o Quiz.`, 'alert', () => {
-                        // Opcional: Você pode chamar uma função aqui para reabrir a tela de anúncios
-                    });
-                }
-                
-                // Verifica se houve mudança de Elo (Promoção)
-                const infoNovo = getEloInfo(pdlInterno);
-                if (infoNovo.nome !== eloAntes) {
-                    exibirAnimacaoElo(infoNovo, true);
-                }
-
-            } catch (error) {
-                console.error(error);
-                openModal("ERRO", "Falha ao salvar progresso.");
-            }
+    // Lógica que você disse que funciona perfeitamente:
+    if (tipoRecompensa !== "livre") {
+        if (videosAssistidos >= 3) { 
+            up.acertos = 0; 
+            up.videosAssistidos = 0; 
+            // Resetamos localmente também para garantir
+            acertosNoCiclo = 0; 
+            videosAssistidos = 0;
+            setTimeout(() => carregarQuestao(), 500); 
         }
+    }
+    
+    try {
+        await updateDoc(userRef, up);
+        openModal("SUCESSO", msg);
 
+        setTimeout(() => {
+            const infoNovo = getEloInfo(pdlInterno);
+            if (infoNovo.nome !== eloAntes) {
+                setTimeout(() => { 
+                    modal.style.display = 'none'; 
+                    exibirAnimacaoElo(infoNovo, true); 
+                }, 2000);
+            }
+        }, 500);
+    } catch (e) {
+        console.error("Erro ao salvar:", e);
+    }
+}
+        
         function carregarQuestao() {
             const c = document.getElementById('opcoes'), t = document.getElementById('perguntaTexto');
             if(!c || !t) return;
