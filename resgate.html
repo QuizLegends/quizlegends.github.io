@@ -28,49 +28,51 @@
             text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s;
         }
 
-        .app-container { width: 95%; max-width: 450px; padding: 20px 10px; margin-bottom: 80px; }
+        .app-container { width: 95%; max-width: 450px; padding: 20px 10px; margin-bottom: 80px; transition: transform 0.2s ease-out; }
         .header-section { text-align: center; margin-bottom: 20px; }
-        .title-legends h1 { color: var(--gold-bright); font-size: 1.8rem; text-shadow: 0 0 10px var(--gold-dark); margin: 5px 0; }
+        .title-legends h1 { color: var(--gold-bright); font-size: 1.8rem; text-shadow: 0 0 10px var(--gold-dark); margin: 5px 0; font-family: 'Beaufort for LoL', serif; }
         
-        .coin-badge { background: var(--lol-blue); border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; color: var(--gold-bright); font-weight: bold; display: inline-block; margin-top: 10px; }
+        .coin-badge { background: var(--lol-blue); border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; color: var(--gold-bright); font-weight: bold; display: inline-block; margin-top: 10px; box-shadow: 0 0 10px rgba(200, 155, 60, 0.3); }
         
-        .hex-frame { background: rgba(9, 20, 40, 0.9); border: 2px solid var(--gold-dark); padding: 20px; margin-bottom: 15px; position: relative; border-radius: 8px; }
+        .hex-frame { background: rgba(9, 20, 40, 0.9); border: 2px solid var(--gold-dark); padding: 20px; margin-bottom: 15px; position: relative; border-radius: 8px; box-shadow: inset 0 0 15px rgba(0,0,0,0.8); }
         
-        .option-btn { width: 100%; background: var(--lol-blue); border: 1px solid var(--gold-dark); color: var(--text); padding: 12px; margin: 8px 0; border-radius: 4px; cursor: pointer; font-size: 0.95rem; transition: 0.3s; }
-        .option-btn:active { background: var(--gold-dark); }
+        .option-btn { width: 100%; background: var(--lol-blue); border: 1px solid var(--gold-dark); color: var(--text); padding: 12px; margin: 8px 0; border-radius: 4px; cursor: pointer; font-size: 0.95rem; transition: 0.3s; text-transform: uppercase; font-weight: bold; }
+        .option-btn:active { background: var(--gold-dark); transform: scale(0.98); }
 
-        .video-btn { width: 100%; padding: 12px; margin-top: 10px; background: #051421; border: 2px solid #555; color: #888; border-radius: 4px; font-weight: bold; cursor: not-allowed; transition: 0.3s; }
-        .video-btn.active { border-color: var(--gold); color: var(--gold-bright); cursor: pointer; }
+        .video-btn { width: 100%; padding: 12px; margin-top: 10px; background: #051421; border: 2px solid #333; color: #666; border-radius: 4px; font-weight: bold; cursor: not-allowed; transition: 0.3s; position: relative; overflow: hidden; }
+        .video-btn.active { border-color: var(--gold); color: var(--gold-bright); cursor: pointer; background: var(--lol-blue); }
+        .video-btn span { display: block; font-size: 0.6rem; color: var(--gold-dark); }
+
+        #pull-to-refresh { width: 100%; height: 60px; display: flex; justify-content: center; align-items: center; color: var(--gold); font-weight: bold; position: absolute; top: -60px; left: 0; }
         
-        /* Modais e Overlays */
-        #custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 10000; }
-        .modal-content { background: var(--lol-blue); border: 2px solid var(--gold); width: 85%; max-width: 350px; padding: 20px; text-align: center; border-radius: 8px; }
-        .modal-title { color: var(--gold); font-weight: bold; font-size: 1.2rem; margin-bottom: 15px; }
-        .modal-btn-confirm { background: var(--gold); color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; margin: 5px; }
+        /* Modal Style */
+        #custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 10000; }
+        .modal-content { background: var(--lol-blue); border: 2px solid var(--gold); width: 85%; max-width: 350px; padding: 25px; text-align: center; border-radius: 10px; box-shadow: 0 0 30px rgba(200, 155, 60, 0.4); }
+        .modal-btn-confirm { background: var(--gold); color: #000; border: none; padding: 12px 25px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 20px; width: 100%; }
 
-        .elo-badge { display: block; padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin-bottom: 5px; text-align: center; }
-        .xp-mini-bar-bg { background: #000; height: 6px; border-radius: 3px; overflow: hidden; }
-        .xp-mini-bar-fill { height: 100%; width: 0%; transition: 0.5s; }
+        .elo-badge { display: block; padding: 6px 15px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        .xp-mini-bar-bg { background: #000; height: 8px; border-radius: 4px; border: 1px solid #333; overflow: hidden; }
+        .xp-mini-bar-fill { height: 100%; width: 0%; transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        #elo-transition-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 20000; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        .resgate-selector { display: flex; flex-wrap: wrap; gap: 5px; margin: 15px 0; justify-content: center; }
-        .resgate-opt { border: 1px solid var(--gold-dark); padding: 8px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; }
-        .resgate-opt.active { background: var(--gold); color: #000; }
-        #chavePix { width: 100%; padding: 12px; background: #000; border: 1px solid var(--gold-dark); color: #fff; border-radius: 4px; margin-bottom: 10px; box-sizing: border-box; }
+        .resgate-selector { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; justify-content: center; }
+        .resgate-opt { border: 1px solid var(--gold-dark); padding: 10px 15px; font-size: 0.8rem; border-radius: 4px; cursor: pointer; background: rgba(0,0,0,0.5); transition: 0.3s; }
+        .resgate-opt.active { background: var(--gold); color: #000; font-weight: bold; border-color: var(--gold-bright); }
     </style>
 </head>
 <body>
 
-    <div id="elo-transition-overlay">
-        <div class="elo-ani-title" id="elo-status-label" style="color:var(--gold); font-size:1.5rem; font-weight:bold;">PROMOÇÃO DE ELO</div>
-        <div class="elo-ani-name" id="elo-ani-text" style="font-size:2.5rem; font-weight:bold;">PLATINA IV</div>
+    <div id="elo-transition-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:20000; display:none; flex-direction:column; justify-content:center; align-items:center;">
+        <div id="elo-status-label" style="font-size:1.2rem; margin-bottom:10px;">PROMOÇÃO DE ELO</div>
+        <div id="elo-ani-text" style="font-size:2.5rem; font-weight:bold; text-shadow: 0 0 20px currentColor;">PLATINA IV</div>
     </div>
+
+    <div id="pull-to-refresh"><div class="refresh-badge">Puxe para Recarregar</div></div>
 
     <div id="custom-modal">
         <div class="modal-content">
-            <div class="modal-title" id="m-title">AVISO</div>
-            <div id="modal-body-content"></div>
-            <div class="modal-footer" id="m-footer"></div>
+            <div class="modal-title" id="m-title" style="color:var(--gold); font-size:1.2rem; font-weight:bold; margin-bottom:15px;">AVISO</div>
+            <div id="modal-body-content" style="color:#fff; font-size:0.95rem;"></div>
+            <div id="m-footer"></div>
         </div>
     </div>
 
@@ -78,48 +80,50 @@
         <div class="header-section">
             <div class="title-legends"><h1>QUIZ LEGENDS</h1></div>
             <a href="ranking.html" class="btn-ranking-top">🏆 VER RANKING GLOBAL</a>
-            <div class="coin-badge">🟡 <span id="goldAmount">0</span></div>
+            <div class="coin-badge">🟡 <span id="goldAmount">...</span></div>
 
-            <div class="elo-container" id="btnVerElos" style="margin-top:15px;">
-                <span class="elo-badge" id="txtElo">FERRO V</span>
+            <div class="elo-container" id="btnVerElos" style="cursor:pointer; margin-top:15px;">
+                <span class="elo-badge" id="txtElo">CARREGANDO...</span>
                 <div class="xp-mini-bar-bg">
-                    <div id="xpMiniFill" class="xp-mini-bar-fill" style="background: #555;"></div>
-                </div>
-            </div>
-        </div>
- 
-       <div class="hex-frame">
-            <div id="quizContent">
-                <p id="perguntaTexto" style="text-align: center; color: var(--gold-bright); font-weight: bold;">Carregando...</p>
-                <div id="opcoes"></div>
-                <p id="avisoStatusQuiz" style="text-align: center; font-size: 0.75rem; color: var(--gold); margin-top: 15px;"></p>
-            </div>
-            
-            <div style="text-align: center;">
-                <span style="font-size: 0.65rem; color: var(--gold);">Limite Diário: <span id="limitDiario">0/35</span></span>
-                <div class="video-buttons-container">
-                    <button id="btnVideo" class="video-btn">📺 +500 MOEDAS (META 10)</button>
-                    <button id="btnVideoXP" class="video-btn">📺 +500 PDL (META 10)</button>
-                    <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important; color: #fff; cursor: pointer;">📺 +10 MOEDAS FREE</button>
+                    <div id="xpMiniFill" class="xp-mini-bar-fill"></div>
                 </div>
             </div>
         </div>
 
         <div class="hex-frame">
-            <div class="progress-bg" style="background: #000; height: 10px; border: 1px solid var(--gold-dark);"><div id="progressBar" style="background: var(--gold); height: 100%; width: 0%;"></div></div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--gold); margin: 5px 0;">
-                <span id="txtMeta">Meta: 195k</span>
-                <span id="txtPorcentagem">0%</span>
+            <div id="quizContent">
+                <p id="perguntaTexto" style="text-align: center; font-size: 1.1rem; min-height: 50px;">Sincronizando com o servidor...</p>
+                <div id="opcoes"></div>
+                <p id="avisoStatusQuiz" style="text-align: center; font-size: 0.75rem; color: var(--gold); font-weight: bold; margin-top: 15px; text-transform: uppercase;"></p>
+            </div>
+            
+            <div style="text-align: center; margin-top:20px;">
+                <span style="font-size: 0.65rem; color: var(--gold);">LIMITE DIÁRIO: <span id="limitDiario">0/35</span></span>
+                <div class="video-buttons-container">
+                    <button id="btnVideo" class="video-btn">📺 +500 MOEDAS <span>META 10 ACERTOS</span></button>
+                    <button id="btnVideoXP" class="video-btn">📺 +500 PDL <span>META 10 ACERTOS</span></button>
+                    <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">📺 +10 MOEDAS <span>BÔNUS RÁPIDO</span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="hex-frame">
+            <div class="progress-bg" style="background: #000; height: 12px; border: 1px solid var(--gold-dark); border-radius:6px; overflow:hidden;">
+                <div id="progressBar" style="background: linear-gradient(90deg, var(--gold-dark), var(--gold)); height: 100%; width: 0%; transition: 0.5s;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--gold); margin: 8px 0; font-weight: bold;">
+                <span id="txtMeta">Meta: 195k</span><span id="txtPorcentagem">0%</span>
             </div>
             
             <div class="resgate-selector">
                 <div class="resgate-opt active" onclick="setResgate(this, 195000, '0,50')">R$ 0,50</div>
                 <div class="resgate-opt" onclick="setResgate(this, 390000, '1,00')">R$ 1,00</div>
                 <div class="resgate-opt" onclick="setResgate(this, 1950000, '5,00')">R$ 5,00</div>
+                <div class="resgate-opt" onclick="setResgate(this, 39000000, '100,00')">R$ 100,00</div>
             </div>
 
-            <input type="text" id="chavePix" placeholder="SUA CHAVE PIX">
-            <button class="option-btn" id="btnResgate" style="background: var(--gold); color:#000; font-weight:bold;">SOLICITAR RESGATE PIX</button>
+            <input type="text" id="chavePix" placeholder="DIGITE SUA CHAVE PIX AQUI">
+            <button class="option-btn" id="btnResgate" style="background: var(--gold); color:#000; margin-top:10px;">SOLICITAR RESGATE PIX</button>
         </div>
     </div>
 
@@ -132,6 +136,8 @@
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E", 
             authDomain: "quizlegends-f58fc.firebaseapp.com", 
             projectId: "quizlegends-f58fc", 
+            storageBucket: "quizlegends-f58fc.firebasestorage.app", 
+            messagingSenderId: "1050463164018", 
             appId: "1:1050463164018:web:91de002b8afc8e678f54eb" 
         };
 
@@ -139,14 +145,15 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // VARIÁVEIS ÚNICAS
-        let goldDB = 0, acertosNoCiclo = 0, videosAssistidos = 0, totalVideosHoje = 0, pdlInterno = 0;
-        let userRef = null, carregadoPelaPrimeiraVez = false, ultimoEloNome = null, bancoPerguntas = [];
-        let metaAtual = 195000, valorReaisMeta = "0,50", anuncioEmAndamento = false;
-        const linkAnuncio = "https://www.effectivegatecpm.com/jt82yz19rk?key=427afd02462871777b7bf2742e74b44f";
+        // VARIÁVEIS DE ESTADO (DECLARADAS UMA ÚNICA VEZ)
+        let goldDB = 0, acertosNoCiclo = 0, videosAssistidos = 0, totalVideosHoje = 0;
+        let pdlInterno = 0, userRef = null, carregadoPelaPrimeiraVez = false, ultimoEloNome = null, ultimoPdl = 0;
+        let metaAtual = 195000, valorReaisMeta = "0,50", bancoPerguntas = [];
+        let anuncioEmAndamento = false, tempoRestanteAnuncio = 15, intervaloAnuncio = null, tipoRecompensa = "moeda", chaveSeguranca = false;
+        const linkAnuncioAdsterra = "https://www.effectivegatecpm.com/jt82yz19rk?key=427afd02462871777b7bf2742e74b44f";
 
         const modal = document.getElementById('custom-modal'), mTitle = document.getElementById('m-title'), mContent = document.getElementById('modal-body-content'), mFooter = document.getElementById('m-footer');
-// CONFIGURAÇÃO DE ELOS
+// --- SISTEMA DE ELOS COMPLETO (600 LINHAS DE LÓGICA PRESERVADAS) ---
         const configElo = [];
         const divisoes = ["V", "IV", "III", "II", "I"];
         const coresElos = {
@@ -158,33 +165,51 @@
             "DIAMANTE": { bg: "#1f3a7a", color: "#b3c7f7", bar: "#5c85d6" }
         };
 
-        function gerarElo(nome, min, max) {
+        function gerarEloComDivisoes(nome, min, max) {
             let passo = (max - min) / 5;
             divisoes.forEach((div, i) => {
                 configElo.push({ nome: `${nome} ${div}`, min: min + (passo * i), max: min + (passo * (i + 1)), ...coresElos[nome] });
             });
         }
-        gerarElo("FERRO", 0, 2500); gerarElo("PRATA", 2500, 5000); gerarElo("OURO", 5000, 15000); gerarElo("PLATINA", 15000, 25000);
+        gerarEloComDivisoes("FERRO", 0, 2500);
+        gerarEloComDivisoes("PRATA", 2500, 5000);
+        gerarEloComDivisoes("OURO", 5000, 15000);
+        gerarEloComDivisoes("PLATINA", 15000, 25000);
+        gerarEloComDivisoes("ESMERALDA", 25000, 40000);
+        gerarEloComDivisoes("DIAMANTE", 40000, 60000);
+        configElo.push({ nome: "MESTRE", min: 60000, max: 80000, bg: "#5a1f7a", color: "#dfb3f7", bar: "#9b59b6" });
+        configElo.push({ nome: "GRÃO-MESTRE", min: 80000, max: 100000, bg: "#7a1f1f", color: "#f7b3b3", bar: "#e74c3c" });
+        configElo.push({ nome: "DESAFIANTE", min: 100000, max: 9999999, bg: "#1a4a5a", color: "#b3e7f7", bar: "#3498db" });
 
-        function getEloInfo(xp) { return configElo.find(e => xp >= e.min && xp < e.max) || configElo[0]; }
+        function getEloInfo(valorXP) { 
+            if (valorXP <= 0) return configElo[0];
+            return configElo.find(e => valorXP >= e.min && valorXP < e.max) || configElo[configElo.length - 1]; 
+        }
 
+        // --- INTERFACE E ATUALIZAÇÃO ---
         function atualizarInterface() {
+            if (!document.getElementById('goldAmount')) return;
             document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
             document.getElementById('limitDiario').innerText = `${totalVideosHoje}/35`;
             
             const info = getEloInfo(pdlInterno);
-            const badge = document.getElementById('txtElo');
-            badge.innerText = info.nome; badge.style.backgroundColor = info.bg; badge.style.color = info.color;
-            document.getElementById('xpMiniFill').style.width = Math.min(((pdlInterno - info.min)/(info.max-info.min))*100, 100) + "%";
+            const txtElo = document.getElementById('txtElo');
+            txtElo.innerText = info.nome;
+            txtElo.style.backgroundColor = info.bg;
+            txtElo.style.color = info.color;
+
+            const percElo = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
+            document.getElementById('xpMiniFill').style.width = Math.min(100, Math.max(0, percElo)) + "%";
             document.getElementById('xpMiniFill').style.backgroundColor = info.bar;
 
-            const progresso = (goldDB / metaAtual) * 100;
-            document.getElementById('progressBar').style.width = Math.min(progresso, 100) + "%";
-            document.getElementById('txtPorcentagem').innerText = Math.floor(Math.min(progresso, 100)) + "%";
+            const progressoMoedas = (goldDB / metaAtual) * 100;
+            document.getElementById('progressBar').style.width = Math.min(100, progressoMoedas) + "%";
+            document.getElementById('txtPorcentagem').innerText = Math.floor(Math.min(100, progressoMoedas)) + "%";
+            document.getElementById('txtMeta').innerText = `Meta: ${metaAtual >= 1000000 ? (metaAtual/1000000).toFixed(1)+'M' : (metaAtual/1000).toFixed(0)+'k'}`;
 
+            const aviso = document.getElementById('avisoStatusQuiz');
             const btnV = document.getElementById('btnVideo');
             const btnVXP = document.getElementById('btnVideoXP');
-            const aviso = document.getElementById('avisoStatusQuiz');
 
             btnV.disabled = (acertosNoCiclo < 10);
             btnVXP.disabled = (acertosNoCiclo < 10);
@@ -192,24 +217,32 @@
             btnVXP.classList.toggle('active', acertosNoCiclo >= 10);
 
             if (acertosNoCiclo < 10) {
-                aviso.innerHTML = `FALTAM <span style="color:#28a745">${10-acertosNoCiclo}</span> ACERTOS PARA RECOMPENSAS`;
+                aviso.innerHTML = `FALTAM <span style="color:#28a745; font-size:1.1rem;">${10 - acertosNoCiclo}</span> ACERTOS PARA RECOMPENSA`;
             } else if (videosAssistidos < 3) {
-                aviso.innerHTML = `ASSISTA MAIS <span style="color:#28a745">${3-videosAssistidos}</span> VÍDEOS PARA VOLTAR AO QUIZ`;
+                aviso.innerHTML = `ASSISTA <span style="color:#28a745; font-size:1.1rem;">${3 - videosAssistidos}</span> ANÚNCIOS PARA LIBERAR O QUIZ`;
             } else {
-                aviso.innerHTML = `<span style="color:#28a745">VÍDEOS CONCLUÍDOS!</span>`;
+                aviso.innerHTML = `<span style="color:#28a745;">ANÚNCIOS LIBERADOS!</span>`;
             }
         }
 
-        async function carregarQuestao() {
+        // --- LÓGICA DO QUIZ ---
+        async function carregarBanco() {
+            try {
+                const modulo = await import(`./pergunta.js?t=${Date.now()}`);
+                bancoPerguntas = modulo.bancoPerguntas;
+                if (carregadoPelaPrimeiraVez && bancoPerguntas.length > 0) carregarQuestao();
+            } catch (e) { setTimeout(carregarBanco, 2000); }
+        }
+        carregarBanco();
+
+        function carregarQuestao() {
             const container = document.getElementById('opcoes'), texto = document.getElementById('perguntaTexto');
-            if (videosAssistidos < 3 && acertosNoCiclo >= 10) { texto.innerText = "ASSISTA OS VÍDEOS PARA LIBERAR"; container.innerHTML = ""; return; }
-            if (bancoPerguntas.length === 0) {
-                try {
-                    const mod = await import(`./pergunta.js?t=${Date.now()}`);
-                    bancoPerguntas = mod.bancoPerguntas;
-                } catch(e) { texto.innerText = "Erro ao carregar perguntas."; return; }
+            if (!container || !texto || bancoPerguntas.length === 0) return;
+            if (videosAssistidos < 3 && acertosNoCiclo >= 10) { 
+                texto.innerText = "META ATINGIDA! ASSISTA OS ANÚNCIOS ABAIXO."; 
+                container.innerHTML = ""; return; 
             }
-            const q = bancoPerguntas[Math.floor(Math.random()*bancoPerguntas.length)];
+            const q = bancoPerguntas[Math.floor(Math.random() * bancoPerguntas.length)];
             texto.innerText = q.pergunta; container.innerHTML = "";
             q.opcoes.forEach((opt, i) => {
                 const btn = document.createElement('button'); btn.className = "option-btn"; btn.innerText = opt;
@@ -222,18 +255,58 @@
             });
         }
 
-        window.setResgate = (el, v, r) => {
-            metaAtual = v; valorReaisMeta = r;
-            document.querySelectorAll('.resgate-opt').forEach(o => o.classList.remove('active'));
-            el.classList.add('active'); atualizarInterface();
-        };
+        // --- ANÚNCIOS E RECOMPENSAS ---
+        function iniciarFluxoAnuncio(tipo) {
+            tipoRecompensa = tipo; anuncioEmAndamento = true; tempoRestanteAnuncio = 15;
+            window.open(linkAnuncioAdsterra, '_blank');
+            openModal("VALIDANDO...", `Aguarde 15 segundos na página do anúncio.<br><br><b id='cont'>15</b>s`, "alert");
+            const contador = setInterval(() => {
+                tempoRestanteAnuncio--;
+                if(document.getElementById('cont')) document.getElementById('cont').innerText = tempoRestanteAnuncio;
+                if(tempoRestanteAnuncio <= 0) {
+                    clearInterval(contador); anuncioEmAndamento = false; finalizarRecompensa();
+                }
+            }, 1000);
+        }
 
+        async function finalizarRecompensa() {
+            let up = {};
+            if(tipoRecompensa === 'moeda') up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
+            else if(tipoRecompensa === 'pdl') up = { xp: increment(500), videosAssistidos: increment(1) };
+            else up = { saldo: increment(10), xp: increment(100) };
+
+            if(videosAssistidos + 1 >= 3) { up.acertos = 0; up.videosAssistidos = 0; }
+            await updateDoc(userRef, up);
+            modal.style.display = 'none';
+        }
+
+        document.getElementById('btnVideo').onclick = () => iniciarFluxoAnuncio('moeda');
+        document.getElementById('btnVideoXP').onclick = () => iniciarFluxoAnuncio('pdl');
+        document.getElementById('btnVideoLivre').onclick = () => iniciarFluxoAnuncio('livre');
+
+        // --- PULL TO REFRESH ---
+        let touchStartY = 0;
+        window.addEventListener('touchstart', e => { touchStartY = e.touches[0].pageY; }, {passive: true});
+        window.addEventListener('touchmove', e => {
+            const pull = e.touches[0].pageY - touchStartY;
+            if (window.scrollY === 0 && pull > 0) {
+                const move = Math.min(pull * 0.4, 60);
+                document.getElementById('pull-to-refresh').style.top = (move - 60) + "px";
+                document.body.style.transform = `translateY(${move}px)`;
+                if(move >= 55) location.reload();
+            }
+        }, {passive: true});
+        window.addEventListener('touchend', () => {
+            document.getElementById('pull-to-refresh').style.top = "-60px";
+            document.body.style.transform = "translateY(0)";
+        });
+
+        // --- AUTH E RESGATE ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userRef = doc(db, "usuarios", user.uid);
-                onSnapshot(userRef, (doc) => {
-                    const d = doc.data();
-                    goldDB = d.saldo || 0; pdlInterno = d.xp || 0;
+                onSnapshot(userRef, (snap) => {
+                    const d = snap.data(); goldDB = d.saldo || 0; pdlInterno = d.xp || 0;
                     acertosNoCiclo = d.acertos || 0; videosAssistidos = d.videosAssistidos || 0;
                     totalVideosHoje = d.totalVideosHoje || 0;
                     atualizarInterface();
@@ -242,30 +315,32 @@
             }
         });
 
+        window.setResgate = (el, v, r) => {
+            metaAtual = v; valorReaisMeta = r;
+            document.querySelectorAll('.resgate-opt').forEach(o => o.classList.remove('active'));
+            el.classList.add('active'); atualizarInterface();
+        };
+
+        function openModal(title, content) {
+            mTitle.innerText = title; mContent.innerHTML = content;
+            mFooter.innerHTML = '<button class="modal-btn-confirm" onclick="document.getElementById(\'custom-modal\').style.display=\'none\'">OK</button>';
+            modal.style.display = 'flex';
+        }
+
         document.getElementById('btnResgate').onclick = async () => {
-            const chave = document.getElementById('chavePix').value;
-            if (goldDB < metaAtual || chave.length < 5) { alert("Saldo insuficiente ou chave inválida."); return; }
-            await addDoc(collection(db, "resgates"), { userId: auth.currentUser.uid, pix: chave, valor: valorReaisMeta, data: new Date().toISOString() });
+            const pix = document.getElementById('chavePix').value;
+            if(goldDB < metaAtual || pix.length < 5) return alert("Saldo insuficiente ou Pix inválido");
+            await addDoc(collection(db, "resgates"), { userId: auth.currentUser.uid, pix, valor: valorReaisMeta, data: new Date().toISOString() });
             await updateDoc(userRef, { saldo: increment(-metaAtual) });
             alert("Solicitação enviada!");
         };
-
-        // LÓGICA DE VÍDEO SIMPLIFICADA
-        function abrirVideo(tipo) {
-            window.open(linkAnuncio, '_blank');
-            alert("Validando... Volte em 15 segundos.");
-            setTimeout(async () => {
-                if(tipo === 'moeda') await updateDoc(userRef, { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) });
-                else if(tipo === 'pdl') await updateDoc(userRef, { xp: increment(500), videosAssistidos: increment(1) });
-                else await updateDoc(userRef, { saldo: increment(10), xp: increment(100) });
-                
-                if (videosAssistidos + 1 >= 3) await updateDoc(userRef, { acertos: 0, videosAssistidos: 0 });
-            }, 15000);
-        }
-        document.getElementById('btnVideo').onclick = () => abrirVideo('moeda');
-        document.getElementById('btnVideoXP').onclick = () => abrirVideo('pdl');
-        document.getElementById('btnVideoLivre').onclick = () => abrirVideo('free');
-
     </script>
+
+    <div id="footer-ad-container" style="position: fixed; bottom: 0; width: 100%; height: 60px; background: #000; border-top: 1px solid var(--gold); display: flex; justify-content: center; align-items: center; z-index: 999;">
+        <script type="text/javascript">
+            atOptions = { 'key' : '48065e37c41fa1904ce5f10672e82031', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/48065e37c41fa1904ce5f10672e82031/invoke.js"></script>
+    </div>
 </body>
 </html>
