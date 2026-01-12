@@ -173,7 +173,11 @@
                 <span style="font-size: 0.65rem; color: var(--gold); text-transform: uppercase; display: block; margin-bottom: 5px;">Limite Diário Moedas: <span id="limitDiario">0/35</span></span>
                 <div class="video-buttons-container">
                     <button id="btnVideo" class="video-btn">📺 +300 MOEDAS <span>META 10</span></button>
-                    <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">📺 +10M | +25P <span>SEM META</span></button>
+                    
+                    <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">
+                        📺 +10 MOEDAS <span>+50 PDL</span>
+                    </button>
+                    
                     <button id="btnVideoXP" class="video-btn">📺 +300 PDL <span>META 10</span></button>
                 </div>
             </div>
@@ -221,7 +225,6 @@
         const mContent = document.getElementById('modal-body-content');
         const mFooter = document.getElementById('m-footer');
 
-        // CONFIGURAÇÕES ATUALIZADAS
         let tempoRestanteAnuncio = 15; 
         let intervaloAnuncio = null;
         let anuncioEmAndamento = false;
@@ -232,21 +235,15 @@
         let goldDB = 0, acertosNoCiclo, videosAssistidos, totalVideosHoje, jogoInicializado = false;
         let pdlInterno = 0, userRef = null, nomeUsuario = "Usuário", carregadoPelaPrimeiraVez = false, ultimoEloNome = null, ultimoPdl = 0;
 
-        // LÓGICA DE WI-FI REFORÇADA (ANTI-TRAVAMENTO)
         async function carregarBanco() {
             const statusText = document.getElementById('perguntaTexto');
             let tentativas = 0;
             const maxTentativas = 8;
-
             async function tentarImportar() {
                 try {
-                    // Força o Wi-Fi a ignorar o cache corrompido
                     const modulo = await import(`./pergunta.js?t=${Date.now()}`);
                     bancoPerguntas = modulo.bancoPerguntas;
-                    
-                    if (carregadoPelaPrimeiraVez && bancoPerguntas.length > 0) {
-                        carregarQuestao();
-                    }
+                    if (carregadoPelaPrimeiraVez && bancoPerguntas.length > 0) carregarQuestao();
                 } catch (e) {
                     tentativas++;
                     if (tentativas < maxTentativas) {
@@ -278,7 +275,6 @@
                 configElo.push({ nome: `${nome} ${div}`, min: min + (passo * i), max: min + (passo * (i + 1)), ...coresElos[nome] });
             });
         }
-
         gerarEloComDivisoes("FERRO", 0, 2500);
         gerarEloComDivisoes("PRATA", 2500, 5000);
         gerarEloComDivisoes("OURO", 5000, 15000);
@@ -307,9 +303,7 @@
                         }
                     }
                 });
-            } else { 
-                if (!window.location.href.includes("index.html")) window.location.href = "index.html"; 
-            }
+            } else { if (!window.location.href.includes("index.html")) window.location.href = "index.html"; }
         });
 
         async function processarDadosUsuario(data) {
@@ -322,34 +316,26 @@
             acertosNoCiclo = data.acertos || 0;
             videosAssistidos = data.videosAssistidos || 0;
             totalVideosHoje = data.totalVideosHoje || 0;
-            nomeUsuario = data.nome || "Usuário";
             pdlInterno = data.xp || 0;
             const infoNovoElo = getEloInfo(pdlInterno);
-            if (ultimoEloNome && ultimoEloNome !== infoNovoElo.nome) {
-                exibirAnimacaoElo(infoNovoElo, (pdlInterno >= ultimoPdl));
-            }
-            ultimoEloNome = infoNovoElo.nome;
-            ultimoPdl = pdlInterno;
-            atualizarInterface();
-            jogoInicializado = true;
+            if (ultimoEloNome && ultimoEloNome !== infoNovoElo.nome) exibirAnimacaoElo(infoNovoElo, (pdlInterno >= ultimoPdl));
+            ultimoEloNome = infoNovoElo.nome; ultimoPdl = pdlInterno;
+            atualizarInterface(); jogoInicializado = true;
         }
 
         function exibirAnimacaoElo(infoElo, subiu) {
-            const overlay = document.getElementById('elo-transition-overlay');
-            if(!overlay) return;
+            const overlay = document.getElementById('elo-transition-overlay'); if(!overlay) return;
             const label = document.getElementById('elo-status-label');
             const text = document.getElementById('elo-ani-text');
             label.innerText = subiu ? "PROMOÇÃO DE ELO" : "REBAIXAMENTO DE ELO";
             label.style.color = subiu ? "#c89b3c" : "#dc3545";
             text.innerText = infoElo.nome; text.style.color = infoElo.color;
-            overlay.style.display = 'flex';
-            setTimeout(() => { overlay.style.display = 'none'; }, 3000);
+            overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 3000);
         }
 
         function openModal(title, text, type = 'alert', onConfirm = null) {
             if(!modal) return;
-            mTitle.innerHTML = title; 
-            mContent.innerHTML = `<div class="modal-text">${text}</div>`;
+            mTitle.innerHTML = title; mContent.innerHTML = `<div class="modal-text">${text}</div>`;
             mFooter.innerHTML = '';
             if (type === 'confirm') {
                 const bC = document.createElement('button'); bC.className = 'modal-btn-confirm'; bC.innerText = 'CONFIRMAR'; bC.onclick = onConfirm;
@@ -362,18 +348,6 @@
             modal.style.display = 'flex';
         }
 
-        if(document.getElementById('btnVerElos')) {
-            document.getElementById('btnVerElos').onclick = () => {
-                let htmlElos = `<div style="text-align:left; max-height:300px; overflow-y:auto;">`;
-                configElo.forEach(e => {
-                    const isAtual = ultimoEloNome === e.nome;
-                    htmlElos += `<div class="elo-list-item" style="background:${e.bg}; color:${e.color}; border-color:${isAtual ? '#fff' : 'transparent'};"><span>${e.nome}</span><span>${e.min.toLocaleString()} PDL</span></div>`;
-                });
-                htmlElos += `</div>`;
-                openModal("TABELA DE ELOS", htmlElos);
-            };
-        }
-
         function atualizarInterface() {
             if(!document.getElementById('goldAmount')) return;
             document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
@@ -382,8 +356,7 @@
             document.getElementById('txtPorcentagem').innerText = Math.floor(Math.min((goldDB/metaAtual)*100, 100)) + "%";
             const info = getEloInfo(pdlInterno);
             const eloBadge = document.getElementById('txtElo');
-            eloBadge.innerText = info.nome;
-            eloBadge.style.backgroundColor = info.bg; eloBadge.style.color = info.color;
+            eloBadge.innerText = info.nome; eloBadge.style.backgroundColor = info.bg; eloBadge.style.color = info.color;
             const percXP = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
             document.getElementById('xpMiniFill').style.width = Math.min(percXP, 100) + "%";
             document.getElementById('xpMiniFill').style.backgroundColor = info.bar;
@@ -396,7 +369,7 @@
             
             btnV.disabled = (acertosNoCiclo < 10 || totalVideosHoje >= 35);
             btnVXP.disabled = (acertosNoCiclo < 10);
-            btnVLivre.disabled = false; // Sempre habilitado
+            btnVLivre.disabled = false;
 
             btnV.classList.toggle('active', !btnV.disabled);
             btnVXP.classList.toggle('active', !btnVXP.disabled);
@@ -411,50 +384,38 @@
             }
         }
 
-       function showFloatingPDL(text, color, x, y) {
+      function showFloatingPDL(text, color, x, y) {
             const el = document.createElement('div'); el.className = 'floating-pdl'; el.innerText = text; el.style.color = color; el.style.left = `${x}px`; el.style.top = `${y}px`;
             document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
         }
 
-        // --- GATILHOS DE CLIQUE ATUALIZADOS ---
         if(document.getElementById('btnVideo')) document.getElementById('btnVideo').onclick = () => iniciarFluxoAnuncio('moeda');
         if(document.getElementById('btnVideoXP')) document.getElementById('btnVideoXP').onclick = () => iniciarFluxoAnuncio('pdl');
         if(document.getElementById('btnVideoLivre')) document.getElementById('btnVideoLivre').onclick = () => iniciarFluxoAnuncio('livre');
 
         function iniciarFluxoAnuncio(tipo) {
-            tipoRecompensa = tipo; // Define qual prêmio será entregue no final
-            anuncioEmAndamento = true; 
-            tempoRestanteAnuncio = 15; // Atualizado para 15 segundos
-            
+            tipoRecompensa = tipo; anuncioEmAndamento = true; tempoRestanteAnuncio = 15;
             if(intervaloAnuncio) clearInterval(intervaloAnuncio);
             window.open(linkAnuncioAdsterra, '_blank');
-            
             openModal("VALIDANDO RECOMPENSA", `Permaneça na página do anúncio.<br><div class="contador-video" id="modalContador">15</div>`, 'alert');
-            
             mFooter.innerHTML = '<span style="font-size:0.7rem; color:var(--gold-dark); font-weight:900;">CONTANDO...</span>';
-            
             intervaloAnuncio = setInterval(() => {
                 if (document.visibilityState === 'hidden') {
                     tempoRestanteAnuncio--;
                     const display = document.getElementById('modalContador');
                     if(display) display.innerText = tempoRestanteAnuncio;
                 }
-                if (tempoRestanteAnuncio <= 0) { 
-                    clearInterval(intervaloAnuncio); 
-                    anuncioEmAndamento = false; 
-                    finalizarRecompensa(); 
-                }
+                if (tempoRestanteAnuncio <= 0) { clearInterval(intervaloAnuncio); anuncioEmAndamento = false; finalizarRecompensa(); }
             }, 1000);
         }
 
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible' && anuncioEmAndamento && tempoRestanteAnuncio > 0) {
-                clearInterval(intervaloAnuncio); 
-                anuncioEmAndamento = false;
+                clearInterval(intervaloAnuncio); anuncioEmAndamento = false;
                 mTitle.innerText = "VALIDAÇÃO FALHOU!";
-                mContent.innerHTML = `<div class="modal-text" style="color:var(--wrong)">Você voltou muito cedo, aguarde 15 segundos no anúncio para receber sua recompensa!</div>`;
+                mContent.innerHTML = `<div class="modal-text" style="color:var(--wrong)">Você voltou muito cedo! Aguarde os 15 segundos no anúncio para receber o prémio.</div>`;
                 mFooter.innerHTML = '';
-                const btnRetry = document.createElement('button'); btnRetry.className = 'modal-btn-confirm'; btnRetry.innerText = 'RE-TENTAR';
+                const btnRetry = document.createElement('button'); btnRetry.className = 'modal-btn-confirm'; btnRetry.innerText = 'TENTAR NOVAMENTE';
                 btnRetry.onclick = () => { modal.style.display='none'; iniciarFluxoAnuncio(tipoRecompensa); };
                 mFooter.appendChild(btnRetry);
             }
@@ -462,30 +423,24 @@
 
         async function finalizarRecompensa() {
             modal.style.display = 'none';
-            let up = {};
-            let msg = "";
+            let up = {}; let msg = "";
 
             if (tipoRecompensa === "moeda") {
                 up = { saldo: increment(300), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
-                msg = "Você recebeu 300 moedas!";
+                msg = "Ganhou 300 moedas!";
             } else if (tipoRecompensa === "pdl") {
                 up = { xp: increment(300), videosAssistidos: increment(1) };
-                msg = "Você recebeu 300 PDL!";
+                msg = "Ganhou 300 PDL!";
             } else if (tipoRecompensa === "livre") {
-                up = { saldo: increment(10), xp: increment(25) };
-                msg = "Bônus Livre: +10 Moedas e +25 PDL!";
+                // ALTERADO PARA +50 PDL
+                up = { saldo: increment(10), xp: increment(50) };
+                msg = "Bónus Livre: +10 Moedas e +50 PDL!";
             }
 
-            // Para recompensas de meta (300), checa se completou 3 vídeos para resetar o quiz
             if (tipoRecompensa !== "livre") {
-                const novoTotalVideos = (videosAssistidos || 0) + 1;
-                if (novoTotalVideos >= 3) { 
-                    up.acertos = 0; 
-                    up.videosAssistidos = 0; 
-                    setTimeout(() => carregarQuestao(), 500);
-                }
+                const proxVideo = (videosAssistidos || 0) + 1;
+                if (proxVideo >= 3) { up.acertos = 0; up.videosAssistidos = 0; setTimeout(() => carregarQuestao(), 500); }
             }
-
             await updateDoc(userRef, up);
             openModal("SUCESSO", msg);
         }
@@ -494,14 +449,12 @@
             const c = document.getElementById('opcoes'), t = document.getElementById('perguntaTexto');
             if(!c || !t) return;
             if (videosAssistidos < 3 && acertosNoCiclo >= 10) { t.innerText = ""; c.innerHTML = ""; return; }
-            if (bancoPerguntas.length === 0) { t.innerText = "Sincronizando..."; return; }
+            if (bancoPerguntas.length === 0) { t.innerText = "A sincronizar questões..."; return; }
             if (totalVideosHoje >= 35 && acertosNoCiclo >= 10) { t.innerText = "LIMITE DIÁRIO ATINGIDO!"; c.innerHTML = ""; return; }
             if (acertosNoCiclo >= 10) { t.innerText = ""; c.innerHTML = ""; return; }
-            
             const q = bancoPerguntas[Math.floor(Math.random()*bancoPerguntas.length)];
             let opts = q.opcoes.map((o, i) => ({ texto: o, correta: i === q.correta })).sort(() => Math.random() - 0.5);
             t.innerText = q.pergunta; c.innerHTML = "";
-            
             opts.forEach(o => {
                 const b = document.createElement('button'); b.className = "option-btn"; b.innerText = o.texto;
                 b.onclick = async () => {
@@ -512,8 +465,7 @@
                         await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10) });
                     } else {
                         b.classList.add('btn-wrong'); showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
-                        let novoXP = Math.max(0, pdlInterno - 2); 
-                        await updateDoc(userRef, { xp: novoXP });
+                        let novoXP = Math.max(0, pdlInterno - 2); await updateDoc(userRef, { xp: novoXP });
                     }
                     setTimeout(carregarQuestao, 1200);
                 };
@@ -528,34 +480,18 @@
             btnResgate.onclick = async () => {
                 const chave = document.getElementById('chavePix').value.trim();
                 const saldoAtualNum = Number(goldDB);
-
-                if (saldoAtualNum < metaAtual || chave.length < 5) { 
-                    openModal("ERRO", "Saldo insuficiente ou chave Pix inválida."); 
-                    return; 
-                }
-
+                if (saldoAtualNum < metaAtual || chave.length < 5) { openModal("ERRO", "Saldo insuficiente ou chave Pix inválida."); return; }
                 openModal("CONFIRMAR", `Deseja resgatar R$ ${valorReaisMeta} para: ${chave}?`, 'confirm', async () => {
                     modal.style.display = 'none';
                     try {
                         const custoNum = Number(metaAtual);
                         await addDoc(collection(db, "resgates"), {
-                            usuarioId: auth.currentUser.uid,
-                            chavePix: chave,
-                            valorGold: custoNum,
-                            goldAnterior: saldoAtualNum, 
-                            goldPosResgate: (saldoAtualNum - custoNum), 
-                            valorReais: valorReaisMeta, 
-                            status: "Pendente",
-                            data: new Date().toLocaleString('pt-BR'),
-                            timestamp: Date.now()
+                            usuarioId: auth.currentUser.uid, chavePix: chave, valorGold: custoNum, goldAnterior: saldoAtualNum, 
+                            goldPosResgate: (saldoAtualNum - custoNum), valorReais: valorReaisMeta, status: "Pendente",
+                            data: new Date().toLocaleString('pt-BR'), timestamp: Date.now()
                         });
                         await updateDoc(userRef, { saldo: increment(-custoNum) });
-                        
-                        openModal(
-                            `<span style="color:var(--gold)">SOLICITAÇÃO FEITA!</span>`, 
-                            `O envio do Pix pode demorar até <span style="color:var(--gold); font-weight:bold;">24hr</span> devido a Alta demanda!`, 
-                            'alert'
-                        );
+                        openModal(`<span style="color:var(--gold)">SOLICITAÇÃO ENVIADA!</span>`, `O envio pode demorar até <span style="color:var(--gold); font-weight:bold;">24h</span>!`, 'alert');
                     } catch (e) { openModal("ERRO", "Falha ao processar."); }
                 });
             };
