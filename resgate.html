@@ -331,7 +331,8 @@ function getEloInfo(valorXP) {
             label.innerText = subiu ? "PROMOÇÃO DE ELO" : "REBAIXAMENTO DE ELO";
             label.style.color = subiu ? "#c89b3c" : "#dc3545";
             text.innerText = infoElo.nome; text.style.color = infoElo.color;
-            overlay.style.display = 'flex'; setTimeout(() => { overlay.style.display = 'none'; }, 3000);
+            overlay.style.display = 'flex'; 
+            setTimeout(() => { overlay.style.display = 'none'; }, 5000); // Duração de 5 segundos conforme pedido
         }
 
         function openModal(title, text, type = 'alert', onConfirm = null) {
@@ -343,7 +344,13 @@ function getEloInfo(valorXP) {
                 const bX = document.createElement('button'); bX.className = 'option-btn'; bX.innerText = 'VOLTAR'; bX.onclick = () => modal.style.display = 'none';
                 mFooter.appendChild(bC); mFooter.appendChild(bX);
             } else {
-                const bO = document.createElement('button'); bO.className = 'modal-btn-confirm'; bO.innerText = 'ENTENDI'; bO.onclick = () => { if(!anuncioEmAndamento) modal.style.display = 'none'; };
+                const bO = document.createElement('button'); bO.className = 'modal-btn-confirm'; bO.innerText = 'ENTENDI'; 
+                bO.onclick = () => { 
+                    if(!anuncioEmAndamento) {
+                        modal.style.display = 'none';
+                        if(onConfirm) onConfirm(); // Executa a animação de elo após fechar
+                    } 
+                };
                 mFooter.appendChild(bO);
             }
             modal.style.display = 'flex';
@@ -454,16 +461,21 @@ function getEloInfo(valorXP) {
             modal.style.display = 'none';
             let up = {}; let msg = "";
             const eloAntes = getEloInfo(pdlInterno).nome;
+            const centerW = window.innerWidth / 2;
+            const centerH = window.innerHeight / 2;
 
             if (tipoRecompensa === "moeda") {
                 up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
-                msg = "Ganhou 500 moedas!";
+                msg = "Você ganhou 500 moedas!";
+                showFloatingPDL("+500 Gold", "#c89b3c", centerW, centerH);
             } else if (tipoRecompensa === "pdl") {
                 up = { xp: increment(500), videosAssistidos: increment(1) };
-                msg = "Ganhou 500 PDL!";
+                msg = "Você ganhou 500 PDL!";
+                showFloatingPDL("+500 PDL", "#28a745", centerW, centerH);
             } else if (tipoRecompensa === "livre") {
                 up = { saldo: increment(10), xp: increment(100) };
                 msg = "Bônus Livre: +10 Moedas e +100 PDL!";
+                showFloatingPDL("+100 PDL", "#28a745", centerW, centerH);
             }
 
             if (tipoRecompensa !== "livre") {
@@ -472,14 +484,14 @@ function getEloInfo(valorXP) {
             }
             
             await updateDoc(userRef, up);
-            openModal("SUCESSO", msg);
-
-            setTimeout(() => {
+            
+            // Modal de Sucesso com callback para disparar animação de elo ao clicar em "Entendi"
+            openModal("RECOMPENSA LIBERADA", msg, 'alert', () => {
                 const infoNovo = getEloInfo(pdlInterno);
                 if (infoNovo.nome !== eloAntes) {
-                    setTimeout(() => { modal.style.display = 'none'; exibirAnimacaoElo(infoNovo, true); }, 2000);
+                    exibirAnimacaoElo(infoNovo, true);
                 }
-            }, 500);
+            });
         }
 
         function carregarQuestao() {
