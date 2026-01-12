@@ -521,20 +521,31 @@
             opts.forEach(o => {
                 const b = document.createElement('button'); b.className = "option-btn"; b.innerText = o.texto;
                 b.onclick = async () => {
-                    const all = c.querySelectorAll('button'); all.forEach(x => x.disabled = true);
+                    const all = c.querySelectorAll('button'); 
+                    all.forEach(x => x.disabled = true);
                     const rect = b.getBoundingClientRect();
+
                     if (o.correta) {
-                        b.classList.add('btn-correct'); showFloatingPDL("+10 PDL", "#28a745", rect.left + rect.width/2, rect.top);
-                        await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10) });
+                        b.classList.add('btn-correct'); 
+                        showFloatingPDL("+10 PDL", "#28a745", rect.left + rect.width/2, rect.top);
+                        // No acerto, o valor é sempre positivo, então não trava
+                        await updateDoc(userRef, { saldo: increment(1), acertos: increment(1), xp: increment(10) });
                     } else {
-                        b.classList.add('btn-wrong'); showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
-                        let novoXP = Math.max(0, pdlInterno - 2); await updateDoc(userRef, { xp: novoXP });
+                        b.classList.add('btn-wrong'); 
+                        showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
+                        
+                        // --- AJUSTE AQUI ---
+                        try {
+                            let novoXP = Math.max(0, pdlInterno - 2); 
+                            await updateDoc(userRef, { xp: novoXP });
+                        } catch (e) {
+                            console.log("Erro ao abater PDL, mas seguindo o jogo...");
+                        }
+                        // -------------------
                     }
+                    // Este código agora SEMPRE será executado:
                     setTimeout(carregarQuestao, 1200);
                 };
-                c.appendChild(b);
-            });
-        }
 
         window.setResgate = (el, v, r) => { metaAtual = v; valorReaisMeta = r; document.querySelectorAll('.resgate-opt').forEach(o => o.classList.remove('active')); el.classList.add('active'); atualizarInterface(); }
 
