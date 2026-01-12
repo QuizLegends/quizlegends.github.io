@@ -173,9 +173,11 @@
                 <span style="font-size: 0.65rem; color: var(--gold); text-transform: uppercase; display: block; margin-bottom: 5px;">Limite Diário Moedas: <span id="limitDiario">0/35</span></span>
                 <div class="video-buttons-container">
                     <button id="btnVideo" class="video-btn">📺 +300 MOEDAS <span>META 10</span></button>
+                    
                     <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">
-                        📺 +10 MOEDAS <span>+50 PDL</span>
+                        📺 +10 MOEDAS <span>+100 PDL</span>
                     </button>
+                    
                     <button id="btnVideoXP" class="video-btn">📺 +500 PDL <span>META 10</span></button>
                 </div>
             </div>
@@ -394,7 +396,7 @@
             }
         }
 
-     function showFloatingPDL(text, color, x, y) {
+    function showFloatingPDL(text, color, x, y) {
             const el = document.createElement('div'); el.className = 'floating-pdl'; el.innerText = text; el.style.color = color; el.style.left = `${x}px`; el.style.top = `${y}px`;
             document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
         }
@@ -439,12 +441,12 @@
                 up = { saldo: increment(300), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
                 msg = "Ganhou 300 moedas!";
             } else if (tipoRecompensa === "pdl") {
-                // ATUALIZADO PARA +500 PDL
                 up = { xp: increment(500), videosAssistidos: increment(1) };
                 msg = "Ganhou 500 PDL!";
             } else if (tipoRecompensa === "livre") {
-                up = { saldo: increment(10), xp: increment(50) };
-                msg = "Bónus Livre: +10 Moedas e +50 PDL!";
+                // ATUALIZADO PARA +100 PDL
+                up = { saldo: increment(10), xp: increment(100) };
+                msg = "Bónus Livre: +10 Moedas e +100 PDL!";
             }
 
             if (tipoRecompensa !== "livre") {
