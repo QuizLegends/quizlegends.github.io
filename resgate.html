@@ -511,15 +511,24 @@
         function carregarQuestao() {
             const c = document.getElementById('opcoes'), t = document.getElementById('perguntaTexto');
             if(!c || !t) return;
+
+            // Verificações de limites
             if (videosAssistidos < 3 && acertosNoCiclo >= 10) { t.innerText = ""; c.innerHTML = ""; return; }
             if (bancoPerguntas.length === 0) { t.innerText = "A sincronizar questões..."; return; }
             if (totalVideosHoje >= 35 && acertosNoCiclo >= 10) { t.innerText = "LIMITE DIÁRIO ATINGIDO!"; c.innerHTML = ""; return; }
             if (acertosNoCiclo >= 10) { t.innerText = ""; c.innerHTML = ""; return; }
+
             const q = bancoPerguntas[Math.floor(Math.random()*bancoPerguntas.length)];
             let opts = q.opcoes.map((o, i) => ({ texto: o, correta: i === q.correta })).sort(() => Math.random() - 0.5);
-            t.innerText = q.pergunta; c.innerHTML = "";
+            
+            t.innerText = q.pergunta; 
+            c.innerHTML = "";
+
             opts.forEach(o => {
-                const b = document.createElement('button'); b.className = "option-btn"; b.innerText = o.texto;
+                const b = document.createElement('button'); 
+                b.className = "option-btn"; 
+                b.innerText = o.texto;
+
                 b.onclick = async () => {
                     const all = c.querySelectorAll('button'); 
                     all.forEach(x => x.disabled = true);
@@ -528,24 +537,24 @@
                     if (o.correta) {
                         b.classList.add('btn-correct'); 
                         showFloatingPDL("+10 PDL", "#28a745", rect.left + rect.width/2, rect.top);
-                        // No acerto, o valor é sempre positivo, então não trava
-                        await updateDoc(userRef, { saldo: increment(1), acertos: increment(1), xp: increment(10) });
+                        try {
+                            await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10) });
+                        } catch (e) { console.error("Erro no acerto:", e); }
                     } else {
                         b.classList.add('btn-wrong'); 
                         showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
-                        
-                        // --- AJUSTE AQUI ---
                         try {
+                            // Proteção para não ficar negativo e travar
                             let novoXP = Math.max(0, pdlInterno - 2); 
                             await updateDoc(userRef, { xp: novoXP });
-                        } catch (e) {
-                            console.log("Erro ao abater PDL, mas seguindo o jogo...");
-                        }
-                        // -------------------
+                        } catch (e) { console.error("Erro no erro:", e); }
                     }
-                    // Este código agora SEMPRE será executado:
+                    // Chama a próxima questão após 1.2 segundos
                     setTimeout(carregarQuestao, 1200);
                 };
+                c.appendChild(b);
+            });
+        } // <--- Certifique-se de que esta chave fecha a função corretamente
 
         window.setResgate = (el, v, r) => { metaAtual = v; valorReaisMeta = r; document.querySelectorAll('.resgate-opt').forEach(o => o.classList.remove('active')); el.classList.add('active'); atualizarInterface(); }
 
