@@ -23,7 +23,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "admin.png",
+      "src": "admin-vertical.png",
       "sizes": "585x1024",
       "type": "image/png",
       "purpose": "any"
