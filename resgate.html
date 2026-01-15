@@ -395,50 +395,75 @@
         const LIMITE_DIARIO = 35;
 
         function atualizarInterface() {
+            // 1. PRIMEIRO O ELO E SALDO (Prioridade total para não sumir)
             if(!document.getElementById('goldAmount')) return;
+            
+            // Tratamento de erro para variáveis que podem vir vazias do banco
+            const vMoedasHoje = typeof totalVideosHoje !== 'undefined' ? totalVideosHoje : 0;
+            const vLivreHoje = typeof resgatesLivreHoje !== 'undefined' ? resgatesLivreHoje : 0;
+            const pAcertos = typeof acertosNoCiclo !== 'undefined' ? acertosNoCiclo : 0;
+            const vAssistidos = typeof videosAssistidos !== 'undefined' ? videosAssistidos : 0;
+
             document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
             
-            // Atualiza o contador geral (se você ainda usar o ID limitDiario)
-            document.getElementById('limitDiario').innerText = `${totalVideosHoje}/35`;
-            
-            // Atualiza o contador específico do Bônus Livre (0/35)
-            const displayLivre = document.getElementById('contLivreIndividual');
-            if(displayLivre) displayLivre.innerText = `${resgatesLivreHoje || 0}/35`;
-
-            document.getElementById('progressBar').style.width = Math.min((goldDB/metaAtual)*100, 100) + "%";
-            document.getElementById('txtPorcentagem').innerText = Math.floor(Math.min((goldDB/metaAtual)*100, 100)) + "%";
-            
+            // Lógica do Elo
             const info = getEloInfo(pdlInterno);
             const eloBadge = document.getElementById('txtElo');
-            eloBadge.innerText = info.nome; eloBadge.style.backgroundColor = info.bg; eloBadge.style.color = info.color;
+            if(eloBadge) {
+                eloBadge.innerText = info.nome; 
+                eloBadge.style.backgroundColor = info.bg; 
+                eloBadge.style.color = info.color;
+            }
             
+            // Barras de Progresso
+            document.getElementById('progressBar').style.width = Math.min((goldDB/metaAtual)*100, 100) + "%";
+            document.getElementById('txtPorcentagem').innerText = Math.floor(Math.min((goldDB/metaAtual)*100, 100)) + "%";
             const percXP = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
             document.getElementById('xpMiniFill').style.width = Math.min(percXP, 100) + "%";
             document.getElementById('xpMiniFill').style.backgroundColor = info.bar;
             document.getElementById('txtMeta').innerText = `Meta: ${metaAtual >= 1000000 ? (metaAtual/1000000).toFixed(1) + "M" : (metaAtual/1000).toFixed(0) + "k"}`;
+
+            // 2. DEPOIS OS CONTADORES DOS BOTÕES
+            const displayMoeda = document.getElementById('limitDiario');
+            if(displayMoeda) displayMoeda.innerText = `${vMoedasHoje}/35`;
             
+            const displayLivre = document.getElementById('contLivreIndividual');
+            if(displayLivre) displayLivre.innerText = `${vLivreHoje}/35`;
+
+            // 3. STATUS DOS BOTÕES E AVISOS
             const btnV = document.getElementById('btnVideo');
             const btnVXP = document.getElementById('btnVideoXP');
             const btnVLivre = document.getElementById('btnVideoLivre');
             const aviso = document.getElementById('avisoStatusQuiz');
             
-            // Regra: Bloqueia botão de moedas se atingir 35 no total hoje
-            btnV.disabled = (acertosNoCiclo < 10 || totalVideosHoje >= 35);
-            btnVXP.disabled = (acertosNoCiclo < 10);
+            if(btnV) {
+                btnV.disabled = (pAcertos < 10 || vMoedasHoje >= 35);
+                btnV.classList.toggle('active', !btnV.disabled);
+            }
             
-            // Regra: Botão Livre bloqueia se atingir 35 OU se estiver no cooldown de 60s
-            btnVLivre.disabled = (tempoCooldownLivre > 0 || (resgatesLivreHoje || 0) >= 35);
-
-            btnV.classList.toggle('active', !btnV.disabled);
-            btnVXP.classList.toggle('active', !btnVXP.disabled);
-            btnVLivre.classList.toggle('active', !btnVLivre.disabled);
+            if(btnVXP) {
+                btnVXP.disabled = (pAcertos < 10);
+                btnVXP.classList.toggle('active', !btnVXP.disabled);
+            }
             
-            if (acertosNoCiclo < 10) {
-                aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
-            } else if (videosAssistidos < 3) {
-                aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS PARA LIBERAR O QUIZ</span>`;
-            } else {
-                aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
+            if(btnVLivre) {
+                // Bloqueia por cooldown OU limite diário
+                btnVLivre.disabled = (tempoCooldownLivre > 0 || vLivreHoje >= 35);
+                btnVLivre.classList.toggle('active', !btnVLivre.disabled);
+                // Se estiver em cooldown, o texto é gerenciado pela função iniciarCooldownLivre
+                if(tempoCooldownLivre <= 0) {
+                    btnVLivre.innerHTML = `📺 +10 MOEDAS / +100 PDL <br><span id="contLivreIndividual" style="font-size: 0.6rem; color: #f0e6d2;">${vLivreHoje}/35</span>`;
+                }
+            }
+            
+            if(aviso) {
+                if (pAcertos < 10) {
+                    aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-pAcertos}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
+                } else if (vAssistidos < 3) {
+                    aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-vAssistidos}</span> ANÚNCIOS PARA LIBERAR O QUIZ</span>`;
+                } else {
+                    aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
+                }
             }
         }
 
