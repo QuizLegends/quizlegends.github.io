@@ -436,7 +436,15 @@ function executarCronometroVisual(segundos) {
         function atualizarInterface() {
             if(!document.getElementById('goldAmount')) return;
             document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
-            document.getElementById('limitDiario').innerText = `${totalVideosHoje}/35`;
+            const elementoLimite = document.getElementById('txtLimiteBotao');
+            if (elementoLimite) {
+            elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
+            if (totalVideosHoje >= 35) {
+            elementoLimite.style.color = "#dc3545"; 
+          } else {
+            elementoLimite.style.color = "inherit"; 
+         }
+     }
             document.getElementById('progressBar').style.width = Math.min((goldDB/metaAtual)*100, 100) + "%";
             document.getElementById('txtPorcentagem').innerText = Math.floor(Math.min((goldDB/metaAtual)*100, 100)) + "%";
             const info = getEloInfo(pdlInterno);
