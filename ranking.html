@@ -52,26 +52,33 @@
         .ranking-item {
             display: flex;
             align-items: center;
-            background: rgba(9, 20, 40, 0.8);
+            background: rgba(9, 20, 40, 0.85);
             border: 1px solid var(--borda-item);
-            padding: 8px 12px;
+            padding: 8px 15px;
             border-radius: 4px;
-            height: 65px;
+            height: 70px;
+            transition: 0.3s;
+        }
+
+        .ranking-item:hover {
+            background: rgba(10, 200, 185, 0.05);
+            border-color: var(--ouro);
         }
 
         .posicao {
             font-weight: 900;
             color: var(--ouro-brilhante);
-            width: 35px;
+            width: 40px;
             flex-shrink: 0;
             font-size: 1.1rem;
+            text-align: center;
         }
 
         .coluna-elo {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 85px;
+            width: 90px;
             flex-shrink: 0;
         }
 
@@ -97,21 +104,23 @@
             border: 1.5px solid var(--ouro);
             margin: 0 12px;
             flex-shrink: 0;
+            object-fit: cover;
         }
 
         .nome {
             flex-grow: 1;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: #fff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            padding-right: 10px;
         }
 
         .info-pdl {
-            width: 100px;
+            width: 110px;
             text-align: right;
             flex-shrink: 0;
         }
@@ -140,7 +149,7 @@
             color: #000;
         }
 
-        .loading { text-align: center; color: var(--ouro); padding: 50px; }
+        .loading { text-align: center; color: var(--ouro); padding: 50px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -177,63 +186,64 @@
         function getEloInfo(xp) {
             let elo = { nome: "", arquivo: "" };
 
-            if (xp >= 100000) { elo.nome = "Desafiante"; elo.arquivo = "desafiante.png"; }
-            else if (xp >= 85000) { elo.nome = "Grão-Mestre"; elo.arquivo = "graomestre.png"; }
-            else if (xp >= 70000) { elo.nome = "Mestre"; elo.arquivo = "mestre.png"; }
-            else if (xp >= 50000) {
+            if (xp >= 1000000) { elo.nome = "Desafiante"; elo.arquivo = "desafiante.png"; }
+            else if (xp >= 600000) { elo.nome = "Grão-Mestre"; elo.arquivo = "graomestre.png"; }
+            else if (xp >= 300000) { elo.nome = "Mestre"; elo.arquivo = "mestre.png"; }
+            
+            else if (xp >= 150000) {
                 elo.arquivo = "diamante.png";
-                if (xp >= 66000) elo.nome = "Diamante I";
-                else if (xp >= 62000) elo.nome = "Diamante II";
-                else if (xp >= 58000) elo.nome = "Diamante III";
-                else if (xp >= 54000) elo.nome = "Diamante IV";
+                if (xp >= 270000) elo.nome = "Diamante I";
+                else if (xp >= 240000) elo.nome = "Diamante II";
+                else if (xp >= 210000) elo.nome = "Diamante III";
+                else if (xp >= 180000) elo.nome = "Diamante IV";
                 else elo.nome = "Diamante V";
             }
-            else if (xp >= 35000) {
+            else if (xp >= 100000) {
                 elo.arquivo = "esmeralda.png";
-                if (xp >= 47000) elo.nome = "Esmeralda I";
-                else if (xp >= 44000) elo.nome = "Esmeralda II";
-                else if (xp >= 41000) elo.nome = "Esmeralda III";
-                else if (xp >= 38000) elo.nome = "Esmeralda IV";
+                if (xp >= 140000) elo.nome = "Esmeralda I";
+                else if (xp >= 130000) elo.nome = "Esmeralda II";
+                else if (xp >= 120000) elo.nome = "Esmeralda III";
+                else if (xp >= 110000) elo.nome = "Esmeralda IV";
                 else elo.nome = "Esmeralda V";
             }
-            else if (xp >= 20000) {
+            else if (xp >= 60000) {
                 elo.arquivo = "platina.png";
-                if (xp >= 32000) elo.nome = "Platina I";
-                else if (xp >= 29000) elo.nome = "Platina II";
-                else if (xp >= 26000) elo.nome = "Platina III";
-                else if (xp >= 23000) elo.nome = "Platina IV";
+                if (xp >= 92000) elo.nome = "Platina I";
+                else if (xp >= 84000) elo.nome = "Platina II";
+                else if (xp >= 76000) elo.nome = "Platina III";
+                else if (xp >= 68000) elo.nome = "Platina IV";
                 else elo.nome = "Platina V";
             }
-            else if (xp >= 10000) {
+            else if (xp >= 30000) {
                 elo.arquivo = "ouro.png";
-                if (xp >= 18000) elo.nome = "Ouro I";
-                else if (xp >= 16000) elo.nome = "Ouro II";
-                else if (xp >= 14000) elo.nome = "Ouro III";
-                else if (xp >= 12000) elo.nome = "Ouro IV";
+                if (xp >= 54000) elo.nome = "Ouro I";
+                else if (xp >= 48000) elo.nome = "Ouro II";
+                else if (xp >= 42000) elo.nome = "Ouro III";
+                else if (xp >= 36000) elo.nome = "Ouro IV";
                 else elo.nome = "Ouro V";
             }
-            else if (xp >= 5000) {
+            else if (xp >= 10000) {
                 elo.arquivo = "prata.png";
-                if (xp >= 9000) elo.nome = "Prata I";
-                else if (xp >= 8000) elo.nome = "Prata II";
-                else if (xp >= 7000) elo.nome = "Prata III";
-                else if (xp >= 6000) elo.nome = "Prata IV";
+                if (xp >= 26000) elo.nome = "Prata I";
+                else if (xp >= 22000) elo.nome = "Prata II";
+                else if (xp >= 18000) elo.nome = "Prata III";
+                else if (xp >= 14000) elo.nome = "Prata IV";
                 else elo.nome = "Prata V";
             }
-            else if (xp >= 2500) {
+            else if (xp >= 5000) {
                 elo.arquivo = "bronze.png";
-                if (xp >= 4500) elo.nome = "Bronze I";
-                else if (xp >= 4000) elo.nome = "Bronze II";
-                else if (xp >= 3500) elo.nome = "Bronze III";
-                else if (xp >= 3000) elo.nome = "Bronze IV";
+                if (xp >= 9000) elo.nome = "Bronze I";
+                else if (xp >= 8000) elo.nome = "Bronze II";
+                else if (xp >= 7000) elo.nome = "Bronze III";
+                else if (xp >= 6000) elo.nome = "Bronze IV";
                 else elo.nome = "Bronze V";
             }
             else {
                 elo.arquivo = "ferro.png";
-                if (xp >= 2000) elo.nome = "Ferro I";
-                else if (xp >= 1500) elo.nome = "Ferro II";
-                else if (xp >= 1000) elo.nome = "Ferro III";
-                else if (xp >= 500) elo.nome = "Ferro IV";
+                if (xp >= 4000) elo.nome = "Ferro I";
+                else if (xp >= 3000) elo.nome = "Ferro II";
+                else if (xp >= 2000) elo.nome = "Ferro III";
+                else if (xp >= 1000) elo.nome = "Ferro IV";
                 else elo.nome = "Ferro V";
             }
             return elo;
@@ -258,7 +268,7 @@
                     item.innerHTML = `
                         <div class="posicao">${posicao}°</div>
                         <div class="coluna-elo">
-                            <img src="${elo.arquivo}" class="elo-emblema" alt="${elo.nome}" onerror="this.src='${ICONE_PADRAO}'">
+                            <img src="${elo.arquivo}" class="elo-emblema" alt="${elo.nome}" onerror="this.src='${ICONE_PADRAO}'; this.style.borderRadius='50%';">
                             <span class="elo-nome-abaixo">${elo.nome}</span>
                         </div>
                         <img src="${foto}" class="user-avatar" onerror="this.src='${ICONE_PADRAO}'">
@@ -270,10 +280,16 @@
                     container.appendChild(item);
                     posicao++;
                 });
+
+                if (querySnapshot.empty) {
+                    container.innerHTML = "<div class='loading'>Nenhum guerreiro encontrado.</div>";
+                }
             } catch (error) {
-                console.error(error);
+                console.error("Erro no carregamento:", error);
+                document.getElementById('lista-ranking').innerHTML = "<div class='loading'>Erro ao conectar com o Reino.</div>";
             }
         }
+
         carregarRanking();
     </script>
 </body>
