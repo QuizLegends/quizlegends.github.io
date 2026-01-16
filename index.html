@@ -289,7 +289,7 @@
                     
                     if (!data.boasVindasResgatado) {
                         const textoEpico = `
-                            Saudações, Invocador!<br><br>
+                            Seja Bem-vindo!<br><br>
                             Você acaba de entrar no <b>Quiz Legends</b>, o campo de batalha onde o raciocínio é sua habilidade mais valiosa. 
                             Aqui, a diversão caminha lado a lado com a competição implacável. Esteja avisado: nossas questões não perdoam e foram forjadas para testar até os limites do seu conhecimento. 
                             Muitos tentam, mas apenas os verdadeiros mestres de Runeterra possuem a precisão necessária para dominar o Ranking.<br><br>
@@ -301,7 +301,7 @@
                         btnModal.innerText = "RESGATAR 50.000 MOEDAS";
                         btnModal.style.background = "linear-gradient(to bottom, #c89b3c, #855f13)";
 
-                        exibirModal("BEM-VINDO, INVOCADOR!", textoEpico, "var(--ouro)", async () => {
+                        exibirModal("SAUDAÇÕES, INVOCADOR!", textoEpico, "var(--ouro)", async () => {
                             try {
                                 // Gravação direta e verificação de sucesso
                                 await updateDoc(userRef, { 
