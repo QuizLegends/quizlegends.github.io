@@ -50,10 +50,8 @@
             gap: 10px;
         }
 
-        /* ESTRUTURA EM GRID PARA ALINHAMENTO VERTICAL PERFEITO */
         .ranking-item {
-            display: grid;
-            grid-template-columns: 50px 90px 50px 1fr 100px;
+            display: flex;
             align-items: center;
             background: linear-gradient(90deg, var(--card-azul) 0%, rgba(1, 10, 19, 0.9) 100%);
             border: 1px solid var(--borda-item);
@@ -62,16 +60,13 @@
             transition: 0.2s;
         }
 
-        .ranking-item:hover {
-            border-color: var(--ouro);
-            transform: scale(1.01);
-        }
-
         .posicao {
             font-weight: 900;
             color: var(--ouro-brilhante);
             font-size: 1.1rem;
+            width: 45px;
             text-align: center;
+            flex-shrink: 0;
         }
 
         .coluna-elo {
@@ -79,49 +74,56 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            width: 100px;
+            flex-shrink: 0;
         }
 
         .elo-emblema {
-            width: 45px;
-            height: 45px;
+            width: 48px;
+            height: 48px;
             object-fit: contain;
         }
 
         .elo-nome-abaixo {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             color: var(--ouro);
             text-transform: uppercase;
             font-weight: bold;
             text-align: center;
-            white-space: nowrap;
+            margin-top: 2px;
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             border: 2px solid var(--ouro);
             object-fit: cover;
-            justify-self: center;
+            margin: 0 15px;
+            flex-shrink: 0;
         }
 
         .nome {
+            flex-grow: 1;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-size: 0.95rem;
-            padding-left: 10px;
+            font-size: 1rem;
+            color: #fff;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            padding-right: 10px;
         }
 
         .info-pdl {
             text-align: right;
+            flex-shrink: 0;
+            width: 110px;
         }
 
         .pdl-valor {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--hextech-blue);
             font-weight: bold;
         }
@@ -156,7 +158,7 @@
         </div>
 
         <div id="lista-ranking">
-            <div class="loading">Sincronizando Invocadores...</div>
+            <div class="loading">Sincronizando com o Nexus...</div>
         </div>
 
         <a href="resgate.html" class="btn-voltar">Voltar</a>
@@ -182,8 +184,7 @@
 
         function getEloInfo(xp) {
             let elo = { nome: "", arquivo: "" };
-            
-            // Ordem decrescente para garantir atualização precisa
+
             if (xp >= 120000) { elo.nome = "Desafiante"; elo.arquivo = "desafiante.png"; }
             else if (xp >= 90000) { elo.nome = "Grão-Mestre"; elo.arquivo = "graomestre.png"; }
             else if (xp >= 70000) { elo.nome = "Mestre"; elo.arquivo = "mestre.png"; }
@@ -198,9 +199,9 @@
             else if (xp >= 35000) {
                 elo.arquivo = "esmeralda.png";
                 if (xp >= 47000) elo.nome = "Esmeralda I";
-                else if (xp >= 44000) elo.nome = "Esmeralda III";
-                else if (xp >= 41000) elo.nome = "Esmeralda IV";
-                else if (xp >= 38000) elo.nome = "Esmeralda V";
+                else if (xp >= 44000) elo.nome = "Esmeralda II";
+                else if (xp >= 41000) elo.nome = "Esmeralda III";
+                else if (xp >= 38000) elo.nome = "Esmeralda IV";
                 else elo.nome = "Esmeralda V";
             }
             else if (xp >= 20000) {
@@ -287,7 +288,7 @@
                     container.innerHTML = "<div class='loading'>O reino está vazio.</div>";
                 }
             } catch (error) {
-                console.error("Erro no Firebase:", error);
+                console.error("Erro Firebase:", error);
             }
         }
         carregarRanking();
