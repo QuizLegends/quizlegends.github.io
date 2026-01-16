@@ -217,6 +217,17 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         let cooldownLivreAtivo = false;
+        const cooldownSalvo = localStorage.getItem('proximoVideoLivre');
+        if (cooldownSalvo) {
+        const agora = Date.now();
+        const tempoRestante = Math.floor((cooldownSalvo - agora) / 1000);
+
+        if (tempoRestante > 0) {
+        setTimeout(() => executarCronometroVisual(tempoRestante), 500);
+      } else {
+        localStorage.removeItem('proximoVideoLivre');
+    }
+}
         let bancoPerguntas = [];
         const firebaseConfig = { 
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E", 
@@ -346,32 +357,41 @@
             setTimeout(() => { overlay.style.display = 'none'; }, 5000); 
         }
 
-        function iniciarCooldownLivre(segundos) {
+          function iniciarCooldownLivre(segundos) {
+    // Salva o momento exato em que o botão deve ser liberado (agora + X segundos)
+    const tempoDesbloqueio = Date.now() + (segundos * 1000);
+    localStorage.setItem('proximoVideoLivre', tempoDesbloqueio);
+    
+    executarCronometroVisual(segundos);
+}
+
+function executarCronometroVisual(segundos) {
     const btn = document.getElementById('btnVideoLivre');
+    if (!btn) return;
+
     cooldownLivreAtivo = true;
     btn.disabled = true;
     btn.classList.remove('active');
-    btn.style.borderColor = "#555"; // Cor de desativado
+    btn.style.borderColor = "#555";
 
     let restante = segundos;
-    
+
     const intervalo = setInterval(() => {
         restante--;
-        // Atualiza o texto interno do botão com o contador verde
         btn.innerHTML = `AGUARDE <span style="color:#28a745; font-size: 0.7rem;">${restante}s</span>`;
 
         if (restante <= 0) {
             clearInterval(intervalo);
             cooldownLivreAtivo = false;
+            localStorage.removeItem('proximoVideoLivre'); // Limpa o salvo
             btn.disabled = false;
             btn.classList.add('active');
             btn.style.borderColor = "#28a745";
-            // Restaura o texto original
             btn.innerHTML = `📺 +10 MOEDAS <span>+100 PDL</span>`;
         }
     }, 1000);
 }
-          
+        
         function openModal(title, text, type = 'alert', onConfirm = null) {
             if(!modal) return;
             mTitle.innerHTML = title; mContent.innerHTML = `<div class="modal-text">${text}</div>`;
