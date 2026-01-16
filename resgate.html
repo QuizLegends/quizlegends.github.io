@@ -183,7 +183,7 @@
             <div style="text-align: center;">
                 <span style="font-size: 0.65rem; color: var(--gold); text-transform: uppercase; display: block; margin-bottom: 5px;">Limite Diário Moedas: <span id="limitDiario">0/35</span></span>
                 <div class="video-buttons-container">
-                    <button id="btnVideo" class="video-btn">📺 +500 MOEDAS <span>META 10 ACERTOS</span></button>
+                    <button id="btnVideo" class="video-btn">📺 +100 MOEDAS <span>META 10 ACERTOS</span></button>
                     
                     <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">
                         📺 +10 MOEDAS <span>+100 PDL</span>
@@ -475,8 +475,8 @@
             const centerH = window.innerHeight / 2;
 
             if (tipoRecompensa === "moeda") {
-                up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
-                msg = "Você ganhou 500 moedas!";
+                up = { saldo: increment(100), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
+                msg = "Você ganhou 100 moedas!";
                 showFloatingPDL("+500 Gold", "#c89b3c", centerW, centerH);
             } else if (tipoRecompensa === "pdl") {
                 up = { xp: increment(500), videosAssistidos: increment(1) };
