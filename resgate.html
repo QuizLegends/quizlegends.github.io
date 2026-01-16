@@ -247,49 +247,61 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
     import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        let cooldownLivreAtivo = false;
-        const cooldownSalvo = localStorage.getItem('proximoVideoLivre');
-    
-        if (cooldownSalvo) {
-        const agora = Date.now();
-        const tempoRestante = Math.floor((cooldownSalvo - agora) / 1000);
-        if (tempoRestante > 0) {
-            setTimeout(() => executarCronometroVisual(tempoRestante), 500);
+    // Variáveis do Modal
+    const modal = document.getElementById('custom-modal');
+    const mTitle = document.getElementById('m-title');
+    const mContent = document.getElementById('modal-body-content');
+    const mFooter = document.getElementById('m-footer');
+
+    // --- FUNÇÕES DE INTERFACE ---
+
+    function openModal(title, text, type = 'alert', onConfirm = null) {
+        if (!modal) return;
+        mTitle.innerHTML = title; 
+        mContent.innerHTML = `<div class="modal-text">${text}</div>`;
+        mFooter.innerHTML = '';
+
+        if (type === 'confirm') {
+            const bC = document.createElement('button'); 
+            bC.className = 'modal-btn-confirm'; 
+            bC.innerText = 'CONFIRMAR'; 
+            bC.onclick = onConfirm;
+            const bX = document.createElement('button'); 
+            bX.className = 'option-btn'; 
+            bX.innerText = 'VOLTAR'; 
+            bX.onclick = () => modal.style.display = 'none';
+            mFooter.appendChild(bC); mFooter.appendChild(bX);
         } else {
-            localStorage.removeItem('proximoVideoLivre');
+            const bO = document.createElement('button'); 
+            bO.className = 'modal-btn-confirm'; 
+            bO.innerText = 'ENTENDI'; 
+            bO.onclick = () => { modal.style.display = 'none'; if (onConfirm) onConfirm(); };
+            mFooter.appendChild(bO);
         }
+        modal.style.display = 'flex';
     }
 
-        async function atualizarPodioSemanal() {
+    async function atualizarPodioSemanal() {
         try {
-            const q = query(
-                collection(db, "usuarios"), 
-                orderBy("pdlSemanal", "desc"), 
-                limit(3)
-            );
-
+            const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"), limit(3));
             const querySnapshot = await getDocs(q);
             const vencedores = [];
-            querySnapshot.forEach((doc) => {
-                vencedores.push(doc.data());
-            });        
+            querySnapshot.forEach((doc) => { vencedores.push(doc.data()); });        
 
             if(vencedores[0]) atualizarVisualPodio(1, vencedores[0].nome, vencedores[0].fotoUrl);
             if(vencedores[1]) atualizarVisualPodio(2, vencedores[1].nome, vencedores[1].fotoUrl);
             if(vencedores[2]) atualizarVisualPodio(3, vencedores[2].nome, vencedores[2].fotoUrl);
-
         } catch (error) {
             console.error("Erro ao carregar pódio:", error);
         }
     }
 
-        function atualizarVisualPodio(posicao, nome, foto) {
+    function atualizarVisualPodio(posicao, nome, foto) {
         const selector = posicao === 1 ? "Lenda Atual" : (posicao === 2 ? "Player B" : "Player C");
         const containers = document.querySelectorAll("#containerRankingResumo small");
-        
         containers.forEach(el => {
             if(el.innerText === selector) {
                 el.innerText = nome.split(' ')[0]; 
@@ -303,13 +315,16 @@
         });
     }
 
-    window.abrirLoja = () => openModal("LOJA HEXTECH", "Itens e Buffs em desenvolvimento.");
-    window.abrirInventario = () => openModal("INVENTÁRIO", "Você não possui itens.");
-    window.abrirStatus = () => openModal("STATUS", "Nenhum buff ativo.");
-    window.abrirRanking = () => openModal("RANKING", "O ranking semanal reseta em breve.");
-    window.abrirPerfil = () => openModal("PERFIL", "Configurações de perfil em breve.");
-    window.abrirConquistas = () => openModal("BAÚS", "Ganhe baús vencendo desafios!");
+    // --- EXPOSIÇÃO GLOBAL (Para os botões do HTML funcionarem) ---
+    window.openModal = openModal;
+    window.abrirLoja = () => openModal("LOJA HEXTECH", "Bem-vindo! Em breve itens aqui.");
+    window.abrirInventario = () => openModal("INVENTÁRIO", "Seu inventário está vazio.");
+    window.abrirStatus = () => openModal("STATUS ATIVO", "Nenhum buff ativo.");
+    window.abrirRanking = () => openModal("RANKING SEMANAL", "O ranking reseta em 7 dias.");
+    window.abrirPerfil = () => openModal("PERFIL", "Edite seu perfil aqui em breve.");
+    window.abrirConquistas = () => openModal("MISSÕES", "Complete desafios e ganhe moedas!");
 
+    // --- INICIALIZAÇÃO ---
     atualizarPodioSemanal();
 
               
