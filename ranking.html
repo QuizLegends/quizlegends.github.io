@@ -24,7 +24,7 @@
         }
 
         .container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -41,6 +41,7 @@
             letter-spacing: 2px;
             margin: 0;
             font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
         }
 
         #lista-ranking {
@@ -52,25 +53,25 @@
         .ranking-item {
             display: flex;
             align-items: center;
-            background: rgba(9, 20, 40, 0.85);
+            background: rgba(9, 20, 40, 0.9);
             border: 1px solid var(--borda-item);
-            padding: 8px 15px;
+            padding: 5px 15px;
             border-radius: 4px;
-            height: 70px;
+            height: 75px;
             transition: 0.3s;
         }
 
         .ranking-item:hover {
-            background: rgba(10, 200, 185, 0.05);
             border-color: var(--ouro);
+            background: rgba(10, 200, 185, 0.05);
         }
 
         .posicao {
             font-weight: 900;
             color: var(--ouro-brilhante);
-            width: 40px;
+            width: 45px;
             flex-shrink: 0;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             text-align: center;
         }
 
@@ -78,31 +79,32 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 90px;
+            justify-content: center;
+            width: 100px;
             flex-shrink: 0;
         }
 
         .elo-emblema {
-            width: 45px;
-            height: 45px;
+            width: 48px;
+            height: 48px;
             object-fit: contain;
         }
 
         .elo-nome-abaixo {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             color: var(--ouro);
             text-transform: uppercase;
             font-weight: bold;
             margin-top: -2px;
-            white-space: nowrap;
+            text-align: center;
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             border: 1.5px solid var(--ouro);
-            margin: 0 12px;
+            margin: 0 15px;
             flex-shrink: 0;
             object-fit: cover;
         }
@@ -111,22 +113,22 @@
             flex-grow: 1;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: #fff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 10px;
+            min-width: 150px; /* Impede o nome de sumir */
         }
 
         .info-pdl {
-            width: 110px;
+            width: 120px;
             text-align: right;
             flex-shrink: 0;
         }
 
         .pdl-valor {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: var(--hextech-blue);
             font-weight: bold;
         }
@@ -134,7 +136,7 @@
         .btn-voltar {
             display: block;
             width: fit-content;
-            margin: 25px auto;
+            margin: 30px auto;
             border: 2px solid var(--ouro);
             color: var(--ouro);
             padding: 10px 30px;
@@ -160,7 +162,7 @@
         </div>
 
         <div id="lista-ranking">
-            <div class="loading">Sincronizando com o Nexus...</div>
+            <div class="loading">Invocando Dados do Nexus...</div>
         </div>
 
         <a href="resgate.html" class="btn-voltar">Voltar</a>
@@ -282,11 +284,11 @@
                 });
 
                 if (querySnapshot.empty) {
-                    container.innerHTML = "<div class='loading'>Nenhum guerreiro encontrado.</div>";
+                    container.innerHTML = "<div class='loading'>Ranking vazio.</div>";
                 }
             } catch (error) {
-                console.error("Erro no carregamento:", error);
-                document.getElementById('lista-ranking').innerHTML = "<div class='loading'>Erro ao conectar com o Reino.</div>";
+                console.error("Erro Firebase:", error);
+                document.getElementById('lista-ranking').innerHTML = "<div class='loading'>Erro ao carregar ranking.</div>";
             }
         }
 
