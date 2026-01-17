@@ -449,11 +449,10 @@ gerarEloComDivisoes("OURO", 30000, 60000);
 gerarEloComDivisoes("PLATINA", 60000, 100000);
 gerarEloComDivisoes("ESMERALDA", 100000, 150000);
 gerarEloComDivisoes("DIAMANTE", 150000, 300000);
-
-// ELOS DE ELITE (Definidos um a um para evitar erro de autenticação)
-configElo.push({ nome: "MESTRE", min: 300000, max: 600000, bg: "#5a1f7a", color: "#dfb3f7", bar: "#9b59b6" });
-configElo.push({ nome: "GRÃO-MESTRE", min: 600000, max: 1000000, bg: "#7a1f1f", color: "#f7b3b3", bar: "#e74c3c" });
-configElo.push({ nome: "DESAFIANTE", min: 1000000, max: 99999999, bg: "#1a4a5a", color: "#b3e7f7", bar: "#3498db" });
+// ELOS DE ELITE (Agora com a imagem configurada para cada um)
+configElo.push({ nome: "MESTRE", min: 300000, max: 600000, bg: "#5a1f7a", color: "#dfb3f7", bar: "#9b59b6", img: "mestre.png" });
+configElo.push({ nome: "GRÃO-MESTRE", min: 600000, max: 1000000, bg: "#7a1f1f", color: "#f7b3b3", bar: "#e74c3c", img: "graomestre.png" });
+configElo.push({ nome: "DESAFIANTE", min: 1000000, max: 99999999, bg: "#1a4a5a", color: "#b3e7f7", bar: "#3498db", img: "desafiante.png" });
 
 function getEloInfo(valorXP) { 
     if (valorXP <= 0) return configElo[0];
