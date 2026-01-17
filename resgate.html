@@ -332,30 +332,35 @@
         console.error("Erro ao carregar pódio:", error);
     }
 }
-    function atualizarVisualPodio(posicao, nome, foto) {
-    const container = document.getElementById("containerRankingResumo");
-    if (!container) return;
-
-    const itens = container.querySelectorAll("div[style*='flex-direction: column']");
     
-    let index;
-    if (posicao === 1) index = 1; 
-    else if (posicao === 2) index = 0; 
-    else index = 2; 
-
-    const target = itens[index];
-    if (!target) return;
-
-    const nomeEl = target.querySelector("small");
-    if (nomeEl) nomeEl.innerText = nome.split(' ')[0];
-
-    const circulo = target.querySelector("div[style*='border-radius: 50%']");
+function atualizarVisualPodio(posicao, nome, foto) {
+    const containers = document.querySelectorAll("#containerRankingResumo div[style*='flex-direction: column']");
     const fotoPadrao = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/0.jpg';
-    
-    if (circulo) {
-        const urlFinal = foto ? foto : fotoPadrao;
-        circulo.style.backgroundImage = `url('${urlFinal}')`;
-    }
+    const urlFinal = foto ? foto : fotoPadrao;
+
+    containers.forEach(box => {
+        const small = box.querySelector("small");
+        if (!small) return;
+
+        // Verifica qual player deve ser substituído
+        const textoAtual = small.innerText;
+        const ePrimeiro = (posicao === 1 && (textoAtual === "Lenda Atual" || textoAtual === nome.split(' ')[0]));
+        const eSegundo = (posicao === 2 && textoAtual === "Player B");
+        const eTerceiro = (posicao === 3 && textoAtual === "Player C");
+
+        if (ePrimeiro || eSegundo || eTerceiro) {
+            // Atualiza Nome
+            small.innerText = nome.split(' ')[0];
+            
+            // Atualiza Foto
+            const circulo = box.querySelector("div[style*='border-radius: 50%']");
+            if (circulo) {
+                circulo.style.backgroundImage = `url('${urlFinal}')`;
+                circulo.style.backgroundSize = "cover";
+                circulo.style.backgroundPosition = "center";
+            }
+        }
+    });
 }
 
     // --- 3. CONFIGURAÇÃO DE ELOS E CORES ---
