@@ -11,6 +11,7 @@
             --card: #091428;
             --verde: #28a745;
             --erro: #ff4444;
+            --azul-escuro: #0a1428;
         }
 
         body { background: var(--fundo); color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
@@ -18,10 +19,15 @@
         .lock-box { border: 2px solid var(--ouro); padding: 40px; background: var(--card); border-radius: 10px; text-align: center; width: 300px; }
         
         #painel_conteudo { display: none; max-width: 700px; margin: 0 auto; }
-        h2 { color: var(--ouro); border-bottom: 2px solid var(--ouro); padding-bottom: 10px; display: flex; justify-content: space-between; }
+        h2 { color: var(--ouro); border-bottom: 2px solid var(--ouro); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         
         input { padding: 14px; border-radius: 5px; border: 1px solid var(--ouro); background: #000; color: #fff; width: 100%; box-sizing: border-box; margin-bottom: 15px; }
         button.primary { background: var(--ouro); color: black; border: none; padding: 14px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+
+        /* Estilo do Painel de Reset */
+        .admin-card-header { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 30px; }
+        .btn-reset { background: none; border: 1px solid var(--erro); color: var(--erro); padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; margin-top: 10px; }
+        .btn-reset:hover { background: var(--erro); color: white; }
 
         .pedido-card { background: var(--card); border: 1px solid var(--ouro); padding: 20px; border-radius: 12px; margin-bottom: 25px; animation: slideIn 0.3s ease-out; }
         .timestamp { font-size: 11px; color: #888; display: block; margin-bottom: 10px; }
@@ -55,14 +61,22 @@
     </div>
 
     <div id="painel_conteudo">
-        <h2>Fila de Resgates <button id="btn_sair" style="background:none; border:none; color:#888; cursor:pointer;">Sair</button></h2>
+        <h2>Painel Admin <button id="btn_sair" style="background:none; border:none; color:#888; cursor:pointer; font-size: 14px;">Sair</button></h2>
+
+        <div class="admin-card-header">
+            <strong style="color: var(--ouro); font-size: 14px;">🏆 TEMPORADA SEMANAL</strong>
+            <p style="font-size: 12px; color: #aaa; margin: 5px 0;">Zere o ranking semanal para todos os jogadores para iniciar uma nova semana de competição.</p>
+            <button class="btn-reset" onclick="resetarRankingSemanal()">ZERAR RANKING SEMANAL</button>
+        </div>
+
+        <h3 style="color: var(--ouro); margin-bottom: 15px;">Fila de Resgates</h3>
         <div id="lista_pedidos">Buscando...</div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, getDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, getDoc, deleteDoc, query, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
@@ -96,6 +110,27 @@
 
         document.getElementById('btn_sair').onclick = () => signOut(auth).then(() => location.reload());
 
+        // FUNÇÃO PARA ZERAR RANKING SEMANAL
+        window.resetarRankingSemanal = async () => {
+            if (!confirm("⚠️ ATENÇÃO: Isso vai zerar o ranking semanal de TODOS os jogadores. Deseja continuar?")) return;
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "usuarios"));
+                const batch = writeBatch(db);
+
+                querySnapshot.forEach((doc) => {
+                    batch.update(doc.ref, { pdlSemanal: 0 });
+                });
+
+                await batch.commit();
+                alert("Temporada resetada! Todos os jogadores agora têm 0 PDL Semanal.");
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                alert("Erro ao resetar ranking.");
+            }
+        };
+
         function iniciarPainel() {
             const q = query(collection(db, "resgates"), orderBy("timestamp", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -103,12 +138,17 @@
                 if (!snapshot.metadata.fromCache && snapshot.docChanges().some(c => c.type === "added")) audio.play().catch(()=>{});
                 
                 container.innerHTML = "";
+                if (snapshot.empty) {
+                    container.innerHTML = "<p style='color:#666; text-align:center;'>Nenhum resgate pendente.</p>";
+                    return;
+                }
+
                 snapshot.forEach(async (pedido) => {
                     const data = pedido.data();
                     const id = pedido.id;
                     const saldoAntigo = Number(data.goldAnterior) || 0;
                     const custo = Number(data.valorGold) || 0;
-                    const saldoFinal = Number(data.goldPosResgate) || (saldoAntigo - custo); // Pega o valor do banco ou calcula
+                    const saldoFinal = Number(data.goldPosResgate) || (saldoAntigo - custo);
                     const isSuspeito = saldoAntigo < custo;
 
                     const card = document.createElement('div');
