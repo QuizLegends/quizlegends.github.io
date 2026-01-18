@@ -386,13 +386,13 @@
             small.innerText = nome.split(' ')[0];
             const circulo = box.querySelector("div[style*='border-radius: 50%']");
             if (circulo) {
-                circulo.style.backgroundImage = `url('${urlFinal}')`;
-                // Ajustes para a imagem ocupar 100% do círculo sem sobrar espaço
-                circulo.style.backgroundSize = "100% 100%"; 
-                circulo.style.backgroundPosition = "center";
-                circulo.style.backgroundRepeat = "no-repeat";
-                // Garante que não haja espaço entre a imagem e a borda
-                circulo.style.margin = "0 auto"; 
+                // Remove o padding e o background antigo
+                circulo.style.padding = "0";
+                circulo.style.backgroundImage = "none";
+                circulo.style.overflow = "hidden";
+                
+                // Injeta a tag IMG que força o preenchimento total
+                circulo.innerHTML = `<img src="${urlFinal}" style="width:100%; height:100%; object-fit:cover; display:block;">`;
             }
         }
     });
