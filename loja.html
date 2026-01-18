@@ -87,12 +87,12 @@
             border-bottom: 2px solid var(--ouro);
         }
 
-        /* --- ALTERAÇÃO APENAS NESTE BLOCO --- */
+        /* BARRA DE FERRAMENTAS - CAMPO MÉDIO AJUSTADO */
         .barra-ferramentas {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap; /* Permite quebrar linha */
+            flex-wrap: wrap;
             gap: 15px;
             background: rgba(1, 10, 19, 0.8);
             padding: 10px 20px;
@@ -101,22 +101,8 @@
 
         .busca-container {
             position: relative;
-            flex: 1;
-            min-width: 150px; /* Tamanho mínimo da lupa */
+            width: 250px; /* TAMANHO MÉDIO PARA DESKTOP */
         }
-
-        /* Ajuste para celular: Lupa em cima, Filtros embaixo */
-        @media (max-width: 600px) {
-            .barra-ferramentas {
-                flex-direction: column; 
-                align-items: flex-start;
-            }
-            .busca-container {
-                width: 100%; /* Lupa ocupa a largura toda no topo */
-                max-width: 100%;
-            }
-        }
-        /* ----------------------------------- */
 
         .busca-container input {
             width: 100%;
@@ -125,6 +111,7 @@
             padding: 8px 35px 8px 15px;
             color: white;
             outline: none;
+            box-sizing: border-box;
         }
 
         .busca-container span {
@@ -133,6 +120,16 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--ouro);
+        }
+
+        @media (max-width: 650px) {
+            .barra-ferramentas {
+                flex-direction: column;
+                align-items: center;
+            }
+            .busca-container {
+                width: 100%; /* OCUPA A LARGURA DA CAIXA NO CELULAR, SEM SAIR DA TELA */
+            }
         }
 
         .filtros-raridade {
@@ -227,7 +224,7 @@
 
         <div class="barra-ferramentas" id="barra-filtros">
             <div class="busca-container">
-                <input type="text" id="input-busca" placeholder="Pesquisar campeão..." oninput="renderLoja()">
+                <input type="text" id="input-busca" placeholder="Pesquisar..." oninput="renderLoja()">
                 <span>🔍</span>
             </div>
             <div class="filtros-raridade">
