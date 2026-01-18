@@ -177,7 +177,20 @@
         .icon-container { width: 80px; height: 80px; margin: 0 auto 15px; }
         .img-campeao { width: 100%; height: 100%; border-radius: 4px; object-fit: cover; }
 
-        .item-nome { font-weight: 900; text-transform: uppercase; font-size: 0.85rem; margin-bottom: 5px; min-height: 32px; display: flex; align-items: center; justify-content: center; }
+        /* AJUSTE DO NOME PARA NÃO CORTAR E FICAR ORGANIZADO */
+        .item-nome { 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            font-size: 0.85rem; 
+            margin-bottom: 8px; 
+            min-height: 40px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+        
         .raridade-label { font-size: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px; }
 
         .comum .raridade-label { color: var(--comum); }
@@ -198,10 +211,13 @@
 
         .btn-comprar:disabled { background: #1e2328; color: #555; border-color: #333; cursor: not-allowed; }
 
+        /* MODAL COM DESCRIÇÃO */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: var(--azul-hex); border: 2px solid var(--ouro); padding: 30px; max-width: 400px; text-align: center; clip-path: polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%); }
-        .btn-confirm { background: var(--ouro); border: 1px solid var(--ouro-claro); color: black; padding: 10px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-cancel { background: transparent; border: 1px solid var(--ouro); color: var(--ouro); padding: 10px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .modal-nome { color: var(--ouro); font-weight: bold; text-transform: uppercase; margin-bottom: 5px; font-size: 1.1rem; }
+        .modal-info { color: #888; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4; }
+        .btn-confirm { background: var(--ouro); border: 1px solid var(--ouro-claro); color: black; padding: 10px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin: 5px; }
+        .btn-cancel { background: transparent; border: 1px solid var(--ouro); color: var(--ouro); padding: 10px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin: 5px; }
     </style>
 </head>
 <body>
@@ -239,7 +255,8 @@
 
     <div class="modal-overlay" id="modal-compra">
         <div class="modal-content">
-            <p id="modal-texto"></p>
+            <div id="modal-item-nome" class="modal-nome"></div>
+            <div id="modal-item-info" class="modal-info"></div>
             <div class="modal-btns">
                 <button class="btn-confirm" id="confirmar-btn">Adquirir</button>
                 <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
@@ -265,19 +282,18 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // --- DEFINIÇÃO DOS CAMINHOS ---
         const URL_ICONES = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
         const URL_ITENS = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/itens/";
 
         const itens = [
-            { id: "aatrox_comum", cat: "icones", nome: "Aatrox", preco: 5000, raridade: "comum", img: "aatrox-comum.png" },
-            { id: "aatrox_raro", cat: "icones", nome: "Aatrox Caçador de Almas", preco: 25000, raridade: "raro", img: "aatrox-raro.png" },
-            { id: "aatrox_epico", cat: "icones", nome: "Aatrox Vitorioso", preco: 50000, raridade: "epico", img: "aatrox-epico.png" },
-            { id: "ahri_comum", cat: "icones", nome: "Ahri", preco: 5000, raridade: "comum", img: "ahri-comum.png" },
-            { id: "ahri_raro", cat: "icones", nome: "Ahri Raposa Flamejante", preco: 25000, raridade: "raro", img: "ahri-raro.png" },
-            { id: "ahri_epico", cat: "icones", nome: "Ahri K/DA", preco: 50000, raridade: "epico", img: "ahri-epico.png" },
-            // NOVO ITEM ADICIONADO ABAIXO
-            { id: "anjo_guardiao", cat: "itens", nome: "Anjo Guardião (7 Dias)", preco: 15000, raridade: "raro", img: "anjo.png" }
+            { id: "aatrox_comum", cat: "icones", nome: "Aatrox", preco: 5000, raridade: "comum", img: "aatrox-comum.png", info: "Ícone de perfil do campeão Aatrox." },
+            { id: "aatrox_raro", cat: "icones", nome: "Aatrox Caçador de Almas", preco: 25000, raridade: "raro", img: "aatrox-raro.png", info: "Ícone raro da skin Caçador de Almas." },
+            { id: "aatrox_epico", cat: "icones", nome: "Aatrox Vitorioso", preco: 50000, raridade: "epico", img: "aatrox-epico.png", info: "Ícone exclusivo Aatrox Vitorioso." },
+            { id: "ahri_comum", cat: "icones", nome: "Ahri", preco: 5000, raridade: "comum", img: "ahri-comum.png", info: "Ícone de perfil da campeã Ahri." },
+            { id: "ahri_raro", cat: "icones", nome: "Ahri Raposa Flamejante", preco: 25000, raridade: "raro", img: "ahri-raro.png", info: "Ícone raro da skin Raposa Flamejante." },
+            { id: "ahri_epico", cat: "icones", nome: "Ahri K/DA", preco: 50000, raridade: "epico", img: "ahri-epico.png", info: "Ícone épico da skin Ahri K/DA." },
+            // ITEM COM QUEBRA DE LINHA MANUAL NO NOME
+            { id: "anjo_guardiao", cat: "itens", nome: "Anjo Guardião <br> (7 Dias)", preco: 15000, raridade: "raro", img: "anjo.png", info: "Proteção Hextech: Você não perderá PDL ao errar perguntas durante 7 dias." }
         ];
 
         let saldoGlobal = 0;
@@ -305,8 +321,6 @@
             categoriaAtual = categoria;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             elemento.classList.add('active');
-            
-            // Mostra a barra de filtros apenas se houver necessidade (Ícones ou Itens)
             document.getElementById('barra-filtros').style.display = (categoria === 'moedas') ? 'none' : 'flex';
             renderLoja();
         };
@@ -326,12 +340,14 @@
             const itensFiltrados = itens.filter(item => {
                 const bateCategoria = item.cat === categoriaAtual;
                 const bateRaridade = raridadeFiltro === 'todos' || item.raridade === raridadeFiltro;
-                const bateBusca = item.nome.toLowerCase().includes(busca);
+                // Limpa o <br> do nome para a busca funcionar corretamente
+                const nomeLimpo = item.nome.replace('<br>', '').toLowerCase();
+                const bateBusca = nomeLimpo.includes(busca);
                 return bateCategoria && bateRaridade && bateBusca;
             });
 
             if (itensFiltrados.length === 0) {
-                grid.innerHTML = "<p style='grid-column: 1/-1; opacity: 0.5; text-align:center;'>Nenhum item encontrado.</p>";
+                grid.innerHTML = "<p style='grid-column: 1/-1; opacity: 0.5; text-align:center; margin-top: 50px;'>Nenhum item encontrado.</p>";
                 return;
             }
 
@@ -339,32 +355,34 @@
                 const jaPossui = meusItens.includes(item.id);
                 const podeComprar = saldoGlobal >= item.preco;
                 const labelRaridade = item.raridade === 'epico' ? 'Épico' : item.raridade.charAt(0).toUpperCase() + item.raridade.slice(1);
-
-                // --- LÓGICA DE IMAGEM POR PASTA ---
-                const urlImagem = (item.cat === "itens") ? URL_ITENS + item.img : URL_ICONES + item.img;
+                const urlFinal = (item.cat === 'itens') ? URL_ITENS + item.img : URL_ICONES + item.img;
 
                 grid.innerHTML += `
                     <div class="item-card ${item.raridade}">
                         <div class="icon-container">
-                            <img src="${urlImagem}" class="img-campeao">
+                            <img src="${urlFinal}" class="img-campeao">
                         </div>
                         <div class="item-nome">${item.nome}</div>
                         <div class="raridade-label">${labelRaridade}</div>
                         <button class="btn-comprar" ${(jaPossui || !podeComprar) ? 'disabled' : ''} 
-                            onclick="abrirModalCompra('${item.id}', ${item.preco}, '${item.nome}')">
+                            onclick="abrirModalCompra('${item.id}')">
                             ${jaPossui ? 'Adquirido' : '💰 ' + item.preco.toLocaleString()}
                         </button>
                     </div>`;
             });
         }
 
-        window.abrirModalCompra = (id, valor, nome) => {
+        window.abrirModalCompra = (id) => {
+            const item = itens.find(i => i.id === id);
+            if(!item) return;
+
             const modal = document.getElementById('modal-compra');
-            const texto = document.getElementById('modal-texto');
+            document.getElementById('modal-item-nome').innerHTML = item.nome;
+            document.getElementById('modal-item-info').innerText = `${item.info} \n\n Preço: ${item.preco.toLocaleString()} moedas.`;
+            
             const btnConfirmar = document.getElementById('confirmar-btn');
-            texto.innerText = `Deseja adquirir ${nome} por ${valor.toLocaleString()} moedas?`;
             modal.style.display = 'flex';
-            btnConfirmar.onclick = () => processarCompra(id, valor);
+            btnConfirmar.onclick = () => processarCompra(id, item.preco);
         };
 
         window.fecharModal = () => { document.getElementById('modal-compra').style.display = 'none'; };
