@@ -10,6 +10,7 @@
             --ouro-claro: #f0e6d2;
             --fundo: #010a13;
             --card-bg: rgba(9, 20, 40, 0.9);
+            --azul-hex: #091428;
             --comum: #808080;
             --raro: #00cfbc;
             --epico: #a335ee;
@@ -44,7 +45,7 @@
         }
 
         .saldo-box {
-            background: #091428;
+            background: var(--azul-hex);
             padding: 8px 15px;
             border: 1px solid var(--ouro);
             color: var(--ouro);
@@ -72,11 +73,8 @@
             clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%, 0 10%);
         }
 
-        .item-card:hover {
-            transform: translateY(-8px);
-        }
+        .item-card:hover { transform: translateY(-8px); }
 
-        /* BRILHO AO REDOR DOS CARDES */
         .comum { border-color: var(--comum) !important; filter: drop-shadow(0 0 5px var(--comum)); }
         .raro { border-color: var(--raro) !important; filter: drop-shadow(0 0 10px var(--raro)); }
         .epico { border-color: var(--epico) !important; filter: drop-shadow(0 0 15px var(--epico)); }
@@ -93,7 +91,7 @@
         .img-campeao {
             width: 100%;
             height: 100%;
-            border-radius: 4px; /* Formato mais quadrado/original */
+            border-radius: 4px;
             object-fit: cover;
         }
 
@@ -102,7 +100,6 @@
             text-transform: uppercase;
             font-size: 0.85rem;
             margin-bottom: 5px;
-            letter-spacing: 1px;
         }
 
         .raridade-label {
@@ -135,6 +132,61 @@
             border-color: #333;
             cursor: not-allowed;
         }
+
+        /* MODAL HEXTECH */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--azul-hex);
+            border: 2px solid var(--ouro);
+            padding: 30px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(200, 155, 60, 0.4);
+            clip-path: polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%);
+        }
+
+        .modal-content p {
+            color: var(--ouro-claro);
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-confirm {
+            background: var(--ouro);
+            border: 1px solid var(--ouro-claro);
+            color: black;
+            padding: 10px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--ouro);
+            color: var(--ouro);
+            padding: 10px 25px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
@@ -148,6 +200,16 @@
     </div>
 
     <div class="grid-loja" id="grid-itens"></div>
+
+    <div class="modal-overlay" id="modal-compra">
+        <div class="modal-content">
+            <p id="modal-texto"></p>
+            <div class="modal-btns">
+                <button class="btn-confirm" id="confirmar-btn">Adquirir</button>
+                <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -195,42 +257,49 @@
         function renderLoja() {
             const grid = document.getElementById('grid-itens');
             grid.innerHTML = "";
-
             itens.forEach(item => {
                 const jaPossui = meusItens.includes(item.id);
                 const podeComprar = saldoGlobal >= item.preco;
-
                 grid.innerHTML += `
                     <div class="item-card ${item.raridade}">
-                        <div class="icon-container">
-                            <img src="${item.img}" class="img-campeao">
-                        </div>
+                        <div class="icon-container"><img src="${item.img}" class="img-campeao"></div>
                         <div class="item-nome">${item.nome}</div>
                         <div class="raridade-label">${item.raridade}</div>
-                        <button class="btn-comprar" 
-                            ${(jaPossui || !podeComprar) ? 'disabled' : ''} 
-                            onclick="processarCompra('${item.id}', ${item.preco})">
+                        <button class="btn-comprar" ${(jaPossui || !podeComprar) ? 'disabled' : ''} 
+                            onclick="abrirModalCompra('${item.id}', ${item.preco}, '${item.nome}')">
                             ${jaPossui ? 'Adquirido' : '💰 ' + item.preco.toLocaleString()}
                         </button>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
-        window.processarCompra = async (id, valor) => {
-            if (confirm(`Deseja adquirir este item por ${valor.toLocaleString()} moedas?`)) {
-                try {
-                    const userRef = doc(db, "usuarios", auth.currentUser.uid);
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        iconesAdquiridos: arrayUnion(id)
-                    });
-                    alert("Compra realizada com sucesso!");
-                } catch (e) {
-                    alert("Erro ao processar compra.");
-                }
-            }
+        window.abrirModalCompra = (id, valor, nome) => {
+            const modal = document.getElementById('modal-compra');
+            const texto = document.getElementById('modal-texto');
+            const btnConfirmar = document.getElementById('confirmar-btn');
+            
+            texto.innerText = `Deseja adquirir ${nome} por ${valor.toLocaleString()} moedas?`;
+            modal.style.display = 'flex';
+
+            btnConfirmar.onclick = () => processarCompra(id, valor);
         };
+
+        window.fecharModal = () => {
+            document.getElementById('modal-compra').style.display = 'none';
+        };
+
+        async function processarCompra(id, valor) {
+            fecharModal();
+            try {
+                const userRef = doc(db, "usuarios", auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    saldo: increment(-valor),
+                    iconesAdquiridos: arrayUnion(id)
+                });
+            } catch (e) {
+                alert("Erro ao processar compra.");
+            }
+        }
     </script>
 </body>
 </html>
