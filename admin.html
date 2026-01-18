@@ -64,8 +64,8 @@
 
         <div class="admin-card-header">
             <strong style="color: var(--ouro); font-size: 14px;">🏆 GERENCIAR TEMPORADA</strong>
-            <p style="font-size: 12px; color: #aaa; margin: 5px 0;">Isso zerará o PDL Semanal de todos os jogadores.</p>
-            <button class="btn-reset" onclick="resetarRankingSemanal()">ZERAR RANKING SEMANAL</button>
+            <p style="font-size: 12px; color: #aaa; margin: 5px 0;">Isso pagará os prêmios e zerará o PDL Semanal de todos.</p>
+            <button class="btn-reset" onclick="resetarRankingSemanal()">PAGAR E ZERAR RANKING SEMANAL</button>
         </div>
 
         <h3 style="color: var(--ouro); margin-bottom: 15px;">Fila de Resgates</h3>
@@ -75,7 +75,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, getDoc, deleteDoc, query, orderBy, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, getDoc, deleteDoc, query, orderBy, getDocs, updateDoc, increment, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
@@ -109,32 +109,61 @@
 
         document.getElementById('btn_sair').onclick = () => signOut(auth).then(() => location.reload());
 
-        // FUNÇÃO DE RESET ATUALIZADA (SEM ERROS)
+        // FUNÇÃO DE RESET COM PAGAMENTO AUTOMÁTICO
         window.resetarRankingSemanal = async () => {
-            if (!confirm("⚠️ ATENÇÃO: Deseja zerar o ranking semanal de TODOS?")) return;
+            if (!confirm("⚠️ ATENÇÃO: Deseja pagar as recompensas e zerar o ranking de todos os jogadores agora?")) return;
 
             try {
-                const querySnapshot = await getDocs(collection(db, "usuarios"));
-                let contador = 0;
+                // 1. Puxa os jogadores ordenados por PDL Semanal (do maior para o menor)
+                const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    alert("Nenhum jogador encontrado para premiar.");
+                    return;
+                }
 
-                // Cria um array de promessas para atualizar todos ao mesmo tempo
-                const promessas = querySnapshot.docs.map(async (usuario) => {
-                    const userRef = doc(db, "usuarios", usuario.id);
-                    await updateDoc(userRef, { pdlSemanal: 0 });
-                    contador++;
+                let posicao = 1;
+                let premiadosCount = 0;
+
+                // 2. Mapeia as promessas de atualização
+                const promessas = querySnapshot.docs.map(async (usuarioDoc) => {
+                    const userRef = doc(db, "usuarios", usuarioDoc.id);
+                    const dados = usuarioDoc.data();
+                    
+                    // Só processa se o jogador tiver pelo menos 1 PDL
+                    if ((dados.pdlSemanal || 0) > 0) {
+                        // Calcula o prêmio baseado na posição
+                        let premio = 100; // Valor para quem não é Top 3
+                        if (posicao === 1) premio = 5000;
+                        else if (posicao === 2) premio = 2500;
+                        else if (posicao === 3) premio = 1250;
+
+                        // 3. Atualiza: Dá as moedas E zera o PDL
+                        await updateDoc(userRef, {
+                            saldo: increment(premio),
+                            pdlSemanal: 0
+                        });
+                        
+                        premiadosCount++;
+                        posicao++;
+                    } else {
+                        // Se o jogador tem 0 PDL, apenas garante que o campo está resetado
+                        await updateDoc(userRef, { pdlSemanal: 0 });
+                    }
                 });
 
                 await Promise.all(promessas);
-                alert("Sucesso! " + contador + " jogadores voltaram para 0 PDL.");
+                alert(`Sucesso! ${premiadosCount} jogadores foram premiados e o ranking foi reiniciado.`);
                 location.reload();
             } catch (e) {
-                console.error(e);
-                alert("Erro ao zerar: " + e.message);
+                console.error("Erro no processamento:", e);
+                alert("Erro crítico: " + e.message);
             }
         };
 
         function iniciarPainel() {
-            const q = query(collection(db, "resgates"), orderBy("timestamp", "desc"));
+            const q = query(collection(db, "resgates"), orderBy("data", "desc"));
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('lista_pedidos');
                 if (!snapshot.metadata.fromCache && snapshot.docChanges().some(c => c.type === "added")) audio.play().catch(()=>{});
@@ -156,8 +185,10 @@
                             <b style="color:var(--ouro)">USUÁRIO:</b> <span id="nome_${id}">Buscando...</span><br>
                             <div class="pix-container" onclick="navigator.clipboard.writeText('${data.chavePix}'); alert('PIX Copiado!')">
                                 <span class="pix-text">${data.chavePix}</span>
+                                <span class="copy-label">CLIQUE PARA COPIAR</span>
                             </div>
-                            <span class="valor-txt">R$ ${data.valorReais}</span>
+                            <span class="valor-txt">R$ ${data.valorGold === 195000 ? '0,50' : data.valorGold === 390000 ? '1,00' : '---'}</span>
+                            <div style="font-size:10px; color:#555;">ID: ${id}</div>
                         </div>
                         <button class="btn-pago" onclick="confirmarPagamento('${id}')">MARCAR COMO PAGO</button>
                     `;
@@ -170,7 +201,7 @@
         }
 
         window.confirmarPagamento = async (id) => {
-            if (confirm("Confirmar pagamento?")) await deleteDoc(doc(db, "resgates", id));
+            if (confirm("Confirmar pagamento? Isso removerá o pedido da lista.")) await deleteDoc(doc(db, "resgates", id));
         };
     </script>
 </body>
