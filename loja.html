@@ -55,12 +55,19 @@
             gap: 10px;
         }
 
-        /* MENU DE CATEGORIAS */
+        /* CONTROLES DA LOJA (ABAS E BUSCA) */
+        .controles-loja {
+            max-width: 1000px;
+            margin: 0 auto 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .menu-categorias {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 30px;
         }
 
         .tab-btn {
@@ -74,16 +81,67 @@
             padding: 10px 15px;
             border-bottom: 2px solid transparent;
             transition: 0.3s;
-            font-size: 0.9rem;
         }
-
-        .tab-btn:hover { color: var(--ouro-claro); }
 
         .tab-btn.active {
             color: var(--ouro);
             border-bottom: 2px solid var(--ouro);
-            text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
         }
+
+        /* BARRA DE PESQUISA E FILTROS */
+        .barra-ferramentas {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(1, 10, 19, 0.8);
+            padding: 10px 20px;
+            border: 1px solid #1e2328;
+        }
+
+        .busca-container {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .busca-container input {
+            width: 100%;
+            background: #091428;
+            border: 1px solid var(--ouro);
+            padding: 8px 35px 8px 15px;
+            color: white;
+            outline: none;
+        }
+
+        .busca-container span {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--ouro);
+        }
+
+        .filtros-raridade {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-rarity-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #888;
+            padding: 5px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .filter-rarity-btn.active[data-rarity="comum"] { border-color: var(--comum); color: var(--comum); }
+        .filter-rarity-btn.active[data-rarity="raro"] { border-color: var(--raro); color: var(--raro); }
+        .filter-rarity-btn.active[data-rarity="epico"] { border-color: var(--epico); color: var(--epico); }
 
         /* GRID E CARDS */
         .grid-loja {
@@ -105,45 +163,15 @@
         }
 
         .item-card:hover { transform: translateY(-8px); }
-
         .comum { border-color: var(--comum) !important; filter: drop-shadow(0 0 5px var(--comum)); }
         .raro { border-color: var(--raro) !important; filter: drop-shadow(0 0 10px var(--raro)); }
         .epico { border-color: var(--epico) !important; filter: drop-shadow(0 0 15px var(--epico)); }
 
-        .icon-container {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .icon-container { width: 80px; height: 80px; margin: 0 auto 15px; }
+        .img-campeao { width: 100%; height: 100%; border-radius: 4px; object-fit: cover; }
 
-        .img-campeao {
-            width: 100%;
-            height: 100%;
-            border-radius: 4px;
-            object-fit: cover;
-        }
-
-        .item-nome {
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            margin-bottom: 5px;
-            min-height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .raridade-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 15px;
-            letter-spacing: 2px;
-        }
+        .item-nome { font-weight: 900; text-transform: uppercase; font-size: 0.85rem; margin-bottom: 5px; min-height: 32px; display: flex; align-items: center; justify-content: center; }
+        .raridade-label { font-size: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px; }
 
         .comum .raridade-label { color: var(--comum); }
         .raro .raridade-label { color: var(--raro); }
@@ -161,67 +189,13 @@
             clip-path: polygon(15% 0, 85% 0, 100% 50%, 85% 100%, 15% 100%, 0 50%);
         }
 
-        .btn-comprar:disabled {
-            background: #1e2328;
-            color: #555;
-            border-color: #333;
-            cursor: not-allowed;
-        }
+        .btn-comprar:disabled { background: #1e2328; color: #555; border-color: #333; cursor: not-allowed; }
 
         /* MODAL */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: var(--azul-hex);
-            border: 2px solid var(--ouro);
-            padding: 30px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(200, 155, 60, 0.4);
-            clip-path: polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%);
-        }
-
-        .modal-content p {
-            color: var(--ouro-claro);
-            font-size: 1.1rem;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .modal-btns {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        .btn-confirm {
-            background: var(--ouro);
-            border: 1px solid var(--ouro-claro);
-            color: black;
-            padding: 10px 25px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .btn-cancel {
-            background: transparent;
-            border: 1px solid var(--ouro);
-            color: var(--ouro);
-            padding: 10px 25px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--azul-hex); border: 2px solid var(--ouro); padding: 30px; max-width: 400px; text-align: center; clip-path: polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%); }
+        .btn-confirm { background: var(--ouro); border: 1px solid var(--ouro-claro); color: black; padding: 10px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-cancel { background: transparent; border: 1px solid var(--ouro); color: var(--ouro); padding: 10px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -234,10 +208,25 @@
         </div>
     </div>
 
-    <div class="menu-categorias">
-        <button class="tab-btn active" onclick="filtrarCategoria('icones', this)">Ícones</button>
-        <button class="tab-btn" onclick="filtrarCategoria('itens', this)">Itens</button>
-        <button class="tab-btn" onclick="filtrarCategoria('moedas', this)">Moedas</button>
+    <div class="controles-loja">
+        <div class="menu-categorias">
+            <button class="tab-btn active" onclick="filtrarCategoria('icones', this)">Ícones</button>
+            <button class="tab-btn" onclick="filtrarCategoria('itens', this)">Itens</button>
+            <button class="tab-btn" onclick="filtrarCategoria('moedas', this)">Moedas</button>
+        </div>
+
+        <div class="barra-ferramentas" id="barra-filtros">
+            <div class="busca-container">
+                <input type="text" id="input-busca" placeholder="Pesquisar campeão..." oninput="renderLoja()">
+                <span>🔍</span>
+            </div>
+            <div class="filtros-raridade">
+                <button class="filter-rarity-btn active" data-rarity="todos" onclick="setRaridade('todos', this)">Todos</button>
+                <button class="filter-rarity-btn" data-rarity="comum" onclick="setRaridade('comum', this)">Comum</button>
+                <button class="filter-rarity-btn" data-rarity="raro" onclick="setRaridade('raro', this)">Raro</button>
+                <button class="filter-rarity-btn" data-rarity="epico" onclick="setRaridade('epico', this)">Épico</button>
+            </div>
+        </div>
     </div>
 
     <div class="grid-loja" id="grid-itens"></div>
@@ -272,22 +261,19 @@
 
         const BASE_URL_IMG = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
 
-        // Itens organizados por categoria
         const itens = [
             { id: "aatrox_comum", cat: "icones", nome: "Aatrox", preco: 5000, raridade: "comum", img: "aatrox-comum.png" },
             { id: "aatrox_raro", cat: "icones", nome: "Aatrox Caçador de Almas", preco: 25000, raridade: "raro", img: "aatrox-raro.png" },
             { id: "aatrox_epico", cat: "icones", nome: "Aatrox Vitorioso", preco: 50000, raridade: "epico", img: "aatrox-epico.png" },
             { id: "ahri_comum", cat: "icones", nome: "Ahri", preco: 5000, raridade: "comum", img: "ahri-comum.png" },
             { id: "ahri_raro", cat: "icones", nome: "Ahri Raposa Flamejante", preco: 25000, raridade: "raro", img: "ahri-raro.png" },
-            { id: "ahri_epico", cat: "icones", nome: "Ahri K/DA", preco: 50000, raridade: "epico", img: "ahri-epico.png" },
-            
-            // Itens de exemplo para as outras categorias (vazio por enquanto se preferir)
-            { id: "multiplicador_xp", cat: "itens", nome: "Bônus de XP 2x", preco: 2000, raridade: "raro", img: "bonus-xp.png" }
+            { id: "ahri_epico", cat: "icones", nome: "Ahri K/DA", preco: 50000, raridade: "epico", img: "ahri-epico.png" }
         ];
 
         let saldoGlobal = 0;
         let meusItens = [];
-        let categoriaAtual = 'icones'; // Categoria padrão ao abrir
+        let categoriaAtual = 'icones';
+        let raridadeFiltro = 'todos';
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -305,39 +291,53 @@
             }
         });
 
-        // Função global para trocar de aba
         window.filtrarCategoria = (categoria, elemento) => {
             categoriaAtual = categoria;
-            
-            // Atualiza botões
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             elemento.classList.add('active');
             
+            // Esconde barra de filtros se não for ícones
+            document.getElementById('barra-filtros').style.display = categoria === 'icones' ? 'flex' : 'none';
+            
+            renderLoja();
+        };
+
+        window.setRaridade = (raridade, elemento) => {
+            raridadeFiltro = raridade;
+            document.querySelectorAll('.filter-rarity-btn').forEach(btn => btn.classList.remove('active'));
+            elemento.classList.add('active');
             renderLoja();
         };
 
         function renderLoja() {
             const grid = document.getElementById('grid-itens');
+            const busca = document.getElementById('input-busca').value.toLowerCase();
             grid.innerHTML = "";
 
-            // Filtra os itens antes de mostrar
-            const itensFiltrados = itens.filter(item => item.cat === categoriaAtual);
+            const itensFiltrados = itens.filter(item => {
+                const bateCategoria = item.cat === categoriaAtual;
+                const bateRaridade = raridadeFiltro === 'todos' || item.raridade === raridadeFiltro;
+                const bateBusca = item.nome.toLowerCase().includes(busca);
+                return bateCategoria && bateRaridade && bateBusca;
+            });
 
             if (itensFiltrados.length === 0) {
-                grid.innerHTML = "<p style='grid-column: 1/-1; opacity: 0.5;'>Nenhum item disponível nesta categoria ainda.</p>";
+                grid.innerHTML = "<p style='grid-column: 1/-1; opacity: 0.5; text-align:center;'>Nenhum item encontrado.</p>";
                 return;
             }
 
             itensFiltrados.forEach(item => {
                 const jaPossui = meusItens.includes(item.id);
                 const podeComprar = saldoGlobal >= item.preco;
+                const labelRaridade = item.raridade === 'epico' ? 'Épico' : item.raridade;
+
                 grid.innerHTML += `
                     <div class="item-card ${item.raridade}">
                         <div class="icon-container">
                             <img src="${BASE_URL_IMG + item.img}" class="img-campeao">
                         </div>
                         <div class="item-nome">${item.nome}</div>
-                        <div class="raridade-label">${item.raridade}</div>
+                        <div class="raridade-label">${labelRaridade}</div>
                         <button class="btn-comprar" ${(jaPossui || !podeComprar) ? 'disabled' : ''} 
                             onclick="abrirModalCompra('${item.id}', ${item.preco}, '${item.nome}')">
                             ${jaPossui ? 'Adquirido' : '💰 ' + item.preco.toLocaleString()}
@@ -355,9 +355,7 @@
             btnConfirmar.onclick = () => processarCompra(id, valor);
         };
 
-        window.fecharModal = () => {
-            document.getElementById('modal-compra').style.display = 'none';
-        };
+        window.fecharModal = () => { document.getElementById('modal-compra').style.display = 'none'; };
 
         async function processarCompra(id, valor) {
             fecharModal();
@@ -367,9 +365,7 @@
                     saldo: increment(-valor),
                     iconesAdquiridos: arrayUnion(id)
                 });
-            } catch (e) {
-                alert("Erro ao processar compra.");
-            }
+            } catch (e) { alert("Erro ao processar compra."); }
         }
     </script>
 </body>
