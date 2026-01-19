@@ -20,93 +20,173 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
             padding: 20px;
         }
 
-        .header-baus {
+        .container-bau {
             text-align: center;
-            border-bottom: 2px solid var(--gold);
+            background: rgba(1, 10, 19, 0.8);
+            border: 2px solid var(--gold);
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            max-width: 400px;
             width: 100%;
-            max-width: 500px;
-            margin-bottom: 30px;
         }
 
-        .header-baus h1 {
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--gold);
+        .bau-imagem {
+            width: 150px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px var(--blue));
+            cursor: pointer;
+            transition: transform 0.3s;
         }
 
-        .area-bau {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
+        .bau-imagem:hover {
+            transform: scale(1.1);
         }
 
-        .bau-display {
-            width: 200px;
-            height: 200px;
-            /* Aqui você colocará a imagem do seu baú futuramente */
-            background: rgba(10, 200, 185, 0.1);
-            border: 2px dashed var(--blue);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            font-size: 5rem;
+        .bau-imagem.animar {
+            animation: tremer 0.5s infinite;
         }
+
+        @keyframes tremer {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; }
+        
+        .status-msg { margin: 15px 0; min-height: 20px; font-size: 0.9rem; color: var(--blue); }
 
         .btn-abrir {
             background: linear-gradient(to bottom, #c89b3c, #785a28);
             border: 1px solid var(--gold);
             color: white;
-            padding: 15px 40px;
+            padding: 12px 30px;
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
-            transition: 0.3s;
+            width: 100%;
         }
 
-        .btn-abrir:hover {
-            filter: brightness(1.2);
-            box-shadow: 0 0 15px var(--gold);
+        .btn-abrir:disabled {
+            background: #333;
+            border-color: #555;
+            cursor: not-allowed;
         }
 
         .btn-voltar {
-            margin-top: 40px;
-            color: var(--blue);
+            margin-top: 20px;
+            display: inline-block;
             text-decoration: none;
-            text-transform: uppercase;
+            color: var(--gold);
             font-size: 0.8rem;
-            border: 1px solid var(--blue);
-            padding: 8px 20px;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-    <div class="header-baus">
-        <h1>Cofre Hextech</h1>
-    </div>
-
-    <div class="area-bau">
-        <div class="bau-display">
-            🎁
+    <div class="container-bau">
+        <h1>Baú Diário</h1>
+        <div id="bau-container">
+            <div id="bau-visual" style="font-size: 80px; margin: 20px 0;">🎁</div>
         </div>
-        <p>Você possui: <span id="qtd-baus" style="color: var(--blue);">0</span> Baús</p>
-        <button class="btn-abrir" onclick="tentarAbrirBau()">Abrir Baú</button>
+        
+        <p class="status-msg" id="mensagem">Carregando status do baú...</p>
+        
+        <button id="btn-acao" class="btn-abrir" onclick="abrirBau()" disabled>Abrir Baú</button>
+        
+        <br>
+        <a href="resgate.html" class="btn-voltar">Voltar para Resgate</a>
     </div>
-
-    <a href="resgate.html" class="btn-voltar">Voltar para Resgate</a>
 
     <script type="module">
-        // Futura lógica do Firebase aqui
-        window.tentarAbrirBau = function() {
-            alert("Em breve: Sorteio de prêmios e animação hextech!");
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E", 
+            authDomain: "quizlegends-f58fc.firebaseapp.com", 
+            projectId: "quizlegends-f58fc", 
+            storageBucket: "quizlegends-f58fc.firebasestorage.app", 
+            messagingSenderId: "1050463164018", 
+            appId: "1:1050463164018:web:91de002b8afc8e678f54eb" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let usuarioAtual = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                usuarioAtual = user;
+                verificarStatusBau();
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        async function verificarStatusBau() {
+            const userRef = doc(db, "usuarios", usuarioAtual.uid);
+            const userDoc = await getDoc(userRef);
+            const dados = userDoc.data();
+            
+            const agora = new Date();
+            const hojeStr = agora.toISOString().split('T')[0]; // Pega apenas YYYY-MM-DD
+
+            if (dados.ultimoBau === hojeStr) {
+                document.getElementById('mensagem').innerText = "Você já abriu o baú de hoje! Volte amanhã.";
+                document.getElementById('btn-acao').disabled = true;
+                document.getElementById('bau-visual').innerText = "📦"; // Baú aberto
+            } else {
+                document.getElementById('mensagem').innerText = "O baú está pronto para ser aberto!";
+                document.getElementById('btn-acao').disabled = false;
+            }
+        }
+
+        window.abrirBau = async function() {
+            const btn = document.getElementById('btn-acao');
+            const msg = document.getElementById('mensagem');
+            const visual = document.getElementById('bau-visual');
+            
+            btn.disabled = true;
+            msg.innerText = "Sorteando recompensa...";
+            visual.classList.add('animar');
+
+            // Simula animação de 2 segundos
+            setTimeout(async () => {
+                // Sorteio: 500 a 5000 moedas
+                const recompensa = Math.floor(Math.random() * (5000 - 500 + 1)) + 500;
+                
+                const agora = new Date();
+                const hojeStr = agora.toISOString().split('T')[0];
+
+                try {
+                    const userRef = doc(db, "usuarios", usuarioAtual.uid);
+                    await updateDoc(userRef, {
+                        pdlSemanal: increment(recompensa), // Adiciona as moedas
+                        ultimoBau: hojeStr // Salva a data de hoje
+                    });
+
+                    visual.classList.remove('animar');
+                    visual.innerText = "💰";
+                    msg.innerHTML = `<span style="color: #ff0; font-size: 1.2rem;">+ ${recompensa} PDL Adicionados!</span>`;
+                    
+                } catch (error) {
+                    console.error("Erro ao resgatar:", error);
+                    msg.innerText = "Erro ao conectar ao servidor.";
+                }
+            }, 2000);
         }
     </script>
 </body>
