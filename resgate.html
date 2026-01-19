@@ -351,36 +351,57 @@
     window.openModal = openModal;
 
     async function atualizarPodioSemanal() {
-        try {
-            const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"), limit(3));
-            const querySnapshot = await getDocs(q);
-            const vencedores = [];
-            querySnapshot.forEach((doc) => { vencedores.push(doc.data()); });        
+    try {
+        const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"), limit(3));
+        const querySnapshot = await getDocs(q);
+        const vencedores = [];
+        querySnapshot.forEach((doc) => { vencedores.push(doc.data()); });        
 
-            if(vencedores[0]) {
-                const foto0 = vencedores[0].fotoPerfil ? vencedores[0].fotoPerfil : (vencedores[0].photoURL || vencedores[0].fotoUrl);
-                atualizarVisualPodio(1, vencedores[0].nome, foto0);
+        // Função interna para decidir qual imagem usar com base na prioridade
+        const obterFotoVencedor = (usuario) => {
+            const URL_BASE_GH = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
+            
+            // 1ª PRIORIDADE: Ícone Equipado na Loja
+            if (usuario.iconeAtual) {
+                const idLimpo = usuario.iconeAtual.replace('_', '-');
+                return URL_BASE_GH + idLimpo + '.png';
             }
-            if(vencedores[1]) {
-                const foto1 = vencedores[1].fotoPerfil ? vencedores[1].fotoPerfil : (vencedores[1].photoURL || vencedores[1].fotoUrl);
-                atualizarVisualPodio(2, vencedores[1].nome, foto1);
+            
+            // 2ª PRIORIDADE: fotoPerfil antiga
+            if (usuario.fotoPerfil) {
+                const valor = String(usuario.fotoPerfil);
+                if (valor.startsWith('http')) return valor;
+                const idLimpo = valor.replace('.png', '').replace('.jpg', '');
+                return URL_BASE_GH + idLimpo + '.png';
             }
-            if(vencedores[2]) {
-                const foto2 = vencedores[2].fotoPerfil ? vencedores[2].fotoPerfil : (vencedores[2].photoURL || vencedores[2].fotoUrl);
-                atualizarVisualPodio(3, vencedores[2].nome, foto2);
-            }
-        } catch (error) {
-            console.error("Erro ao carregar pódio:", error);
+            
+            // 3ª PRIORIDADE: photoURL (Google/Auth)
+            return usuario.photoURL || usuario.fotoUrl || null;
+        };
+
+        if(vencedores[0]) {
+            atualizarVisualPodio(1, vencedores[0].nome, obterFotoVencedor(vencedores[0]));
         }
+        if(vencedores[1]) {
+            atualizarVisualPodio(2, vencedores[1].nome, obterFotoVencedor(vencedores[1]));
+        }
+        if(vencedores[2]) {
+            atualizarVisualPodio(3, vencedores[2].nome, obterFotoVencedor(vencedores[2]));
+        }
+    } catch (error) {
+        console.error("Erro ao carregar pódio:", error);
     }
-    
-    function atualizarVisualPodio(posicao, nome, foto) {
+}
+
+function atualizarVisualPodio(posicao, nome, foto) {
     // Busca todos os containers de colunas dentro do pódio
     const containers = document.querySelectorAll("#containerRankingResumo div[style*='flex-direction: column']");
     if (containers.length < 3) return;
 
-    const fotoPadrao = 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/0.jpg';
-    const urlFinal = foto ? (foto.startsWith('http') ? foto : URL_BASE_ICON + foto) : fotoPadrao;
+    const fotoPadrao = 'https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/0.png';
+    
+    // A variável 'foto' já vem processada com a URL completa da lógica acima
+    const urlFinal = foto ? foto : fotoPadrao;
 
     // Mapeamento fixo pela ordem do seu HTML: 2º (index 0), 1º (index 1), 3º (index 2)
     let alvo = null;
@@ -398,8 +419,11 @@
             imgTag.style.width = "100%";
             imgTag.style.height = "100%";
             imgTag.style.objectFit = "cover";
+            // Garante que se a imagem falhar, use o padrão
+            imgTag.onerror = () => { imgTag.src = fotoPadrao; };
         }
     }
+}
 }
     // --- 3. CONFIGURAÇÃO DE ELOS E CORES ---
 
