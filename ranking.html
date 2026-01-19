@@ -52,7 +52,7 @@
             border: 1px solid rgba(200, 155, 60, 0.3);
             padding: 0 12px;
             border-radius: 4px;
-            height: 80px; /* Ajustado para caber o ícone de 55px confortavelmente */
+            height: 80px; 
             justify-content: space-between;
         }
 
@@ -88,10 +88,10 @@
         }
 
         .user-avatar {
-            width: 55px;  /* Aumentado para 55px */
-            height: 55px; /* Aumentado para 55px */
-            border-radius: 50%; /* Mantido o formato redondo */
-            border: none;      /* Removida a borda dourada */
+            width: 55px;  
+            height: 55px; 
+            border-radius: 50%; 
+            border: none;      
             margin: 0 10px;
             flex-shrink: 0;
             object-fit: cover;
@@ -160,9 +160,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Configuração da pasta local
-        const PASTA_ICONES = 'ícones/';
-        const ICONE_PADRAO = PASTA_ICONES + '0.png';
+        // URL base absoluta para garantir que os ícones carreguem em qualquer página
+        const URL_ICONES_BASE = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
+        const ICONE_PADRAO = URL_ICONES_BASE + '0.png';
 
         function getEloInfo(xp) {
             let elo = { nome: "", arquivo: "" };
@@ -241,20 +241,25 @@
                     const xpAtual = usuario.xp || 0;
                     const elo = getEloInfo(xpAtual);
                     
-                    // Lógica para carregar ícone localmente
-                    let foto;
-                    const valorPerfil = usuario.fotoPerfil || usuario.photoURL;
+                    let foto = ICONE_PADRAO;
 
-                    if (valorPerfil) {
-                        const valor = String(valorPerfil);
-                        if (valor.startsWith('http')) {
-                            foto = valor;
-                        } else {
-                            const idLimpo = valor.replace('.png', '').replace('.jpg', '');
-                            foto = PASTA_ICONES + idLimpo + '.png';
+                    // PRIORIDADE 1: Ícone Equipado da Loja (Sistema Novo)
+                    if (usuario.iconeAtual) {
+                        const idLimpo = usuario.iconeAtual.replace('_', '-');
+                        foto = URL_ICONES_BASE + idLimpo + '.png';
+                    } 
+                    // PRIORIDADE 2: Foto Perfil / photoURL (Antigo)
+                    else {
+                        const valorPerfil = usuario.fotoPerfil || usuario.photoURL;
+                        if (valorPerfil) {
+                            const valor = String(valorPerfil);
+                            if (valor.startsWith('http')) {
+                                foto = valor;
+                            } else {
+                                const idLimpo = valor.replace('.png', '').replace('.jpg', '');
+                                foto = URL_ICONES_BASE + idLimpo + '.png';
+                            }
                         }
-                    } else {
-                        foto = ICONE_PADRAO;
                     }
 
                     const item = document.createElement('div');
