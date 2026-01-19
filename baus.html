@@ -89,7 +89,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
         const firebaseConfig = { 
@@ -145,6 +145,7 @@
             msg.innerText = "Sorteando recompensa...";
             visual.classList.add('animar');
 
+            // Sorteio de moedas (500 a 5000)
             const recompensa = Math.floor(Math.random() * (5000 - 500 + 1)) + 500;
             const agora = new Date();
             const hojeStr = agora.toISOString().split('T')[0];
@@ -153,27 +154,24 @@
                 try {
                     const userRef = doc(db, "usuarios", usuarioAtual.uid);
                     
-                    // Capturamos os dados atuais para garantir a soma correta
+                    // Busca saldo atual para somar
                     const userSnap = await getDoc(userRef);
                     const dadosAtuais = userSnap.data() || {};
-                    
-                    const saldoAntigo = dadosAtuais.saldo || 0;
-                    const pdlAntigo = dadosAtuais.pdlSemanal || 0;
+                    const saldoAtual = Number(dadosAtuais.saldo || 0);
 
-                    // Gravamos os novos valores calculados
+                    // Salva apenas saldo de moedas e controle do baú
                     await setDoc(userRef, {
-                        pdlSemanal: pdlAntigo + recompensa,
-                        saldo: saldoAntigo + recompensa,
+                        saldo: saldoAtual + recompensa,
                         ultimoBau: hojeStr
                     }, { merge: true });
 
                     visual.classList.remove('animar');
                     visual.innerText = "💰";
-                    msg.innerHTML = `<span style="color: #ff0; font-size: 1.2rem;">+ ${recompensa.toLocaleString()} PDL Adicionados!</span>`;
+                    msg.innerHTML = `<span style="color: #ff0; font-size: 1.2rem;">+ ${recompensa.toLocaleString()} Moedas Adicionadas!</span>`;
                     
                 } catch (error) {
-                    console.error("Erro ao salvar recompensa:", error);
-                    msg.innerText = "Erro ao conectar ao servidor. Verifique as regras.";
+                    console.error("Erro ao salvar moedas:", error);
+                    msg.innerText = "Erro ao conectar ao servidor.";
                     btn.disabled = false;
                     visual.classList.remove('animar');
                 }
