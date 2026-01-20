@@ -10,6 +10,8 @@
             --gold: #c89b3c;
             --blue: #0ac8b9;
             --dark: #010a13;
+            --raro: #00cfbc;
+            --epico: #a335ee;
         }
 
         body {
@@ -31,6 +33,7 @@
             border-radius: 4px;
             width: 100%;
             max-width: 500px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         h1 { color: var(--gold); text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
@@ -38,30 +41,38 @@
         .item-ativo {
             background: rgba(255, 255, 255, 0.05);
             margin: 15px 0;
-            padding: 12px;
+            padding: 15px;
             display: flex;
             align-items: center;
             position: relative;
             border-radius: 4px;
+            border-left: 3px solid transparent;
         }
 
+        /* Cores por tipo de item */
+        .item-tempo { border-left-color: var(--raro); }
+        .item-carga { border-left-color: var(--epico); }
+
         .item-img {
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             margin-right: 15px;
             object-fit: contain;
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
         }
 
         .info-item { flex-grow: 1; }
-        .info-item h3 { margin: 0; color: #fff; font-size: 1rem; text-transform: uppercase; }
-        .info-item p { margin: 2px 0 0; font-size: 0.7rem; color: var(--gold); }
+        .info-item h3 { margin: 0; color: #fff; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; }
+        .info-item p { margin: 2px 0 0; font-size: 0.7rem; color: var(--gold); font-weight: bold; }
 
-        .timer {
-            font-family: monospace;
+        .status-valor {
+            font-family: 'Inter', sans-serif;
             color: #fff;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            padding: 5px;
+            padding: 5px 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
         }
 
         .barra-tempo {
@@ -73,7 +84,7 @@
             transition: width 1s linear;
         }
 
-        .sem-itens { text-align: center; color: #666; margin-top: 20px; }
+        .sem-itens { text-align: center; color: #666; margin-top: 20px; font-style: italic; }
 
         .btn-voltar {
             margin-top: 30px;
@@ -82,26 +93,28 @@
             color: var(--gold);
             font-size: 0.8rem;
             text-transform: uppercase;
-            padding: 10px 20px;
+            padding: 10px 25px;
             border: 1px solid var(--gold);
             cursor: pointer;
             transition: 0.3s;
+            background: transparent;
         }
 
         .btn-voltar:hover {
             background: var(--gold);
             color: var(--dark);
+            box-shadow: 0 0 10px var(--gold);
         }
     </style>
 </head>
 <body>
 
     <div class="container-status">
-        <h1>Buffs Ativos</h1>
+        <h1>Buffs & Itens Ativos</h1>
         <div id="lista-status">
-            <p class="sem-itens">Carregando...</p>
+            <p class="sem-itens">Sincronizando com o inventário...</p>
         </div>
-        <center><a href="resgate.html" class="btn-voltar">Voltar para o Resgate</a></center>
+        <center><a href="loja.html" class="btn-voltar">Ir para a Loja</a></center>
     </div>
 
     <script type="module">
@@ -123,8 +136,7 @@
         const auth = getAuth(app);
 
         const DURACAO_TOTAL = {
-            'anjo_guardiao': 7 * 24 * 60 * 60 * 1000, 
-            'dobrador_pdl': 24 * 60 * 60 * 1000     
+            'anjo_guardiao': 7 * 24 * 60 * 60 * 1000
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -136,7 +148,6 @@
                     }
                 });
             } else {
-                // Aqui continua index.html pois se não houver usuário, ele deve logar.
                 window.location.href = "index.html";
             }
         });
@@ -145,36 +156,61 @@
             const container = document.getElementById('lista-status');
             container.innerHTML = "";
             const agora = Date.now();
-            let temItens = false;
+            let temItensVisiveis = false;
 
-            for (let [id, expira] of Object.entries(itensAtivos)) {
-                if (agora < expira) {
-                    temItens = true;
-                    const tempoRestante = expira - agora;
+            for (let [id, valor] of Object.entries(itensAtivos)) {
+                
+                // LÓGICA PARA ITENS DE CARGA (SENTINELAS)
+                if (id === 'sentinelas') {
+                    if (valor > 0) {
+                        temItensVisiveis = true;
+                        container.appendChild(criarCardCarga(id, valor));
+                    }
+                    continue;
+                }
+
+                // LÓGICA PARA ITENS DE TEMPO (ANJO)
+                if (agora < valor) {
+                    temItensVisiveis = true;
+                    const tempoRestante = valor - agora;
                     const total = DURACAO_TOTAL[id] || (24 * 60 * 60 * 1000);
                     const porcentagem = (tempoRestante / total) * 100;
 
                     const div = document.createElement('div');
-                    div.className = 'item-ativo';
+                    div.className = 'item-ativo item-tempo';
                     div.innerHTML = `
                         <img src="itens/${obterImagem(id)}" class="item-img" alt="item">
                         <div class="info-item">
                             <h3>${nomeExibicao(id)}</h3>
-                            <p>ATIVO</p>
+                            <p>PROTEÇÃO ATIVA</p>
                         </div>
-                        <div class="timer" id="timer-${id}">${formatarTempo(tempoRestante)}</div>
+                        <div class="status-valor" id="timer-${id}">${formatarTempo(tempoRestante)}</div>
                         <div class="barra-tempo" id="barra-${id}" style="width: ${porcentagem}%"></div>
                     `;
                     container.appendChild(div);
-                    iniciarContagem(id, expira, total, uid);
+                    iniciarContagem(id, valor, total, uid);
                 } else {
                     removerExpirado(uid, id);
                 }
             }
 
-            if (!temItens) {
-                container.innerHTML = '<p class="sem-itens">Nenhum buff ativo.</p>';
+            if (!temItensVisiveis) {
+                container.innerHTML = '<p class="sem-itens">Nenhum buff ou item ativo no momento.</p>';
             }
+        }
+
+        function criarCardCarga(id, cargas) {
+            const div = document.createElement('div');
+            div.className = 'item-ativo item-carga';
+            div.innerHTML = `
+                <img src="itens/${obterImagem(id)}" class="item-img" alt="item">
+                <div class="info-item">
+                    <h3>${nomeExibicao(id)}</h3>
+                    <p>USO AUTOMÁTICO NO QUIZ</p>
+                </div>
+                <div class="status-valor">${cargas}x</div>
+            `;
+            return div;
         }
 
         function iniciarContagem(id, expira, total, uid) {
@@ -210,12 +246,18 @@
         }
 
         function obterImagem(id) {
-            const imgs = { 'anjo_guardiao': 'anjo.png' };
+            const imgs = { 
+                'anjo_guardiao': 'anjo.png',
+                'sentinelas': 'sentinela-epico.png' 
+            };
             return imgs[id] || 'default.png';
         }
 
         function nomeExibicao(id) {
-            const nomes = { 'anjo_guardiao': 'Anjo Guardião' };
+            const nomes = { 
+                'anjo_guardiao': 'Anjo Guardião',
+                'sentinelas': 'Sentinelas de Controle'
+            };
             return nomes[id] || id;
         }
     </script>
