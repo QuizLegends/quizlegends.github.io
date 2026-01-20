@@ -31,6 +31,19 @@
             overscroll-behavior-y: contain;
         }
 
+            /* Efeito de revelação da Sentinela de Controle */
+            .sentinela-revelar {
+             border: 2px solid #00cfbc !important;
+             box-shadow: 0 0 15px rgba(0, 207, 188, 0.6) !important;
+             animation: pulseSentinela 1.5s infinite ease-in-out;
+        }
+
+             @keyframes pulseSentinela {
+             0% { box-shadow: 0 0 5px rgba(0, 207, 188, 0.4); }
+             50% { box-shadow: 0 0 20px rgba(0, 207, 188, 0.8); }
+             100% { box-shadow: 0 0 5px rgba(0, 207, 188, 0.4); }
+        }
+        
         /* --- NOVO: CSS DO BOTÃO DE RANKING (ESTILO GRANDE ACIMA DAS MOEDAS) --- */
         .btn-ranking-top {
             display: flex;
