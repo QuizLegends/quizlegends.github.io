@@ -413,38 +413,48 @@
         };
 
         async function processarCompra(id, valor) {
-            fecharModal();
-            try {
-                const userRef = doc(db, "usuarios", auth.currentUser.uid);
-                const itemDados = itens.find(i => i.id === id);
+    fecharModal();
+    try {
+        const userRef = doc(db, "usuarios", auth.currentUser.uid);
+        const itemDados = itens.find(i => i.id === id);
 
-                if (id === "sentinela-epico") {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        "statusAtivo.sentinelas": increment(3)
-                    });
-                    mostrarSucesso("Você adquiriu 3 Sentinelas! Ative-as no seu Inventário.");
-                    return;
-                }
-
-                if (itemDados.cat === 'itens') {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        mochila: arrayUnion(id)
-                    });
-                    mostrarSucesso("Item enviado para o seu inventário!"); 
-                } else {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        iconesAdquiridos: arrayUnion(id)
-                    });
-                    mostrarSucesso("Ícone enviado para o seu inventário!");
-                }
-            } catch (e) { 
-                console.error(e);
-                mostrarSucesso("Erro ao processar compra. Verifique sua conexão."); 
+        // Se for um item consumível (Sentinela ou Anjo Guardião)
+        if (itemDados.cat === 'itens') {
+            await updateDoc(userRef, {
+                saldo: increment(-valor),
+                mochila: arrayUnion(id)
+            });
+            
+            if (id === "sentinela-epico") {
+                mostrarSucesso("Você adquiriu o pacote de Sentinelas! Ative-as no seu Inventário para ganhar 3 cargas.");
+            } else {
+                mostrarSucesso("Item enviado para o seu inventário! Vá até lá para ativar seu benefício.");
             }
+            return;
         }
+
+        // Se for uma categoria de Ícones
+        if (itemDados.cat === 'icones') {
+            await updateDoc(userRef, {
+                saldo: increment(-valor),
+                iconesAdquiridos: arrayUnion(id)
+            });
+            mostrarSucesso("Ícone enviado para o seu inventário!");
+            return;
+        }
+
+        // Lógica para outras categorias (ex: moedas ou futuros itens)
+        await updateDoc(userRef, {
+            saldo: increment(-valor),
+            mochila: arrayUnion(id)
+        });
+        mostrarSucesso("Compra realizada com sucesso!");
+
+    } catch (e) { 
+        console.error(e);
+        mostrarSucesso("Erro ao processar compra. Verifique sua conexão."); 
+    }
+}
     </script>
 </body>
 </html>
