@@ -392,15 +392,34 @@
                 const userRef = doc(db, "usuarios", auth.currentUser.uid);
                 const itemDados = itens.find(i => i.id === id);
 
-                // Lógica especial para o Anjo Guardião
+                // Lógica especial para o Anjo Guardião (Soma de tempo)
                 if (id === 'anjo_guardiao') {
-                    const validade = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 dias em ms
+                    const agora = Date.now();
+                    
+                    // Busca o documento atual para ver se já existe um anjo ativo
+                    const snap = await getDoc(userRef);
+                    const dados = snap.data();
+                    const anjoAtual = (dados.statusAtivo && dados.statusAtivo.anjo_guardiao) ? dados.statusAtivo.anjo_guardiao : 0;
+
+                    let novaValidade;
+                    const seteDiasEmMs = 7 * 24 * 60 * 60 * 1000;
+
+                    if (anjoAtual > agora) {
+                        // Se o anjo ainda está ativo, soma 7 dias ao que já resta
+                        novaValidade = anjoAtual + seteDiasEmMs;
+                    } else {
+                        // Se o anjo expirou ou nunca teve, começa de agora
+                        novaValidade = agora + seteDiasEmMs;
+                    }
+
                     await updateDoc(userRef, {
                         saldo: increment(-valor),
                         mochila: arrayUnion(id),
-                        "statusAtivo.anjo_guardiao": validade
+                        "statusAtivo.anjo_guardiao": novaValidade
                     });
-                    alert("Anjo Guardião Adquirido! Proteção ativa por 7 dias.");
+                    
+                    const diasTotais = Math.ceil((novaValidade - agora) / (1000 * 60 * 60 * 24));
+                    alert(`Anjo Guardião Ativado! Agora você tem ${diasTotais} dias de proteção total.`);
                 } 
                 // Lógica para outros itens de buff
                 else if (itemDados.cat === 'itens') {
