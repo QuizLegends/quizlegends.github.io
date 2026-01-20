@@ -703,14 +703,14 @@ function atualizarVisualPodio(posicao, nome, foto) {
     if(btnV) {
         if (liberadoPeloCiclo && limiteDiarioDisponivel) {
             btnV.disabled = false;
-            btnV.style.backgroundColor = "#785a28"; // DOURADO ESCURO
-            btnV.style.color = "#ffffff";           // Letras Brancas
+            btnV.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
+            btnV.style.color = "#ffffff";              // Letras Brancas
             btnV.style.cursor = "pointer";
             btnV.style.filter = "none";
         } else {
             btnV.disabled = true;
-            btnV.style.backgroundColor = "#555";    // Cinza Desativado
-            btnV.style.color = "#aaa";              // Letras cinza claro
+            btnV.style.backgroundColor = "#555";       // Cinza Desativado
+            btnV.style.color = "#aaa";                 // Letras cinza claro
             btnV.style.cursor = "not-allowed";
         }
     }
@@ -719,8 +719,8 @@ function atualizarVisualPodio(posicao, nome, foto) {
     if(btnVXP) {
         if (liberadoPeloCiclo) {
             btnVXP.disabled = false;
-            btnVXP.style.backgroundColor = "#785a28"; // DOURADO ESCURO
-            btnVXP.style.color = "#ffffff";           // Letras Brancas
+            btnVXP.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
+            btnVXP.style.color = "#ffffff";              // Letras Brancas
             btnVXP.style.cursor = "pointer";
             btnVXP.style.filter = "none";
         } else {
@@ -753,7 +753,7 @@ function atualizarVisualPodio(posicao, nome, foto) {
             cooldownLivreAtivo = true; 
         } else if (!cooldownLivreAtivo) {
             btnLivre.disabled = false;
-            btnLivre.style.backgroundColor = "#785a28"; // DOURADO ESCURO
+            btnLivre.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
             btnLivre.style.color = "#ffffff";
         }
     }
