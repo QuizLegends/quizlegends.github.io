@@ -392,19 +392,34 @@
                 const userRef = doc(db, "usuarios", auth.currentUser.uid);
                 const itemDados = itens.find(i => i.id === id);
 
-                // Lógica de destino: Itens de buff vão para MOCHILA, ícones para iconesAdquiridos
-                if (itemDados.cat === 'itens') {
+                // Lógica especial para o Anjo Guardião
+                if (id === 'anjo_guardiao') {
+                    const validade = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 dias em ms
+                    await updateDoc(userRef, {
+                        saldo: increment(-valor),
+                        mochila: arrayUnion(id),
+                        "statusAtivo.anjo_guardiao": validade
+                    });
+                    alert("Anjo Guardião Adquirido! Proteção ativa por 7 dias.");
+                } 
+                // Lógica para outros itens de buff
+                else if (itemDados.cat === 'itens') {
                     await updateDoc(userRef, {
                         saldo: increment(-valor),
                         mochila: arrayUnion(id)
                     });
-                } else {
+                } 
+                // Lógica para ícones de perfil
+                else {
                     await updateDoc(userRef, {
                         saldo: increment(-valor),
                         iconesAdquiridos: arrayUnion(id)
                     });
                 }
-            } catch (e) { alert("Erro ao processar compra."); }
+            } catch (e) { 
+                console.error("Erro na compra:", e);
+                alert("Erro ao processar compra. Verifique seu saldo ou conexão."); 
+            }
         }
     </script>
 </body>
