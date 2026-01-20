@@ -695,35 +695,39 @@ function atualizarVisualPodio(posicao, nome, foto) {
     const btnVXP = document.getElementById('btnVideoXP');
     const aviso = document.getElementById('avisoStatusQuiz');
     
-    // LÓGICA DE ATIVAÇÃO E CORES (Dourado se liberado, Cinza se bloqueado)
+    // LÓGICA DE ATIVAÇÃO
     const liberadoPeloCiclo = (acertosNoCiclo >= 10);
     const limiteDiarioDisponivel = (totalVideosHoje < 35);
 
+    // Configuração do Botão de Gold (btnVideo)
     if(btnV) {
         if (liberadoPeloCiclo && limiteDiarioDisponivel) {
             btnV.disabled = false;
-            btnV.style.backgroundColor = "#c89b3c"; // Dourado
+            btnV.style.backgroundColor = "#c89b3c"; // Dourado Padrão
+            btnV.style.color = "#ffffff";           // Letras Brancas
             btnV.style.cursor = "pointer";
-            btnV.style.filter = "grayscale(0%)";
+            btnV.style.filter = "none";
         } else {
             btnV.disabled = true;
-            btnV.style.backgroundColor = "#555"; // Cinza
+            btnV.style.backgroundColor = "#555";    // Cinza Desativado
+            btnV.style.color = "#aaa";              // Letras cinza claro
             btnV.style.cursor = "not-allowed";
-            btnV.style.filter = "grayscale(100%)";
         }
     }
 
+    // Configuração do Botão de XP (btnVideoXP)
     if(btnVXP) {
         if (liberadoPeloCiclo) {
             btnVXP.disabled = false;
-            btnVXP.style.backgroundColor = "#c89b3c"; // Dourado
+            btnVXP.style.backgroundColor = "#c89b3c"; // Dourado Padrão
+            btnVXP.style.color = "#ffffff";           // Letras Brancas
             btnVXP.style.cursor = "pointer";
-            btnVXP.style.filter = "grayscale(0%)";
+            btnVXP.style.filter = "none";
         } else {
             btnVXP.disabled = true;
-            btnVXP.style.backgroundColor = "#555"; // Cinza
+            btnVXP.style.backgroundColor = "#555";
+            btnVXP.style.color = "#aaa";
             btnVXP.style.cursor = "not-allowed";
-            btnVXP.style.filter = "grayscale(100%)";
         }
     }
     
@@ -745,10 +749,12 @@ function atualizarVisualPodio(posicao, nome, foto) {
         if (salvoLivre && parseInt(salvoLivre) > agoraLivre) {
             btnLivre.disabled = true;
             btnLivre.style.backgroundColor = "#555";
+            btnLivre.style.color = "#aaa";
             cooldownLivreAtivo = true; 
         } else if (!cooldownLivreAtivo) {
             btnLivre.disabled = false;
             btnLivre.style.backgroundColor = "#c89b3c";
+            btnLivre.style.color = "#ffffff";
         }
     }
 }
