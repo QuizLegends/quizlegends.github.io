@@ -262,6 +262,16 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-sucesso">
+        <div class="modal-content">
+            <div class="modal-nome">AQUISIÇÃO CONCLUÍDA</div>
+            <div id="modal-sucesso-msg" class="modal-info" style="color: #f0e6d2; margin-top: 15px;"></div>
+            <div class="modal-btns">
+                <button class="btn-confirm" onclick="fecharModalSucesso()" style="width: 100%; margin: 0;">ENTENDIDO</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, arrayUnion, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -306,7 +316,7 @@
                         const d = snap.data();
                         saldoGlobal = d.saldo || 0;
                         meusItens = d.iconesAdquiridos || [];
-                        minhaMochila = d.mochila || []; // Lê a mochila do Firebase
+                        minhaMochila = d.mochila || [];
                         document.getElementById('saldo-valor').innerText = saldoGlobal.toLocaleString();
                         renderLoja();
                     }
@@ -350,7 +360,6 @@
             }
 
             itensFiltrados.forEach(item => {
-                // Verifica se já possui nos ícones OU na mochila
                 const jaPossui = meusItens.includes(item.id) || minhaMochila.includes(item.id);
                 const podeComprar = saldoGlobal >= item.preco;
                 const labelRaridade = item.raridade === 'epico' ? 'Épico' : item.raridade.charAt(0).toUpperCase() + item.raridade.slice(1);
@@ -386,33 +395,42 @@
 
         window.fecharModal = () => { document.getElementById('modal-compra').style.display = 'none'; };
 
-        async function processarCompra(id, valor) {
-    fecharModal();
-    try {
-        const userRef = doc(db, "usuarios", auth.currentUser.uid);
-        const itemDados = itens.find(i => i.id === id);
+        // Funções para o novo Modal de Sucesso
+        window.mostrarSucesso = (mensagem) => {
+            document.getElementById('modal-sucesso-msg').innerText = mensagem;
+            document.getElementById('modal-sucesso').style.display = 'flex';
+        };
 
-        // Apenas retira o dinheiro e coloca na mochila/icones
-        // O Anjo não ativa mais sozinho aqui
-        if (itemDados.cat === 'itens') {
-            await updateDoc(userRef, {
-                saldo: increment(-valor),
-                mochila: arrayUnion(id)
-            });
-            // Aqui você pode disparar um modal de sucesso do seu próprio jogo se tiver
-            alert("Item enviado para sua mochila!"); 
-        } else {
-            await updateDoc(userRef, {
-                saldo: increment(-valor),
-                iconesAdquiridos: arrayUnion(id)
-            });
-            alert("Ícone adquirido com sucesso!");
+        window.fecharModalSucesso = () => {
+            document.getElementById('modal-sucesso').style.display = 'none';
+        };
+
+        async function processarCompra(id, valor) {
+            fecharModal();
+            try {
+                const userRef = doc(db, "usuarios", auth.currentUser.uid);
+                const itemDados = itens.find(i => i.id === id);
+
+                if (itemDados.cat === 'itens') {
+                    await updateDoc(userRef, {
+                        saldo: increment(-valor),
+                        mochila: arrayUnion(id)
+                    });
+                    // Substituído alert por modal customizado
+                    mostrarSucesso("Item enviado para o seu inventário!"); 
+                } else {
+                    await updateDoc(userRef, {
+                        saldo: increment(-valor),
+                        iconesAdquiridos: arrayUnion(id)
+                    });
+                    // Substituído alert por modal customizado
+                    mostrarSucesso("Ícone enviado para o seu inventário!");
+                }
+            } catch (e) { 
+                console.error(e);
+                mostrarSucesso("Erro ao processar compra. Verifique sua conexão."); 
+            }
         }
-    } catch (e) { 
-        console.error(e);
-        alert("Erro ao processar compra."); 
-    }
-}
     </script>
 </body>
 </html>
