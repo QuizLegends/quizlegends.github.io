@@ -623,6 +623,7 @@ function atualizarVisualPodio(posicao, nome, foto) {
                 const eloAntesDoQuiz = getEloInfo(pdlInterno).nome;
                 const all = c.querySelectorAll('button'); all.forEach(x => x.disabled = true);
                 const rect = b.getBoundingClientRect();
+                
                 try {
                     if (o.correta) {
                         b.classList.add('btn-correct');
@@ -630,8 +631,22 @@ function atualizarVisualPodio(posicao, nome, foto) {
                         await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10), pdlSemanal: increment(10) });
                     } else {
                         b.classList.add('btn-wrong');
-                        showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
-                        await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 2) });
+
+                        // --- LÓGICA DO ANJO GUARDIÃO ---
+                        const agora = Date.now();
+                        const dataExpiracaoAnjo = dadosUserLocais.statusAtivo?.anjo_guardiao || 0;
+                        const temAnjoAtivo = dataExpiracaoAnjo > agora;
+
+                        if (temAnjoAtivo) {
+                            // MOSTRA FEEDBACK VISUAL DE QUE FOI PROTEGIDO
+                            showFloatingPDL("🛡️ PROTEGIDO", "#00cfbc", rect.left + rect.width/2, rect.top);
+                            console.log("Anjo Guardião impediu a perda de PDL.");
+                        } else {
+                            // PERDA NORMAL CASO NÃO TENHA O ITEM
+                            showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
+                            await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 2) });
+                        }
+                        // -------------------------------
                     }
                 } finally { 
                     setTimeout(() => {
