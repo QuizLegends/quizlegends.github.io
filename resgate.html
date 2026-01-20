@@ -661,51 +661,97 @@ function atualizarVisualPodio(posicao, nome, foto) {
     }
     
     function atualizarInterface() {
-        if(!document.getElementById('goldAmount')) return;
-        document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
-        
-        const elementoLimite = document.getElementById('txtLimiteBotao');
-        if (elementoLimite) {
-            elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
-            elementoLimite.style.color = (totalVideosHoje >= 35) ? "#dc3545" : "inherit";
-        }
+    if(!document.getElementById('goldAmount')) return;
+    
+    // Atualiza Gold
+    document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
+    
+    // Atualiza Limite Diário
+    const elementoLimite = document.getElementById('txtLimiteBotao');
+    if (elementoLimite) {
+        elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
+        elementoLimite.style.color = (totalVideosHoje >= 35) ? "#dc3545" : "inherit";
+    }
 
-        const info = getEloInfo(pdlInterno);
-        const eloBadge = document.getElementById('txtElo');
-        if(eloBadge) {
-            eloBadge.innerText = info.nome; eloBadge.style.backgroundColor = info.bg; eloBadge.style.color = info.color;
-        }
+    // Atualiza Elo e Badge
+    const info = getEloInfo(pdlInterno);
+    const eloBadge = document.getElementById('txtElo');
+    if(eloBadge) {
+        eloBadge.innerText = info.nome; 
+        eloBadge.style.backgroundColor = info.bg; 
+        eloBadge.style.color = info.color;
+    }
 
-        const bar = document.getElementById('xpMiniFill');
-        if(bar) {
-            const percXP = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
-            bar.style.width = Math.min(percXP, 100) + "%";
-            bar.style.backgroundColor = info.bar;
-        }
-        
-        const btnV = document.getElementById('btnVideo');
-        const btnVXP = document.getElementById('btnVideoXP');
-        const aviso = document.getElementById('avisoStatusQuiz');
-        
-        if(btnV) btnV.disabled = (acertosNoCiclo < 10 || totalVideosHoje >= 35);
-        if(btnVXP) btnVXP.disabled = (acertosNoCiclo < 10);
-        
-        if (acertosNoCiclo < 10) aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
-        else if (videosAssistidos < 3) aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS</span>`;
-        else aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
+    // Atualiza Barra de XP/PDL
+    const bar = document.getElementById('xpMiniFill');
+    if(bar) {
+        const percXP = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
+        bar.style.width = Math.min(percXP, 100) + "%";
+        bar.style.backgroundColor = info.bar;
+    }
+    
+    // Referências dos Botões e Aviso
+    const btnV = document.getElementById('btnVideo');
+    const btnVXP = document.getElementById('btnVideoXP');
+    const aviso = document.getElementById('avisoStatusQuiz');
+    
+    // LÓGICA DE ATIVAÇÃO E CORES (Dourado se liberado, Cinza se bloqueado)
+    const liberadoPeloCiclo = (acertosNoCiclo >= 10);
+    const limiteDiarioDisponivel = (totalVideosHoje < 35);
 
-        const btnLivre = document.getElementById('btnVideoLivre');
-        const salvoLivre = localStorage.getItem('proximoVideoLivre');
-        const agoraLivre = Date.now();
-        if (btnLivre) {
-            if (salvoLivre && parseInt(salvoLivre) > agoraLivre) {
-                btnLivre.disabled = true;
-                cooldownLivreAtivo = true; 
-            } else if (!cooldownLivreAtivo) {
-                btnLivre.disabled = false;
-            }
+    if(btnV) {
+        if (liberadoPeloCiclo && limiteDiarioDisponivel) {
+            btnV.disabled = false;
+            btnV.style.backgroundColor = "#c89b3c"; // Dourado
+            btnV.style.cursor = "pointer";
+            btnV.style.filter = "grayscale(0%)";
+        } else {
+            btnV.disabled = true;
+            btnV.style.backgroundColor = "#555"; // Cinza
+            btnV.style.cursor = "not-allowed";
+            btnV.style.filter = "grayscale(100%)";
         }
-    } 
+    }
+
+    if(btnVXP) {
+        if (liberadoPeloCiclo) {
+            btnVXP.disabled = false;
+            btnVXP.style.backgroundColor = "#c89b3c"; // Dourado
+            btnVXP.style.cursor = "pointer";
+            btnVXP.style.filter = "grayscale(0%)";
+        } else {
+            btnVXP.disabled = true;
+            btnVXP.style.backgroundColor = "#555"; // Cinza
+            btnVXP.style.cursor = "not-allowed";
+            btnVXP.style.filter = "grayscale(100%)";
+        }
+    }
+    
+    // Atualiza os textos de Aviso
+    if (acertosNoCiclo < 10) {
+        aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
+    } else if (videosAssistidos < 3) {
+        aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS</span>`;
+    } else {
+        aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
+    }
+
+    // Lógica do Vídeo Livre (Cooldown)
+    const btnLivre = document.getElementById('btnVideoLivre');
+    const salvoLivre = localStorage.getItem('proximoVideoLivre');
+    const agoraLivre = Date.now();
+    
+    if (btnLivre) {
+        if (salvoLivre && parseInt(salvoLivre) > agoraLivre) {
+            btnLivre.disabled = true;
+            btnLivre.style.backgroundColor = "#555";
+            cooldownLivreAtivo = true; 
+        } else if (!cooldownLivreAtivo) {
+            btnLivre.disabled = false;
+            btnLivre.style.backgroundColor = "#c89b3c";
+        }
+    }
+}
    
     function showFloatingPDL(text, color, x, y) {
         const el = document.createElement('div'); el.className = 'floating-pdl'; el.innerText = text; el.style.color = color; el.style.left = `${x}px`; el.style.top = `${y}px`;
