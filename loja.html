@@ -407,31 +407,41 @@
         };
 
         async function processarCompra(id, valor) {
-            fecharModal();
-            try {
-                const userRef = doc(db, "usuarios", auth.currentUser.uid);
-                const itemDados = itens.find(i => i.id === id);
+    fecharModal();
+    try {
+        const userRef = doc(db, "usuarios", auth.currentUser.uid);
+        const itemDados = itens.find(i => i.id === id);
 
-                if (itemDados.cat === 'itens') {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        mochila: arrayUnion(id)
-                    });
-                    // Substituído alert por modal customizado
-                    mostrarSucesso("Item enviado para o seu inventário!"); 
-                } else {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        iconesAdquiridos: arrayUnion(id)
-                    });
-                    // Substituído alert por modal customizado
-                    mostrarSucesso("Ícone enviado para o seu inventário!");
-                }
-            } catch (e) { 
-                console.error(e);
-                mostrarSucesso("Erro ao processar compra. Verifique sua conexão."); 
-            }
+        // Lógica para a Sentinela de Controle (Adiciona 3 cargas)
+        if (id === "sentinela-epico") {
+            await updateDoc(userRef, {
+                saldo: increment(-valor),
+                "statusAtivo.sentinelas": increment(3) // Adiciona as 3 unidades/partidas
+            });
+            mostrarSucesso("Você adquiriu 3 Sentinelas! As respostas das próximas 3 perguntas serão reveladas.");
+            return; // Interrompe para não executar a lógica de mochila comum
         }
+
+        // Lógica para outros Itens
+        if (itemDados.cat === 'itens') {
+            await updateDoc(userRef, {
+                saldo: increment(-valor),
+                mochila: arrayUnion(id)
+            });
+            mostrarSucesso("Item enviado para o seu inventário!"); 
+        } else {
+            // Lógica para Ícones
+            await updateDoc(userRef, {
+                saldo: increment(-valor),
+                iconesAdquiridos: arrayUnion(id)
+            });
+            mostrarSucesso("Ícone enviado para o seu inventário!");
+        }
+    } catch (e) { 
+        console.error(e);
+        mostrarSucesso("Erro ao processar compra. Verifique sua conexão."); 
+    }
+}
     </script>
 </body>
 </html>
