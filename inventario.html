@@ -142,7 +142,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // ADICIONADO getDoc PARA LÓGICA DE SOMA DE TEMPO
+        import { getFirestore, doc, onSnapshot, updateDoc, arrayRemove, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -158,7 +159,6 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Banco de dados local de informações sincronizado com a Loja
         const DATA_BASE = {
             'aatrox_comum': { nome: "Aatrox", tipo: "icone", img: "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/aatrox-comum.png" },
             'aatrox_raro': { nome: "Aatrox Caçador", tipo: "icone", img: "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/aatrox-raro.png" },
@@ -197,14 +197,12 @@
                 return;
             }
 
-            // Renderiza Consumíveis (Mochila)
             mochila.forEach(id => {
                 const item = DATA_BASE[id];
                 if (!item) return;
                 grid.innerHTML += criarCard(id, item, "ATIVAR", false);
             });
 
-            // Renderiza Ícones
             icones.forEach(id => {
                 const item = DATA_BASE[id];
                 if (!item) return;
@@ -238,11 +236,11 @@
 
             if (tipo === 'icone') {
                 titulo.innerText = "EQUIPAR ÍCONE";
-                msg.innerText = `Deseja equipar "${item.nome.replace('<br>', '')}" como seu ícone de perfil?`;
+                msg.innerText = `Deseja equipar "${item.nome}" como seu ícone de perfil?`;
                 btnSim.onclick = () => equiparIcone(id);
             } else {
                 titulo.innerText = "ATIVAR CONSUMÍVEL";
-                msg.innerText = `Deseja ativar "${item.nome.replace('<br>', '')}" agora? Isso iniciará o tempo de ${item.duracao} dias.`;
+                msg.innerText = `Deseja ativar "${item.nome}" agora? Isso iniciará o tempo de ${item.duracao} dias (acumulativo).`;
                 btnSim.onclick = () => ativarConsumivel(id);
             }
             modal.style.display = 'flex';
@@ -250,46 +248,70 @@
 
         window.fecharModal = () => { document.getElementById('modal-confirm').style.display = 'none'; };
 
+        // FUNÇÃO DE MODAL CUSTOMIZADA (PARA SUBSTITUIR O ALERT)
+        function mostrarModalSucesso(titulo, htmlConteudo) {
+            const modal = document.getElementById('modal-confirm');
+            document.getElementById('modal-title').innerText = titulo;
+            document.getElementById('modal-message').innerHTML = htmlConteudo;
+            // Esconde os botões de Sim/Cancelar e coloca um de "OK"
+            const containerBtns = document.querySelector('.modal-btns');
+            containerBtns.innerHTML = `<button class="btn-confirm" onclick="location.reload()">OK</button>`;
+            modal.style.display = 'flex';
+        }
+
         async function equiparIcone(id) {
             fecharModal();
-            const userRef = doc(db, "usuarios", auth.currentUser.uid);
-            await updateDoc(userRef, { iconeAtual: id });
+            try {
+                const userRef = doc(db, "usuarios", auth.currentUser.uid);
+                await updateDoc(userRef, { iconeAtual: id });
+            } catch (e) {
+                console.error("Erro ao equipar:", e);
+            }
         }
 
         async function ativarConsumivel(id) {
-    // 1. Fecha o inventário para abrir o aviso de sucesso
-    if (typeof fecharModal === 'function') fecharModal();
-    
-    const item = DATA_BASE[id];
-    const userRef = doc(db, "usuarios", auth.currentUser.uid);
-    
-    // 2. Cálculo de 7 dias
-    const tempoMs = item.duracao * 24 * 60 * 60 * 1000; 
-    const expiraEm = Date.now() + tempoMs;
+            fecharModal();
+            const item = DATA_BASE[id];
+            const userRef = doc(db, "usuarios", auth.currentUser.uid);
+            const agora = Date.now();
+            const tempoMs = item.duracao * 24 * 60 * 60 * 1000; 
 
-    try {
-        await updateDoc(userRef, {
-            mochila: arrayRemove(id),
-            [`statusAtivo.${id}`]: expiraEm
-        });
-        
-        // 3. USANDO O SEU PADRÃO QUIZ LEGENDS
-        const msgSucesso = `
-            <div style="text-align:center;">
-                <img src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/anjo.png" style="width:60px; margin-bottom:10px;">
-                <p style="color:var(--gold); font-weight:bold;">SANTUÁRIO ATIVADO!</p>
-                <p>O <strong>${item.nome}</strong> protegerá seu PDL por ${item.duracao} dias.</p>
-            </div>
-        `;
-        
-        // Chama a sua função de modal personalizada
-        openModal("ITEM ATIVADO", msgSucesso, 'alert');
+            try {
+                // Busca dados atuais para verificar se já existe tempo ativo
+                const snap = await getDoc(userRef);
+                const dados = snap.data();
+                
+                // Se o tempo atual for maior que agora, somamos ao tempo restante. 
+                // Se não, somamos a partir de "agora".
+                const tempoAtual = (dados.statusAtivo && dados.statusAtivo[id] > agora) 
+                    ? dados.statusAtivo[id] 
+                    : agora;
 
-    } catch (e) {
-        console.error("Erro:", e);
-        openModal("ERRO", "Não foi possível ativar o item.", 'alert');
-    }
-}
+                const novaValidade = tempoAtual + tempoMs;
+
+                await updateDoc(userRef, {
+                    mochila: arrayRemove(id), // Remove 1 unidade da mochila
+                    [`statusAtivo.${id}`]: novaValidade
+                });
+                
+                // Cálculo de dias totais para exibir no modal
+                const diasRestantes = Math.ceil((novaValidade - agora) / (1000 * 60 * 60 * 24));
+
+                const msgSucesso = `
+                    <div style="text-align:center;">
+                        <img src="${item.img}" style="width:60px; margin-bottom:10px; filter: drop-shadow(0 0 10px var(--ouro));">
+                        <p style="color:var(--ouro); font-weight:bold; text-transform:uppercase;">${item.nome} Ativado!</p>
+                        <p>Você possui agora <strong>${diasRestantes} dias</strong> de proteção acumulada.</p>
+                    </div>
+                `;
+                
+                mostrarModalSucesso("SUCESSO", msgSucesso);
+
+            } catch (e) {
+                console.error("Erro ao ativar:", e);
+                mostrarModalSucesso("ERRO", "Houve uma falha na comunicação com o servidor Hextech.");
+            }
+        }
     </script>
 </body>
 </html>
