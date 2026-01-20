@@ -387,59 +387,32 @@
         window.fecharModal = () => { document.getElementById('modal-compra').style.display = 'none'; };
 
         async function processarCompra(id, valor) {
-            fecharModal();
-            try {
-                const userRef = doc(db, "usuarios", auth.currentUser.uid);
-                const itemDados = itens.find(i => i.id === id);
+    fecharModal();
+    try {
+        const userRef = doc(db, "usuarios", auth.currentUser.uid);
+        const itemDados = itens.find(i => i.id === id);
 
-                // Lógica especial para o Anjo Guardião (Soma de tempo)
-                if (id === 'anjo_guardiao') {
-                    const agora = Date.now();
-                    
-                    // Busca o documento atual para ver se já existe um anjo ativo
-                    const snap = await getDoc(userRef);
-                    const dados = snap.data();
-                    const anjoAtual = (dados.statusAtivo && dados.statusAtivo.anjo_guardiao) ? dados.statusAtivo.anjo_guardiao : 0;
-
-                    let novaValidade;
-                    const seteDiasEmMs = 7 * 24 * 60 * 60 * 1000;
-
-                    if (anjoAtual > agora) {
-                        // Se o anjo ainda está ativo, soma 7 dias ao que já resta
-                        novaValidade = anjoAtual + seteDiasEmMs;
-                    } else {
-                        // Se o anjo expirou ou nunca teve, começa de agora
-                        novaValidade = agora + seteDiasEmMs;
-                    }
-
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        mochila: arrayUnion(id),
-                        "statusAtivo.anjo_guardiao": novaValidade
-                    });
-                    
-                    const diasTotais = Math.ceil((novaValidade - agora) / (1000 * 60 * 60 * 24));
-                    alert(`Anjo Guardião Ativado! Agora você tem ${diasTotais} dias de proteção total.`);
-                } 
-                // Lógica para outros itens de buff
-                else if (itemDados.cat === 'itens') {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        mochila: arrayUnion(id)
-                    });
-                } 
-                // Lógica para ícones de perfil
-                else {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        iconesAdquiridos: arrayUnion(id)
-                    });
-                }
-            } catch (e) { 
-                console.error("Erro na compra:", e);
-                alert("Erro ao processar compra. Verifique seu saldo ou conexão."); 
-            }
+        // Apenas retira o dinheiro e coloca na mochila/icones
+        // O Anjo não ativa mais sozinho aqui
+        if (itemDados.cat === 'itens') {
+            await updateDoc(userRef, {
+                saldo: increment(-valor),
+                mochila: arrayUnion(id)
+            });
+            // Aqui você pode disparar um modal de sucesso do seu próprio jogo se tiver
+            alert("Item enviado para sua mochila!"); 
+        } else {
+            await updateDoc(userRef, {
+                saldo: increment(-valor),
+                iconesAdquiridos: arrayUnion(id)
+            });
+            alert("Ícone adquirido com sucesso!");
         }
+    } catch (e) { 
+        console.error(e);
+        alert("Erro ao processar compra."); 
+    }
+}
     </script>
 </body>
 </html>
