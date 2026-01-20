@@ -257,11 +257,13 @@
         }
 
         async function ativarConsumivel(id) {
-    fecharModal();
+    // 1. Fecha o inventário para abrir o aviso de sucesso
+    if (typeof fecharModal === 'function') fecharModal();
+    
     const item = DATA_BASE[id];
     const userRef = doc(db, "usuarios", auth.currentUser.uid);
     
-    // Cálculo oficial: 7 dias em milissegundos
+    // 2. Cálculo de 7 dias
     const tempoMs = item.duracao * 24 * 60 * 60 * 1000; 
     const expiraEm = Date.now() + tempoMs;
 
@@ -271,12 +273,21 @@
             [`statusAtivo.${id}`]: expiraEm
         });
         
-        // Mensagem personalizada e sem instruções genéricas
-        alert(`🛡️ PROTEÇÃO ATIVADA: O ${item.nome.replace('<br>', '')} protegerá seus PDL pelos próximos ${item.duracao} dias!`);
+        // 3. USANDO O SEU PADRÃO QUIZ LEGENDS
+        const msgSucesso = `
+            <div style="text-align:center;">
+                <img src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/anjo.png" style="width:60px; margin-bottom:10px;">
+                <p style="color:var(--gold); font-weight:bold;">SANTUÁRIO ATIVADO!</p>
+                <p>O <strong>${item.nome}</strong> protegerá seu PDL por ${item.duracao} dias.</p>
+            </div>
+        `;
         
+        // Chama a sua função de modal personalizada
+        openModal("ITEM ATIVADO", msgSucesso, 'alert');
+
     } catch (e) {
-        console.error("Erro ao ativar:", e);
-        alert("Ocorreu um erro ao ativar o item. Tente novamente.");
+        console.error("Erro:", e);
+        openModal("ERRO", "Não foi possível ativar o item.", 'alert');
     }
 }
     </script>
