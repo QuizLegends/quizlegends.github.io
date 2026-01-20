@@ -14,7 +14,6 @@
         
         html, body { 
             font-family: 'Segoe UI', sans-serif; 
-            /* Máscara negra (rgba 0,0,0,0.6) combinada com a imagem */
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
                         url('admin-vertical.png') no-repeat center center fixed;
             background-size: cover;
@@ -31,7 +30,6 @@
             overscroll-behavior-y: contain;
         }
 
-        /* --- NOVO: CSS DO BOTÃO DE RANKING (ESTILO GRANDE ACIMA DAS MOEDAS) --- */
         .btn-ranking-top {
             display: flex;
             align-items: center;
@@ -58,11 +56,9 @@
             color: var(--bg-dark);
         }
 
-        /* --- ANIMAÇÕES --- */
         .floating-pdl { position: fixed; pointer-events: none; font-weight: 900; font-size: 1.2rem; z-index: 5000; animation: floatUp 1s ease-out forwards; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
 
-        /* --- MODAL E COMPONENTES --- */
         #custom-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9); z-index: 3000; align-items: center; justify-content: center;
@@ -106,7 +102,6 @@
         .resgate-selector { display: flex; justify-content: flex-start; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .resgate-opt { flex: 0 0 auto; min-width: 85px; background: #010a13; border: 1px solid var(--gold-dark); color: var(--gold); padding: 12px 5px; font-size: 0.8rem; font-weight: 900; cursor: pointer; text-align: center; }
         .resgate-opt.active { background: var(--gold); color: #000; border-color: var(--gold-bright); }
-        input { width: 100%; padding: 12px; background: #010a13; color: white; border: 1px solid var(--gold-dark); margin: 8px 0; box-sizing: border-box; }
         
         .footer-ad-space { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--ad-space); background: #000; border-top: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .link-politica-quadro { display: block; text-align: center; color: var(--gold); font-size: 9px; text-decoration: none; margin-top: 10px; opacity: 0.5; text-transform: uppercase; }
@@ -115,7 +110,6 @@
         .refresh-badge { border: 2px solid var(--gold); padding: 8px 20px; background: rgba(9, 20, 40, 0.95); color: var(--gold); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%); }
         .app-container { flex: 1; display: flex; flex-direction: column; padding: 15px 0; gap: 10px; width: 94%; max-width: 400px; box-sizing: border-box; margin-bottom: var(--ad-space); justify-content: center; transition: transform 0.2s ease; }
 
-        /* --- ESTILOS PARA O GRID DO INVENTÁRIO DENTRO DO MODAL --- */
         .grid-inventario-modal {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -132,7 +126,6 @@
         .item-inventario.equipado { border-color: #28a745; background: rgba(40, 167, 69, 0.2); }
         .item-inventario img { width: 100%; border-radius: 4px; display: block; }
         .item-inventario span { font-size: 10px; display: block; margin-top: 4px; color: var(--gold-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
     </style>
 </head>
 <body>
@@ -150,78 +143,72 @@
     <div id="pull-to-refresh"><div class="refresh-badge">Solte para Recarregar</div></div>
 
     <div class="app-container" id="main-content">
-    <div class="header-section">
-        <div class="title-legends"><h1>QUIZ LEGENDS</h1></div>
-        
-        <a href="ranking.html" class="btn-ranking-top">🏆 VER RANKING GLOBAL</a>
-        
-        <div class="coin-badge">🟡 <span id="goldAmount">...</span></div>
-
-        <div class="elo-container" id="btnVerElos" style="cursor:pointer;">
-            <span class="elo-badge" id="txtElo">...</span>
-            <div class="xp-mini-bar-bg">
-                <div id="xpMiniFill" class="xp-mini-bar-fill"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="hex-frame">
-        <div id="quizContent">
-            <p id="perguntaTexto" style="text-align: center; font-size: 1rem; color: var(--gold-bright); font-weight: bold; margin-bottom: 10px;">Autenticando...</p>
-            <div id="opcoes"></div>
-            <p id="avisoStatusQuiz" style="text-align: center; font-size: 0.75rem; color: var(--gold); font-weight: bold; margin-top: 15px; text-transform: uppercase; line-height: 1.4;"></p>
-        </div>
-        
-        <div style="text-align: center;">
-            <div class="video-buttons-container">
-                <button id="btnVideo" class="video-btn">
-                   📺 +100 MOEDAS 
-                   <span id="txtMetaAcertos">META 10 ACERTOS</span>
-                   <span id="txtLimiteBotao" style="font-size: 0.65rem; display: block; opacity: 0.8;">LIMITE DIÁRIO: 0/35</span>
-                </button>
-                
-                <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">
-                    📺 +10 MOEDAS <span>+100 PDL</span>
-                </button>
-                
-                <button id="btnVideoXP" class="video-btn">📺 +500 PDL <span>META 10 ACERTOS</span></button>
-            </div>
-        </div>
-    </div>
-
-       <div class="hex-frame">
-    <div id="containerRankingResumo" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #c89b3c33; margin-bottom: 15px; text-align: center;">
-        <h4 style="color: var(--gold); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">TOP 3 DA SEMANA</h4>
-        
-        <div style="display: flex; justify-content: space-around; align-items: flex-end; min-height: 140px; padding-bottom: 5px;">
-            
-            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
-                <div style="font-size: 0.7rem; color: #C0C0C0; font-weight: bold; margin-bottom: 5px;">2º</div>
-                <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/1.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <div class="header-section">
+            <div class="title-legends"><h1>QUIZ LEGENDS</h1></div>
+            <a href="ranking.html" class="btn-ranking-top">🏆 VER RANKING GLOBAL</a>
+            <div class="coin-badge">🟡 <span id="goldAmount">...</span></div>
+            <div class="elo-container" id="btnVerElos" style="cursor:pointer;">
+                <span class="elo-badge" id="txtElo">...</span>
+                <div class="xp-mini-bar-bg">
+                    <div id="xpMiniFill" class="xp-mini-bar-fill"></div>
                 </div>
-                <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player B</small>
+            </div>
+        </div>
+
+        <div class="hex-frame">
+            <div id="quizContent">
+                <p id="perguntaTexto" style="text-align: center; font-size: 1rem; color: var(--gold-bright); font-weight: bold; margin-bottom: 10px;">Autenticando...</p>
+                <div id="opcoes"></div>
+                <p id="avisoStatusQuiz" style="text-align: center; font-size: 0.75rem; color: var(--gold); font-weight: bold; margin-top: 15px; text-transform: uppercase; line-height: 1.4;"></p>
             </div>
             
-            <div style="display: flex; flex-direction: column; align-items: center; width: 40%;">
-                <div style="font-size: 1.6rem; margin-bottom: 2px; filter: drop-shadow(0 0 5px gold);">👑</div>
-                <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/0.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+            <div style="text-align: center;">
+                <div class="video-buttons-container">
+                    <button id="btnVideo" class="video-btn">
+                       📺 +100 MOEDAS 
+                       <span id="txtMetaAcertos">META 10 ACERTOS</span>
+                       <span id="txtLimiteBotao" style="font-size: 0.65rem; display: block; opacity: 0.8;">LIMITE DIÁRIO: 0/35</span>
+                    </button>
+                    
+                    <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">
+                        📺 +10 MOEDAS <span>+100 PDL</span>
+                    </button>
+                    
+                    <button id="btnVideoXP" class="video-btn">📺 +500 PDL <span>META 10 ACERTOS</span></button>
                 </div>
-                <small style="font-size: 0.85rem; font-weight: bold; color: var(--gold); margin-top: 8px;">Lenda Atual</small>
             </div>
-            
-            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
-                <div style="font-size: 0.7rem; color: #cd7f32; font-weight: bold; margin-bottom: 5px;">3º</div>
-                <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/2.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                </div>
-                <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player C</small>
-            </div>
-
         </div>
-    </div>
-</div>
+
+        <div class="hex-frame">
+            <div id="containerRankingResumo" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #c89b3c33; margin-bottom: 15px; text-align: center;">
+                <h4 style="color: var(--gold); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">TOP 3 DA SEMANA</h4>
+                <div style="display: flex; justify-content: space-around; align-items: flex-end; min-height: 140px; padding-bottom: 5px;">
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+                        <div style="font-size: 0.7rem; color: #C0C0C0; font-weight: bold; margin-bottom: 5px;">2º</div>
+                        <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
+                            <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/1.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        </div>
+                        <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player B</small>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 40%;">
+                        <div style="font-size: 1.6rem; margin-bottom: 2px; filter: drop-shadow(0 0 5px gold);">👑</div>
+                        <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
+                            <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/0.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        </div>
+                        <small style="font-size: 0.85rem; font-weight: bold; color: var(--gold); margin-top: 8px;">Lenda Atual</small>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+                        <div style="font-size: 0.7rem; color: #cd7f32; font-weight: bold; margin-bottom: 5px;">3º</div>
+                        <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
+                            <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/2.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        </div>
+                        <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player C</small>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <div class="resgate-selector" style="margin-bottom: 15px;">
             <div class="resgate-opt" onclick="window.location.href='inventario.html'">🎒 ITENS</div>
@@ -239,16 +226,14 @@
             <a href="politica.html" class="link-politica-quadro" style="font-size: 0.6rem;">Privacidade</a>
         </div>
     </div>
-</div>
 
-<div class="footer-ad-space">
-    </div>
+<div class="footer-ad-space"></div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
     import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-    // --- 1. CONFIGURAÇÃO E INICIALIZAÇÃO ÚNICA ---
     const firebaseConfig = { 
         apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E", 
         authDomain: "quizlegends-f58fc.firebaseapp.com", 
@@ -262,7 +247,6 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Variáveis Globais do Script
     const modal = document.getElementById('custom-modal');
     const mTitle = document.getElementById('m-title');
     const mContent = document.getElementById('modal-body-content');
@@ -281,8 +265,6 @@
     let goldDB = 0, acertosNoCiclo = 0, videosAssistidos = 0, totalVideosHoje = 0;
     let pdlInterno = 0, userRef = null, carregadoPelaPrimeiraVez = false, ultimoEloNome = null;
 
-    // --- LISTA DE REFERÊNCIA PARA O INVENTÁRIO (Sincronizado com a Loja) ---
-    // Removida a duplicata lá de baixo para não travar o "Autenticando"
     const URL_BASE_ICON = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/%C3%ADcones/";
     const CATALOGO_ITENS = [
         { id: "aatrox_comum", nome: "Aatrox", img: "aatrox-comum.png" },
@@ -293,8 +275,6 @@
         { id: "ahri_epico", nome: "Ahri K/DA", img: "ahri-epico.png" },
         { id: "anjo_guardiao", nome: "Anjo Guardião", img: "anjo.png" }
     ];
-
-    // --- 2. FUNÇÕES DE INTERFACE (MODAIS E PÓDIO) ---
 
     function openModal(title, text, type = 'alert', onConfirm = null) {
         if (!modal) return;
@@ -324,98 +304,63 @@
     window.openModal = openModal;
 
     async function atualizarPodioSemanal() {
-    try {
-        const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"), limit(3));
-        const querySnapshot = await getDocs(q);
-        const vencedores = [];
-        querySnapshot.forEach((doc) => { vencedores.push(doc.data()); });        
+        try {
+            const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"), limit(3));
+            const querySnapshot = await getDocs(q);
+            const vencedores = [];
+            querySnapshot.forEach((doc) => { vencedores.push(doc.data()); });        
 
-        // Função interna para decidir qual imagem usar com base na prioridade
-        const obterFotoVencedor = (usuario) => {
-            const URL_BASE_GH = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
-            
-            // 1ª PRIORIDADE: Ícone Equipado na Loja
-            if (usuario.iconeAtual) {
-                const idLimpo = usuario.iconeAtual.replace('_', '-');
-                return URL_BASE_GH + idLimpo + '.png';
-            }
-            
-            // 2ª PRIORIDADE: fotoPerfil antiga
-            if (usuario.fotoPerfil) {
-                const valor = String(usuario.fotoPerfil);
-                if (valor.startsWith('http')) return valor;
-                const idLimpo = valor.replace('.png', '').replace('.jpg', '');
-                return URL_BASE_GH + idLimpo + '.png';
-            }
-            
-            // 3ª PRIORIDADE: photoURL (Google/Auth)
-            return usuario.photoURL || usuario.fotoUrl || null;
-        };
+            const obterFotoVencedor = (usuario) => {
+                const URL_BASE_GH = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
+                if (usuario.iconeAtual) {
+                    const idLimpo = usuario.iconeAtual.replace('_', '-');
+                    return URL_BASE_GH + idLimpo + '.png';
+                }
+                if (usuario.fotoPerfil) {
+                    const valor = String(usuario.fotoPerfil);
+                    if (valor.startsWith('http')) return valor;
+                    const idLimpo = valor.replace('.png', '').replace('.jpg', '');
+                    return URL_BASE_GH + idLimpo + '.png';
+                }
+                return usuario.photoURL || usuario.fotoUrl || null;
+            };
 
-        if(vencedores[0]) {
-            atualizarVisualPodio(1, vencedores[0].nome, obterFotoVencedor(vencedores[0]));
-        }
-        if(vencedores[1]) {
-            atualizarVisualPodio(2, vencedores[1].nome, obterFotoVencedor(vencedores[1]));
-        }
-        if(vencedores[2]) {
-            atualizarVisualPodio(3, vencedores[2].nome, obterFotoVencedor(vencedores[2]));
-        }
-    } catch (error) {
-        console.error("Erro ao carregar pódio:", error);
+            if(vencedores[0]) atualizarVisualPodio(1, vencedores[0].nome, obterFotoVencedor(vencedores[0]));
+            if(vencedores[1]) atualizarVisualPodio(2, vencedores[1].nome, obterFotoVencedor(vencedores[1]));
+            if(vencedores[2]) atualizarVisualPodio(3, vencedores[2].nome, obterFotoVencedor(vencedores[2]));
+        } catch (error) { console.error("Erro ao carregar pódio:", error); }
     }
-}
 
-function atualizarVisualPodio(posicao, nome, foto) {
-    // Busca todos os containers de colunas dentro do pódio
-    const containers = document.querySelectorAll("#containerRankingResumo div[style*='flex-direction: column']");
-    if (containers.length < 3) return;
+    function atualizarVisualPodio(posicao, nome, foto) {
+        const containers = document.querySelectorAll("#containerRankingResumo div[style*='flex-direction: column']");
+        if (containers.length < 3) return;
+        const fotoPadrao = 'https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/0.png';
+        const urlFinal = foto ? foto : fotoPadrao;
+        let alvo = (posicao === 2) ? containers[0] : (posicao === 1) ? containers[1] : (posicao === 3) ? containers[2] : null;
 
-    const fotoPadrao = 'https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/0.png';
-    
-    // A variável 'foto' já vem processada com a URL completa da lógica acima
-    const urlFinal = foto ? foto : fotoPadrao;
-
-    // Mapeamento fixo pela ordem do seu HTML: 2º (index 0), 1º (index 1), 3º (index 2)
-    let alvo = null;
-    if (posicao === 2) alvo = containers[0];
-    if (posicao === 1) alvo = containers[1];
-    if (posicao === 3) alvo = containers[2];
-
-    if (alvo) {
-        const small = alvo.querySelector("small");
-        const imgTag = alvo.querySelector("img");
-        
-        if (small) small.innerText = nome.split(' ')[0];
-        if (imgTag) {
-            imgTag.src = urlFinal;
-            imgTag.style.width = "100%";
-            imgTag.style.height = "100%";
-            imgTag.style.objectFit = "cover";
-            // Garante que se a imagem falhar, use o padrão
-            imgTag.onerror = () => { imgTag.src = fotoPadrao; };
+        if (alvo) {
+            const small = alvo.querySelector("small");
+            const imgTag = alvo.querySelector("img");
+            if (small) small.innerText = nome.split(' ')[0];
+            if (imgTag) {
+                imgTag.src = urlFinal;
+                imgTag.onerror = () => { imgTag.src = fotoPadrao; };
+            }
         }
     }
-}
 
-   
     function verificarCooldownLivre() {
         const salvo = localStorage.getItem('proximoVideoLivre');
         if (salvo) {
             const agora = Date.now();
             const tempoDesbloqueio = parseInt(salvo);
-            if (tempoDesbloqueio > agora) {
-                const restante = Math.floor((tempoDesbloqueio - agora) / 1000);
-                executarCronometroVisual(restante);
-            } else {
-                localStorage.removeItem('proximoVideoLivre');
-            }
+            if (tempoDesbloqueio > agora) executarCronometroVisual(Math.floor((tempoDesbloqueio - agora) / 1000));
+            else localStorage.removeItem('proximoVideoLivre');
         }
     }
 
     function iniciarCooldownLivre(segundos) {
-        const tempoDesbloqueio = Date.now() + (segundos * 1000);
-        localStorage.setItem('proximoVideoLivre', tempoDesbloqueio);
+        localStorage.setItem('proximoVideoLivre', Date.now() + (segundos * 1000));
         executarCronometroVisual(segundos);
     }
 
@@ -434,19 +379,17 @@ function atualizarVisualPodio(posicao, nome, foto) {
                 localStorage.removeItem('proximoVideoLivre');
                 btn.disabled = false;
                 btn.innerHTML = `📺 +10 MOEDAS <span>+100 PDL</span>`;
-                if(typeof atualizarInterface === 'function') atualizarInterface();
+                atualizarInterface();
             }
         }, 1000);
     }
 
     function iniciarFluxoAnuncio(tipo) {
         if (tipo === 'livre' && cooldownLivreAtivo) return;
-        chaveSeguranca = false;
-        tipoRecompensa = tipo; anuncioEmAndamento = true; tempoRestanteAnuncio = 15;
+        chaveSeguranca = false; tipoRecompensa = tipo; anuncioEmAndamento = true; tempoRestanteAnuncio = 15;
         if(intervaloAnuncio) clearInterval(intervaloAnuncio);
         window.open(linkAnuncioAdsterra, '_blank');
         openModal("VALIDANDO RECOMPENSA", `Permaneça na página do anúncio.<br><div class="contador-video" id="modalContador">15</div>`, 'alert');
-        mFooter.innerHTML = '<span style="font-size:0.7rem; color:var(--gold-dark); font-weight:900;">CONTANDO...</span>';
         intervaloAnuncio = setInterval(() => {
             if (document.visibilityState === 'hidden') {
                 tempoRestanteAnuncio--;
@@ -455,39 +398,16 @@ function atualizarVisualPodio(posicao, nome, foto) {
             }
             if (tempoRestanteAnuncio <= 0) { 
                 clearInterval(intervaloAnuncio); 
-                anuncioEmAndamento = false; 
-                chaveSeguranca = true; 
+                anuncioEmAndamento = false; chaveSeguranca = true; 
                 finalizarRecompensa(); 
             }
         }, 1000);
     }
 
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && anuncioEmAndamento && tempoRestanteAnuncio > 0) {
-            clearInterval(intervaloAnuncio);
-            anuncioEmAndamento = false;
-            mTitle.innerText = "VALIDAÇÃO FALHOU!";
-            mContent.innerHTML = `<div class="modal-text" style="color:#dc3545; font-weight:bold;">Você voltou muito cedo!<br>Aguarde os 15 segundos no anúncio para receber sua recompensa.</div>`;
-            mFooter.innerHTML = '';
-            const btnRetry = document.createElement('button');
-            btnRetry.className = 'modal-btn-confirm';
-            btnRetry.style.width = "100%";
-            btnRetry.innerText = 'VER ANÚNCIO NOVAMENTE';
-            btnRetry.onclick = () => { modal.style.display = 'none'; iniciarFluxoAnuncio(tipoRecompensa); };
-            mFooter.appendChild(btnRetry);
-        }
-    });
-    
     async function finalizarRecompensa() {
-        if (!chaveSeguranca) {
-            modal.style.display = 'none';
-            openModal("SISTEMA DE SEGURANÇA", "Tentativa de fraude detectada.");
-            return;
-        }
-        chaveSeguranca = false;
-        modal.style.display = 'none';
+        if (!chaveSeguranca) { modal.style.display = 'none'; return; }
+        chaveSeguranca = false; modal.style.display = 'none';
         let up = {}; let msg = "";
-        const eloAntes = getEloInfo(pdlInterno).nome;
 
         if (tipoRecompensa === "moeda") {
             up = { saldo: increment(100), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
@@ -505,16 +425,11 @@ function atualizarVisualPodio(posicao, nome, foto) {
             const proxVideo = (videosAssistidos || 0) + 1;
             if (proxVideo >= 3) { up.acertos = 0; up.videosAssistidos = 0; setTimeout(() => carregarQuestao(), 500); }
         }
-        
         await updateDoc(userRef, up);
-        openModal("RECOMPENSA LIBERADA", msg, 'alert', () => {
-            const infoNovo = getEloInfo(pdlInterno);
-            if (infoNovo.nome !== eloAntes) exibirAnimacaoElo(infoNovo, true);
-        });
+        openModal("RECOMPENSA LIBERADA", msg);
     }
 
     async function carregarBanco() {
-        const statusText = document.getElementById('perguntaTexto');
         let tentativas = 0;
         async function tentarImportar() {
             try {
@@ -524,7 +439,6 @@ function atualizarVisualPodio(posicao, nome, foto) {
             } catch (e) {
                 tentativas++;
                 if (tentativas < 8) setTimeout(tentarImportar, 2500); 
-                else if(statusText) statusText.innerText = "Erro ao carregar banco.";
             }
         }
         tentarImportar();
@@ -533,128 +447,74 @@ function atualizarVisualPodio(posicao, nome, foto) {
     function carregarQuestao() {
         const c = document.getElementById('opcoes'), t = document.getElementById('perguntaTexto');
         if(!c || !t) return;
-        
         if (acertosNoCiclo >= 10 && videosAssistidos < 3) { 
             t.innerText = "META DE ACERTOS ATINGIDA!"; 
             c.innerHTML = "<p style='color:var(--gold); font-weight:bold; text-align:center;'>Assista aos anúncios para liberar o quiz novamente!</p>"; 
             return; 
         }
-
-        if (bancoPerguntas.length === 0) { t.innerText = "A sincronizar questões..."; return; }
-        if (totalVideosHoje >= 35 && acertosNoCiclo >= 10) { t.innerText = "LIMITE DIÁRIO ATINGIDO!"; c.innerHTML = ""; return; }
-
+        if (bancoPerguntas.length === 0) { t.innerText = "Sincronizando questões..."; return; }
         const q = bancoPerguntas[Math.floor(Math.random()*bancoPerguntas.length)];
         let opts = q.opcoes.map((o, i) => ({ texto: o, correta: i === q.correta })).sort(() => Math.random() - 0.5);
         t.innerText = q.pergunta; c.innerHTML = "";
-        
         opts.forEach(o => {
             const b = document.createElement('button'); b.className = "option-btn"; b.innerText = o.texto;
             b.onclick = async () => {
-                const eloAntesDoQuiz = getEloInfo(pdlInterno).nome;
                 const all = c.querySelectorAll('button'); all.forEach(x => x.disabled = true);
                 const rect = b.getBoundingClientRect();
-                
-                try {
-                    if (o.correta) {
-                        b.classList.add('btn-correct');
-                        showFloatingPDL("+10 PDL", "#28a745", rect.left + rect.width/2, rect.top);
-                        await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10), pdlSemanal: increment(10) });
+                if (o.correta) {
+                    b.classList.add('btn-correct');
+                    showFloatingPDL("+10 PDL", "#28a745", rect.left + rect.width/2, rect.top);
+                    await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10), pdlSemanal: increment(10) });
+                } else {
+                    b.classList.add('btn-wrong');
+                    const agora = Date.now();
+                    const dataExpiracaoAnjo = dadosUserLocais.statusAtivo?.anjo_guardiao || 0;
+                    if (dataExpiracaoAnjo > agora) {
+                        showFloatingPDL("🛡️ PROTEGIDO", "#00cfbc", rect.left + rect.width/2, rect.top);
                     } else {
-                        b.classList.add('btn-wrong');
-
-                        // --- LÓGICA DO ANJO GUARDIÃO ---
-                        const agora = Date.now();
-                        const dataExpiracaoAnjo = dadosUserLocais.statusAtivo?.anjo_guardiao || 0;
-                        const temAnjoAtivo = dataExpiracaoAnjo > agora;
-
-                        if (temAnjoAtivo) {
-                            // MOSTRA FEEDBACK VISUAL DE QUE FOI PROTEGIDO
-                            showFloatingPDL("🛡️ PROTEGIDO", "#00cfbc", rect.left + rect.width/2, rect.top);
-                            console.log("Anjo Guardião impediu a perda de PDL.");
-                        } else {
-                            // PERDA NORMAL CASO NÃO TENHA O ITEM
-                            showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
-                            await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 2) });
-                        }
-                        // -------------------------------
+                        showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
+                        await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 2) });
                     }
-                } finally { 
-                    setTimeout(() => {
-                        const infoNovo = getEloInfo(pdlInterno);
-                        if (infoNovo.nome !== eloAntesDoQuiz) exibirAnimacaoElo(infoNovo, true);
-                        carregarQuestao();
-                    }, 1200); 
                 }
+                setTimeout(() => carregarQuestao(), 1200);
             };
             c.appendChild(b);
         });
     }
-    
+
     function atualizarInterface() {
-    if(!document.getElementById('goldAmount')) return;
-    
-    // Atualiza Gold
-    document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
-    
-    // Atualiza Limite Diário
-    const elementoLimite = document.getElementById('txtLimiteBotao');
-    if (elementoLimite) {
-        elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
-        elementoLimite.style.color = (totalVideosHoje >= 35) ? "#dc3545" : "inherit";
-    }
+        if(!document.getElementById('goldAmount')) return;
+        document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
+        
+        const elementoLimite = document.getElementById('txtLimiteBotao');
+        if (elementoLimite) {
+            elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
+            elementoLimite.style.color = (totalVideosHoje >= 35) ? "#dc3545" : "inherit";
+        }
 
-    // Referências dos Botões e Aviso
-    const btnV = document.getElementById('btnVideo');
-    const btnVXP = document.getElementById('btnVideoXP');
-    const aviso = document.getElementById('avisoStatusQuiz');
-    
-    // LÓGICA DE ATIVAÇÃO
-    const liberadoPeloCiclo = (acertosNoCiclo >= 10);
-    const limiteDiarioDisponivel = (totalVideosHoje < 35);
+        const btnV = document.getElementById('btnVideo');
+        const btnVXP = document.getElementById('btnVideoXP');
+        const aviso = document.getElementById('avisoStatusQuiz');
+        const liberadoPeloCiclo = (acertosNoCiclo >= 10);
 
-    // Configuração do Botão de Gold (btnVideo)
-    if(btnV) {
-        if (liberadoPeloCiclo && limiteDiarioDisponivel) {
-            btnV.disabled = false;
-            btnV.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
-            btnV.style.color = "#ffffff";               // Letras Brancas
-            btnV.style.cursor = "pointer";
-            btnV.style.filter = "none";
-        } else {
-            btnV.disabled = true;
-            btnV.style.backgroundColor = "#555";       // Cinza Desativado
-            btnV.style.color = "#aaa";                 // Letras cinza claro
-            btnV.style.cursor = "not-allowed";
+        if(btnV) {
+            btnV.disabled = !(liberadoPeloCiclo && totalVideosHoje < 35);
+            btnV.style.backgroundColor = btnV.disabled ? "#555" : "var(--gold)";
+            btnV.style.color = btnV.disabled ? "#aaa" : "#fff";
+        }
+
+        if(btnVXP) {
+            btnVXP.disabled = !liberadoPeloCiclo;
+            btnVXP.style.backgroundColor = btnVXP.disabled ? "#555" : "var(--gold)";
+            btnVXP.style.color = btnVXP.disabled ? "#aaa" : "#fff";
+        }
+
+        if (aviso) {
+            if (acertosNoCiclo < 10) aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
+            else if (videosAssistidos < 3) aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS</span>`;
+            else aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
         }
     }
-
-    // Configuração do Botão de XP (btnVideoXP)
-    if(btnVXP) {
-        if (liberadoPeloCiclo) {
-            btnVXP.disabled = false;
-            btnVXP.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
-            btnVXP.style.color = "#ffffff";               // Letras Brancas
-            btnVXP.style.cursor = "pointer";
-            btnVXP.style.filter = "none";
-        } else {
-            btnVXP.disabled = true;
-            btnVXP.style.backgroundColor = "#555";
-            btnVXP.style.color = "#aaa";
-            btnVXP.style.cursor = "not-allowed";
-        }
-    }
-    
-    // Atualiza os textos de Aviso
-    if (aviso) {
-        if (acertosNoCiclo < 10) {
-            aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
-        } else if (videosAssistidos < 3) {
-            aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS</span>`;
-        } else {
-            aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
-        }
-    }
-
 
     // Lógica do Vídeo Livre (Cooldown)
     const btnLivre = document.getElementById('btnVideoLivre');
