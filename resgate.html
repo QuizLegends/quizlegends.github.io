@@ -623,6 +623,7 @@ function atualizarVisualPodio(posicao, nome, foto) {
                 const eloAntesDoQuiz = getEloInfo(pdlInterno).nome;
                 const all = c.querySelectorAll('button'); all.forEach(x => x.disabled = true);
                 const rect = b.getBoundingClientRect();
+                
                 try {
                     if (o.correta) {
                         b.classList.add('btn-correct');
@@ -630,8 +631,22 @@ function atualizarVisualPodio(posicao, nome, foto) {
                         await updateDoc(userRef, { saldo: increment(10), acertos: increment(1), xp: increment(10), pdlSemanal: increment(10) });
                     } else {
                         b.classList.add('btn-wrong');
-                        showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
-                        await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 2) });
+
+                        // --- LÓGICA DO ANJO GUARDIÃO ---
+                        const agora = Date.now();
+                        const dataExpiracaoAnjo = dadosUserLocais.statusAtivo?.anjo_guardiao || 0;
+                        const temAnjoAtivo = dataExpiracaoAnjo > agora;
+
+                        if (temAnjoAtivo) {
+                            // MOSTRA FEEDBACK VISUAL DE QUE FOI PROTEGIDO
+                            showFloatingPDL("🛡️ PROTEGIDO", "#00cfbc", rect.left + rect.width/2, rect.top);
+                            console.log("Anjo Guardião impediu a perda de PDL.");
+                        } else {
+                            // PERDA NORMAL CASO NÃO TENHA O ITEM
+                            showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
+                            await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 2) });
+                        }
+                        // -------------------------------
                     }
                 } finally { 
                     setTimeout(() => {
@@ -646,51 +661,103 @@ function atualizarVisualPodio(posicao, nome, foto) {
     }
     
     function atualizarInterface() {
-        if(!document.getElementById('goldAmount')) return;
-        document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
-        
-        const elementoLimite = document.getElementById('txtLimiteBotao');
-        if (elementoLimite) {
-            elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
-            elementoLimite.style.color = (totalVideosHoje >= 35) ? "#dc3545" : "inherit";
-        }
+    if(!document.getElementById('goldAmount')) return;
+    
+    // Atualiza Gold
+    document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
+    
+    // Atualiza Limite Diário
+    const elementoLimite = document.getElementById('txtLimiteBotao');
+    if (elementoLimite) {
+        elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
+        elementoLimite.style.color = (totalVideosHoje >= 35) ? "#dc3545" : "inherit";
+    }
 
-        const info = getEloInfo(pdlInterno);
-        const eloBadge = document.getElementById('txtElo');
-        if(eloBadge) {
-            eloBadge.innerText = info.nome; eloBadge.style.backgroundColor = info.bg; eloBadge.style.color = info.color;
-        }
+    // Atualiza Elo e Badge
+    const info = getEloInfo(pdlInterno);
+    const eloBadge = document.getElementById('txtElo');
+    if(eloBadge) {
+        eloBadge.innerText = info.nome; 
+        eloBadge.style.backgroundColor = info.bg; 
+        eloBadge.style.color = info.color;
+    }
 
-        const bar = document.getElementById('xpMiniFill');
-        if(bar) {
-            const percXP = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
-            bar.style.width = Math.min(percXP, 100) + "%";
-            bar.style.backgroundColor = info.bar;
-        }
-        
-        const btnV = document.getElementById('btnVideo');
-        const btnVXP = document.getElementById('btnVideoXP');
-        const aviso = document.getElementById('avisoStatusQuiz');
-        
-        if(btnV) btnV.disabled = (acertosNoCiclo < 10 || totalVideosHoje >= 35);
-        if(btnVXP) btnVXP.disabled = (acertosNoCiclo < 10);
-        
-        if (acertosNoCiclo < 10) aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
-        else if (videosAssistidos < 3) aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS</span>`;
-        else aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
+    // Atualiza Barra de XP/PDL
+    const bar = document.getElementById('xpMiniFill');
+    if(bar) {
+        const percXP = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
+        bar.style.width = Math.min(percXP, 100) + "%";
+        bar.style.backgroundColor = info.bar;
+    }
+    
+    // Referências dos Botões e Aviso
+    const btnV = document.getElementById('btnVideo');
+    const btnVXP = document.getElementById('btnVideoXP');
+    const aviso = document.getElementById('avisoStatusQuiz');
+    
+    // LÓGICA DE ATIVAÇÃO
+    const liberadoPeloCiclo = (acertosNoCiclo >= 10);
+    const limiteDiarioDisponivel = (totalVideosHoje < 35);
 
-        const btnLivre = document.getElementById('btnVideoLivre');
-        const salvoLivre = localStorage.getItem('proximoVideoLivre');
-        const agoraLivre = Date.now();
-        if (btnLivre) {
-            if (salvoLivre && parseInt(salvoLivre) > agoraLivre) {
-                btnLivre.disabled = true;
-                cooldownLivreAtivo = true; 
-            } else if (!cooldownLivreAtivo) {
-                btnLivre.disabled = false;
-            }
+    // Configuração do Botão de Gold (btnVideo)
+    if(btnV) {
+        if (liberadoPeloCiclo && limiteDiarioDisponivel) {
+            btnV.disabled = false;
+            btnV.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
+            btnV.style.color = "#ffffff";              // Letras Brancas
+            btnV.style.cursor = "pointer";
+            btnV.style.filter = "none";
+        } else {
+            btnV.disabled = true;
+            btnV.style.backgroundColor = "#555";       // Cinza Desativado
+            btnV.style.color = "#aaa";                 // Letras cinza claro
+            btnV.style.cursor = "not-allowed";
         }
-    } 
+    }
+
+    // Configuração do Botão de XP (btnVideoXP)
+    if(btnVXP) {
+        if (liberadoPeloCiclo) {
+            btnVXP.disabled = false;
+            btnVXP.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
+            btnVXP.style.color = "#ffffff";              // Letras Brancas
+            btnVXP.style.cursor = "pointer";
+            btnVXP.style.filter = "none";
+        } else {
+            btnVXP.disabled = true;
+            btnVXP.style.backgroundColor = "#555";
+            btnVXP.style.color = "#aaa";
+            btnVXP.style.cursor = "not-allowed";
+        }
+    }
+    
+    // Atualiza os textos de Aviso
+    if (acertosNoCiclo < 10) {
+        aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
+    } else if (videosAssistidos < 3) {
+        aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS</span>`;
+    } else {
+        aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
+    }
+
+    // Lógica do Vídeo Livre (Cooldown)
+    const btnLivre = document.getElementById('btnVideoLivre');
+    const salvoLivre = localStorage.getItem('proximoVideoLivre');
+    const agoraLivre = Date.now();
+    
+    if (btnLivre) {
+        if (salvoLivre && parseInt(salvoLivre) > agoraLivre) {
+            btnLivre.disabled = true;
+            btnLivre.style.backgroundColor = "#555";
+            btnLivre.style.color = "#aaa";
+            cooldownLivreAtivo = true; 
+        } else if (!cooldownLivreAtivo) {
+            btnLivre.disabled = false;
+            btnLivre.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
+            btnLivre.style.color = "#ffffff";
+        }
+    }
+}
    
     function showFloatingPDL(text, color, x, y) {
         const el = document.createElement('div'); el.className = 'floating-pdl'; el.innerText = text; el.style.color = color; el.style.left = `${x}px`; el.style.top = `${y}px`;
