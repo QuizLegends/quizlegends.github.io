@@ -238,9 +238,8 @@
             const modal = document.getElementById('modal-confirm');
             const msg = document.getElementById('modal-message');
             const titulo = document.getElementById('modal-title');
-            const btnSim = document.getElementById('btn-sim');
             
-            // Resetar botões do modal para o padrão (caso tenha vindo de um sucesso anterior)
+            // Resetar botões do modal para o padrão
             document.getElementById('container-btns-modal').innerHTML = `
                 <button class="btn-confirm" id="btn-sim">Sim, Confirmar</button>
                 <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
@@ -257,7 +256,16 @@
                 novoBtnSim.onclick = () => ativarSentinela(id);
             } else if (tipo === 'multiplicador') {
                 titulo.innerText = "ATIVAR MULTIPLICADOR";
-                msg.innerText = `Deseja ativar "${item.nome}" agora? Isso dobrará seus ganhos de PDL por ${item.duracaoHoras} horas.`;
+                
+                // VERIFICAÇÃO DE SOBREPOSIÇÃO USANDO O MODAL PADRÃO
+                const agora = Date.now();
+                if (usuarioDados.statusAtivo?.dobrador_pdl && agora < usuarioDados.statusAtivo.dobrador_pdl) {
+                    titulo.innerText = "ATENÇÃO INVOCADOR";
+                    msg.innerHTML = `<span style="color:var(--ouro)">Você já possui um multiplicador ativo!</span><br><br>Se ativar este agora, o tempo do anterior será substituído por este novo bônus de 2 horas. Deseja prosseguir?`;
+                } else {
+                    msg.innerText = `Deseja ativar "${item.nome}" agora? Isso dobrará seus ganhos de PDL por ${item.duracaoHoras} horas.`;
+                }
+                
                 novoBtnSim.onclick = () => ativarMultiplicador(id);
             } else {
                 titulo.innerText = "ATIVAR CONSUMÍVEL";
@@ -292,16 +300,13 @@
             fecharModal();
             const item = DATA_BASE[id];
             const userRef = doc(db, "usuarios", auth.currentUser.uid);
-
             try {
                 await updateDoc(userRef, {
                     mochila: arrayRemove(id),
                     "statusAtivo.sentinelas": increment(3)
                 });
-
                 const snap = await getDoc(userRef);
                 const totalCargas = snap.data().statusAtivo?.sentinelas || 0;
-
                 const msgSucesso = `
                     <div style="text-align:center;">
                         <img src="${item.img}" style="width:60px; margin-bottom:10px; filter: drop-shadow(0 0 10px var(--raro));">
@@ -324,22 +329,6 @@
             const duracaoMs = item.duracaoHoras * 60 * 60 * 1000;
 
             try {
-                const snap = await getDoc(userRef);
-                const dados = snap.data();
-                const statusAtivo = dados.statusAtivo || {};
-
-                // AVISO INTELIGENTE DE SOBREPOSIÇÃO
-                if (statusAtivo.dobrador_pdl && agora < statusAtivo.dobrador_pdl) {
-                    const confirmarSubstituicao = confirm(
-                        "ATENÇÃO INVOCADOR:\n\n" +
-                        "Detectamos que você já possui um item multiplicador ativo em sua conta.\n" +
-                        "Se você ativar este agora, o tempo restante do anterior será substituído por este novo bônus de 2 horas.\n\n" +
-                        "Deseja prosseguir com a substituição?"
-                    );
-                    
-                    if (!confirmarSubstituicao) return;
-                }
-
                 await updateDoc(userRef, {
                     mochila: arrayRemove(id),
                     "statusAtivo.dobrador_pdl": agora + duracaoMs
@@ -353,10 +342,9 @@
                     </div>
                 `;
                 mostrarModalSucesso("BÔNUS ATIVADO", msgSucesso);
-
             } catch (e) {
                 console.error("Erro ao ativar multiplicador:", e);
-                mostrarModalSucesso("ERRO", "Não foi possível processar a ativação do multiplicador.");
+                mostrarModalSucesso("ERRO", "Não foi possível processar a ativação.");
             }
         }
 
@@ -393,7 +381,7 @@
                 mostrarModalSucesso("SUCESSO", msgSucesso);
             } catch (e) {
                 console.error("Erro ao ativar:", e);
-                mostrarModalSucesso("ERRO", "Houve uma falha na comunicação com o servidor Hextech.");
+                mostrarModalSucesso("ERRO", "Falha na comunicação Hextech.");
             }
         }
     </script>
