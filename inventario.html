@@ -226,7 +226,6 @@
             const mochilaRaw = usuarioDados.mochila || [];
             const iconeEquipado = usuarioDados.iconeAtual || "";
 
-            // --- LÓGICA DE AGRUPAMENTO ---
             const mochilaAgrupada = {};
             mochilaRaw.forEach(id => {
                 mochilaAgrupada[id] = (mochilaAgrupada[id] || 0) + 1;
@@ -237,14 +236,12 @@
                 return;
             }
 
-            // Renderiza Itens da Mochila (Agrupados)
             Object.keys(mochilaAgrupada).forEach(id => {
                 const item = DATA_BASE[id];
                 if (!item) return;
                 grid.innerHTML += criarCard(id, item, "ATIVAR", false, mochilaAgrupada[id]);
             });
 
-            // Renderiza Ícones (Ícones não agrupam pois são únicos)
             icones.forEach(id => {
                 const item = DATA_BASE[id];
                 if (!item) return;
@@ -293,8 +290,21 @@
                 titulo.innerText = "EQUIPAR ÍCONE";
                 msg.innerText = `Deseja equipar "${item.nome}" como seu ícone de perfil?`;
                 novoBtnSim.onclick = () => equiparIcone(id);
-            } else {
-                // Para itens, adicionamos o seletor de quantidade no modal
+            } 
+            else if (tipo === 'multiplicador') {
+                // AVISO DE SUBSTITUIÇÃO PRESERVADO EXATAMENTE
+                titulo.innerText = "ATIVAR MULTIPLICADOR";
+                const agora = Date.now();
+                if (usuarioDados.statusAtivo?.dobrador_pdl && agora < usuarioDados.statusAtivo.dobrador_pdl) {
+                    titulo.innerText = "ATENÇÃO INVOCADOR";
+                    msg.innerHTML = `<span style="color:var(--ouro)">Você já possui um multiplicador ativo!</span><br><br>Se ativar este agora, o tempo do anterior será substituído por este novo bônus de ${item.duracaoHoras} horas. Deseja prosseguir?`;
+                } else {
+                    msg.innerText = `Deseja ativar "${item.nome}" agora? Isso dobrará seus ganhos de PDL por ${item.duracaoHoras} horas.`;
+                }
+                // Multiplicador não usa seletor para evitar erros de lógica de tempo
+                novoBtnSim.onclick = () => processarUso(id, tipo, 1);
+            } 
+            else {
                 let htmlSeletor = "";
                 if(qtdDisponivel > 1) {
                     htmlSeletor = `
@@ -310,14 +320,6 @@
                 if (tipo === 'carga') {
                     titulo.innerText = "ATIVAR REVELAÇÃO";
                     msg.innerHTML = `Deseja ativar "${item.nome}"?<br>${htmlSeletor}`;
-                } else if (tipo === 'multiplicador') {
-                    titulo.innerText = "ATIVAR MULTIPLICADOR";
-                    const agora = Date.now();
-                    let avisoExtra = "";
-                    if (usuarioDados.statusAtivo?.dobrador_pdl && agora < usuarioDados.statusAtivo.dobrador_pdl) {
-                        avisoExtra = `<p style="color:var(--ouro); font-size:0.7rem;">Nota: O tempo será resetado para ${item.duracaoHoras}h.</p>`;
-                    }
-                    msg.innerHTML = `Deseja ativar "${item.nome}"? ${avisoExtra}${htmlSeletor}`;
                 } else {
                     titulo.innerText = "ATIVAR CONSUMÍVEL";
                     msg.innerHTML = `Deseja ativar "${item.nome}"? O tempo será acumulado.<br>${htmlSeletor}`;
@@ -336,14 +338,10 @@
             const item = DATA_BASE[id];
             const userRef = doc(db, "usuarios", auth.currentUser.uid);
             const agora = Date.now();
-            
-            // Criamos um array com o ID repetido X vezes para o arrayRemove
             const removerEstoque = Array(qtd).fill(id);
 
             try {
-                let updates = {
-                    mochila: arrayRemove(...removerEstoque)
-                };
+                let updates = { mochila: arrayRemove(...removerEstoque) };
 
                 if (tipo === 'carga') {
                     updates["statusAtivo.sentinelas"] = increment(item.unidades * qtd);
@@ -353,8 +351,9 @@
                 } 
                 else if (tipo === 'consumivel') {
                     const tempoMs = (item.duracao * qtd) * 24 * 60 * 60 * 1000;
-                    const tempoAtual = (usuarioDados.statusAtivo && usuarioDados.statusAtivo[id] > agora) 
-                        ? usuarioDados.statusAtivo[id] : agora;
+                    const snap = await getDoc(userRef);
+                    const d = snap.data();
+                    const tempoAtual = (d.statusAtivo && d.statusAtivo[id] > agora) ? d.statusAtivo[id] : agora;
                     updates[`statusAtivo.${id}`] = tempoAtual + tempoMs;
                 }
 
