@@ -121,16 +121,6 @@
             color: var(--ouro);
         }
 
-        @media (max-width: 650px) {
-            .barra-ferramentas {
-                flex-direction: column;
-                align-items: center;
-            }
-            .busca-container {
-                width: 100%;
-            }
-        }
-
         .filtros-raridade {
             display: flex;
             gap: 10px;
@@ -275,7 +265,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, arrayUnion, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
@@ -303,7 +293,7 @@
             { id: "ahri_epico", cat: "icones", nome: "Ahri K/DA", preco: 50000, raridade: "epico", img: "ahri-epico.png", info: "Ícone épico da skin Ahri K/DA." },
             { id: "anjo_guardiao", cat: "itens", nome: "Anjo Guardião <br> (7 Dias)", preco: 15000, raridade: "raro", img: "anjo.png", info: "Proteção Hextech: Você não perderá PDL ao errar perguntas durante 7 dias." },
             { id: "sentinela-epico", cat: "itens", nome: "Sentinela de Controle <br> (3 Unidades)", preco: 15000, raridade: "epico", img: "sentinela-epico.png", info: "Revelação: Revela a resposta da próxima pergunta." },
-            { id: "coletora-comum", cat: "itens", nome: "Coletora <br> (2hr)", preco: 15000, raridade: "comum", img: "coletora-comum.png", info: "Ganhe 2x mais PDL por acertos." }
+            { id: "coletora-comum", cat: "itens", nome: "A Coletora <br> (2 Horas)", preco: 15000, raridade: "comum", img: "coletora-comum.png", info: "Efeito Passivo: Dobra seus ganhos de PDL por 2 horas. Atenção: Este item não é acumulativo com outros multiplicadores." }
         ];
 
         let saldoGlobal = 0;
@@ -364,8 +354,8 @@
 
             itensFiltrados.forEach(item => {
                 let jaPossui = false;
-                if (item.id === "sentinela-epico") {
-                    jaPossui = false; // Sentinela pode ser comprada várias vezes
+                if (item.id === "sentinela-epico" || item.id === "coletora-comum" || item.id === "anjo_guardiao") {
+                    jaPossui = false; // Itens consumíveis podem ser comprados várias vezes
                 } else {
                     jaPossui = item.cat === 'icones' ? meusItens.includes(item.id) : minhaMochila.includes(item.id);
                 }
@@ -381,7 +371,7 @@
                         </div>
                         <div class="item-nome">${item.nome}</div>
                         <div class="raridade-label">${labelRaridade}</div>
-                        <button class="btn-comprar" ${(jaPossui || !podeComprar) ? 'disabled' : ''} 
+                        <button class="btn-comprar" ${(!podeComprar) ? 'disabled' : ''} 
                             onclick="abrirModalCompra('${item.id}')">
                             ${jaPossui ? 'Adquirido' : '💰 ' + item.preco.toLocaleString()}
                         </button>
@@ -414,48 +404,47 @@
         };
 
         async function processarCompra(id, valor) {
-    fecharModal();
-    try {
-        const userRef = doc(db, "usuarios", auth.currentUser.uid);
-        const itemDados = itens.find(i => i.id === id);
+            fecharModal();
+            try {
+                const userRef = doc(db, "usuarios", auth.currentUser.uid);
+                const itemDados = itens.find(i => i.id === id);
 
-        // Se for um item consumível (Sentinela ou Anjo Guardião)
-        if (itemDados.cat === 'itens') {
-            await updateDoc(userRef, {
-                saldo: increment(-valor),
-                mochila: arrayUnion(id)
-            });
-            
-            if (id === "sentinela-epico") {
-                mostrarSucesso("Você adquiriu o pacote de Sentinelas! Ative-as no seu Inventário para ganhar 3 cargas.");
-            } else {
-                mostrarSucesso("Item enviado para o seu inventário! Vá até lá para ativar seu benefício.");
+                if (itemDados.cat === 'itens') {
+                    await updateDoc(userRef, {
+                        saldo: increment(-valor),
+                        mochila: arrayUnion(id)
+                    });
+                    
+                    if (id === "sentinela-epico") {
+                        mostrarSucesso("Você adquiriu o pacote de Sentinelas! Ative-as no seu Inventário para ganhar 3 cargas.");
+                    } else if (id === "coletora-comum") {
+                        mostrarSucesso("A Coletora foi enviada para seu inventário. Ative-a para dobrar seus PDLs por 2 horas!");
+                    } else {
+                        mostrarSucesso("Item enviado para o seu inventário! Vá até lá para ativar seu benefício.");
+                    }
+                    return;
+                }
+
+                if (itemDados.cat === 'icones') {
+                    await updateDoc(userRef, {
+                        saldo: increment(-valor),
+                        iconesAdquiridos: arrayUnion(id)
+                    });
+                    mostrarSucesso("Ícone enviado para o seu inventário!");
+                    return;
+                }
+
+                await updateDoc(userRef, {
+                    saldo: increment(-valor),
+                    mochila: arrayUnion(id)
+                });
+                mostrarSucesso("Compra realizada com sucesso!");
+
+            } catch (e) { 
+                console.error(e);
+                mostrarSucesso("Erro ao processar compra. Verifique sua conexão."); 
             }
-            return;
         }
-
-        // Se for uma categoria de Ícones
-        if (itemDados.cat === 'icones') {
-            await updateDoc(userRef, {
-                saldo: increment(-valor),
-                iconesAdquiridos: arrayUnion(id)
-            });
-            mostrarSucesso("Ícone enviado para o seu inventário!");
-            return;
-        }
-
-        // Lógica para outras categorias (ex: moedas ou futuros itens)
-        await updateDoc(userRef, {
-            saldo: increment(-valor),
-            mochila: arrayUnion(id)
-        });
-        mostrarSucesso("Compra realizada com sucesso!");
-
-    } catch (e) { 
-        console.error(e);
-        mostrarSucesso("Erro ao processar compra. Verifique sua conexão."); 
-    }
-}
     </script>
 </body>
 </html>
