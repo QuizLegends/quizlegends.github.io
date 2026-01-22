@@ -146,6 +146,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // CONFIGURAÇÕES DE DURAÇÃO PARA AS BARRAS
         const DURACAO_TOTAL = {
             'anjo_guardiao': 7 * 24 * 60 * 60 * 1000,
             'dobrador_pdl': 2 * 60 * 60 * 1000,
@@ -203,11 +204,12 @@
                     if (id === 'dobrador_pdl') {
                         tipoClasse = 'item-multiplicador';
                         const mult = itensAtivos.valor_multiplicador || 2;
+                        
                         if (mult === 6) {
                             nome = 'Sedenta por Sangue';
                             imgItem = 'sedenta-epico.png';
-                            extraClass = "status-epico";
-                            barraClass = "barra-epica";
+                            extraClass = "status-epico"; 
+                            barraClass = "barra-epica"; 
                         } else if (mult === 4) {
                             nome = 'Gume do Infinito';
                             imgItem = 'gume-raro.png';
@@ -215,13 +217,14 @@
                             nome = 'A Coletora';
                             imgItem = 'coletora-comum.png';
                         }
+                        
                         subtexto = `GANHOS DE PDL ${mult}X`;
                     }
 
                     if (id === 'dobrador_moedas') {
                         tipoClasse = 'item-atlas';
                         nome = 'Atlas Mundial';
-                        imgItem = 'atlas-raro.png';
+                        imgItem = 'atlas-comum.png'; // CORREÇÃO REALIZADA AQUI
                         const multM = itensAtivos.valor_multiplicador_moedas || 2;
                         subtexto = `GANHOS DE MOEDAS ${multM}X`;
                     }
@@ -320,7 +323,7 @@
                 'anjo_guardiao': 'anjo.png',
                 'sentinelas': 'sentinela-epico.png',
                 'dobrador_pdl': 'coletora-comum.png',
-                'dobrador_moedas': 'atlas-raro.png'
+                'dobrador_moedas': 'atlas-comum.png' // CORREÇÃO REALIZADA AQUI
             };
             return imgs[id] || 'default.png';
         }
