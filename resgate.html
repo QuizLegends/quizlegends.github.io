@@ -906,17 +906,18 @@ function atualizarVisualPodio(posicao, nome, foto) {
     }
 
     let dadosUserLocais = {};
+    // Esta variável vai impedir o loop infinito
+    let premioJaColetadoNestaSessao = false;
 
     // --- FUNÇÃO DO MODAL DE PREMIAÇÃO BLINDADA ---
     async function verificarPremios(data, userRef) {
-        // 1. Se não houver prêmio ou se o modal JÁ ESTIVER na tela, não faz nada
-        if (!data || !data.notificacaoPremio || document.getElementById('modalPremioAtivo')) {
+        // Se já coletou agora, ou não tem prêmio, ou o modal já está na tela: PARA TUDO.
+        if (premioJaColetadoNestaSessao || !data || !data.notificacaoPremio || document.getElementById('modalPremioAtivo')) {
             return;
         }
 
         const dados = data.notificacaoPremio;
         
-        // 2. Criamos o modal com um ID fixo para podermos verificar se ele existe
         const div = document.createElement('div');
         div.id = 'modalPremioAtivo'; 
         div.style.cssText = `
@@ -925,34 +926,37 @@ function atualizarVisualPodio(posicao, nome, foto) {
         `;
         
         div.innerHTML = `
-            <div class="modal-content" style="background: #091428; border: 2px solid #c89b3c; padding: 30px; text-align: center; max-width: 350px; width: 85%; box-shadow: 0 0 25px rgba(200, 155, 60, 0.4);">
-                <h2 style="color: #c89b3c; text-transform: uppercase; margin: 0 0 15px; font-size: 1.2rem;">RANKING ENCERRADO</h2>
-                <p style="color:#888; font-size: 13px;">Sua posição final foi:</p>
-                <div class="pos-destaque" style="font-size: 3.5rem; color: #0ac8b9; font-weight: bold; margin: 10px 0;">${dados.posicao}º</div>
-                <p style="color: #f0e6d2;">Você recebeu:</p>
-                <div style="color:#c89b3c; font-size: 1.5rem; font-weight: bold;">
+            <div class="modal-content" style="background: #091428; border: 2px solid #c89b3c; padding: 30px; text-align: center; max-width: 350px; width: 85%; box-shadow: 0 0 25px rgba(200, 155, 60, 0.4); animation: fadeIn 0.3s;">
+                <h2 style="color: #c89b3c; text-transform: uppercase; margin: 0 0 15px; font-size: 1.2rem; font-family: sans-serif;">RANKING ENCERRADO</h2>
+                <p style="color:#888; font-size: 13px; font-family: sans-serif;">Sua posição final foi:</p>
+                <div class="pos-destaque" style="font-size: 3.5rem; color: #0ac8b9; font-weight: bold; margin: 10px 0; font-family: sans-serif;">${dados.posicao}º</div>
+                <p style="color: #f0e6d2; font-family: sans-serif;">Você recebeu:</p>
+                <div style="color:#c89b3c; font-size: 1.5rem; font-weight: bold; font-family: sans-serif;">
                     ${dados.valor.toLocaleString()} <span style="font-size: 12px;">OURO</span>
                 </div>
-                <button id="btnColetar" style="background: #c89b3c; color: #010a13; border: none; padding: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 20px;">
+                <button id="btnColetar" style="background: #c89b3c; color: #010a13; border: none; padding: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 20px; font-family: sans-serif;">
                     Coletar Recompensa
                 </button>
             </div>
         `;
         document.body.appendChild(div);
 
-        document.getElementById('btnColetar').onclick = async (e) => {
-            e.preventDefault();
-            e.stopPropagation(); // Impede que o clique "vaze" para o fundo
+        document.getElementById('btnColetar').onclick = async () => {
+            // 1. Ativa a trava global IMEDIATAMENTE antes de qualquer coisa
+            premioJaColetadoNestaSessao = true;
 
-            // Primeiro removemos o modal da tela para o usuário ver que fechou
-            const modalParaRemover = document.getElementById('modalPremioAtivo');
-            if (modalParaRemover) modalParaRemover.remove();
+            // 2. Remove o modal da visão do usuário
+            const modal = document.getElementById('modalPremioAtivo');
+            if (modal) modal.remove();
 
             try {
-                // Depois limpamos o banco de dados
+                // 3. Atualiza o banco de dados
                 await updateDoc(userRef, { notificacaoPremio: null });
+                console.log("Prêmio coletado e limpo no banco.");
             } catch (error) {
-                console.error("Erro ao limpar notificação:", error);
+                console.error("Erro ao limpar prêmio:", error);
+                // Se der erro no banco, resetamos a trava para ele tentar de novo ao recarregar
+                premioJaColetadoNestaSessao = false;
             }
         };
     }
@@ -966,7 +970,7 @@ function atualizarVisualPodio(posicao, nome, foto) {
                     dadosUserLocais = data; 
                     const hoje = new Date().toLocaleDateString('pt-BR');
 
-                    // Chama a verificação
+                    // Chama a verificação (A trava global dentro dela impedirá o loop)
                     verificarPremios(data, userRef);
 
                     if (data.ultimaDataAcesso !== hoje) {
