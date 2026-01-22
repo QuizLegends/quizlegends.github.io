@@ -51,9 +51,10 @@
         }
 
         /* Cores de borda por categoria */
-        .item-comum { border-left-color: var(--gold); }
+        .item-comum { border-left-color: var(--comum); }
         .item-raro { border-left-color: var(--raro); }
         .item-epico { border-left-color: var(--epico); }
+        .item-gold { border-left-color: var(--gold); }
 
         .item-img {
             width: 55px;
@@ -82,14 +83,14 @@
             left: 0;
             bottom: 0;
             height: 3px;
-            background: var(--gold); /* Padrão Comum (Dourado) */
+            background: var(--gold);
             transition: width 1s linear;
         }
 
-        /* Variações de cores das barras */
         .barra-raro { background: var(--raro); }
         .barra-epica { background: var(--epico); }
-        .barra-comum { background: var(--gold); }
+        .barra-comum { background: var(--comum); }
+        .barra-gold { background: var(--gold); }
 
         .sem-itens { text-align: center; color: #666; margin-top: 20px; font-style: italic; }
 
@@ -167,10 +168,16 @@
             const agora = Date.now();
             let temItensVisiveis = false;
 
-            for (let [id, valor] of Object.entries(itensAtivos)) {
+            // Ordenação lógica para exibição
+            const chaves = Object.keys(itensAtivos);
+
+            for (let id of chaves) {
+                let valor = itensAtivos[id];
                 
+                // Pular campos de valor técnico
                 if (id === 'valor_multiplicador' || id === 'valor_multiplicador_moedas') continue;
 
+                // Lógica de Itens com Cargas (Sentinelas)
                 if (id === 'sentinelas') {
                     if (valor > 0) {
                         temItensVisiveis = true;
@@ -179,6 +186,7 @@
                     continue;
                 }
 
+                // Lógica de Itens Temporais
                 if (agora < valor) {
                     temItensVisiveis = true;
                     const tempoRestante = valor - agora;
@@ -188,18 +196,20 @@
                     let nome = nomeExibicao(id);
                     let subtexto = 'BÔNUS ATIVO';
                     let imgItem = obterImagem(id);
-                    let cardClass = "item-comum"; // Padrão
-                    let barraClass = "barra-comum"; // Padrão
+                    let cardClass = "item-comum";
+                    let barraClass = "barra-comum";
 
+                    // CONFIGURAÇÃO ESPECÍFICA: ANJO GUARDIÃO (RARO)
                     if (id === 'anjo_guardiao') {
                         subtexto = 'PROTEÇÃO ATIVA';
                         cardClass = "item-raro";
                         barraClass = "barra-raro";
+                        imgItem = 'anjo.png';
                     }
 
+                    // CONFIGURAÇÃO ESPECÍFICA: MULTIPLICADOR PDL (DINÂMICO)
                     if (id === 'dobrador_pdl') {
                         const mult = itensAtivos.valor_multiplicador || 2;
-                        
                         if (mult === 6) {
                             nome = 'Sedenta por Sangue';
                             imgItem = 'sedenta-epico.png';
@@ -216,16 +226,24 @@
                             cardClass = "item-comum";
                             barraClass = "barra-comum";
                         }
-                        
                         subtexto = `GANHOS DE PDL ${mult}X`;
                     }
 
+                    // CONFIGURAÇÃO ESPECÍFICA: ATLAS MUNDIAL (DINÂMICO)
                     if (id === 'dobrador_moedas') {
-                        nome = 'Atlas Mundial';
-                        imgItem = 'atlas-comum.png';
-                        cardClass = "item-comum"; // Dourado
-                        barraClass = "barra-comum"; // Dourado
                         const multM = itensAtivos.valor_multiplicador_moedas || 2;
+                        nome = 'Atlas Mundial';
+                        
+                        // Bússola é o Atlas Mundial quando está no modo Raro (4x)
+                        if (multM >= 4) {
+                            imgItem = 'bussola-raro.png';
+                            cardClass = "item-raro";
+                            barraClass = "barra-raro";
+                        } else {
+                            imgItem = 'atlas-comum.png';
+                            cardClass = "item-gold";
+                            barraClass = "barra-gold";
+                        }
                         subtexto = `GANHOS DE MOEDAS ${multM}X`;
                     }
 
@@ -261,11 +279,11 @@
 
         function criarCardCarga(id, cargas) {
             const div = document.createElement('div');
-            div.className = 'item-ativo item-epico'; // Sentinela é épica
+            div.className = 'item-ativo item-epico'; // Sentinela é épica/roxo
             div.innerHTML = `
-                <img src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/itens/${obterImagem(id)}" class="item-img" alt="item">
+                <img src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/itens/sentinela-epico.png" class="item-img" alt="item">
                 <div class="info-item">
-                    <h3>${nomeExibicao(id)}</h3>
+                    <h3>Sentinelas de Controle</h3>
                     <p>USO AUTOMÁTICO NO QUIZ</p>
                 </div>
                 <div class="status-valor">${cargas}x</div>
@@ -294,12 +312,8 @@
             const userRef = doc(db, "usuarios", uid);
             try {
                 const updates = { [`statusAtivo.${id}`]: deleteField() };
-                if (id === 'dobrador_pdl') {
-                    updates['statusAtivo.valor_multiplicador'] = deleteField();
-                }
-                if (id === 'dobrador_moedas') {
-                    updates['statusAtivo.valor_multiplicador_moedas'] = deleteField();
-                }
+                if (id === 'dobrador_pdl') updates['statusAtivo.valor_multiplicador'] = deleteField();
+                if (id === 'dobrador_moedas') updates['statusAtivo.valor_multiplicador_moedas'] = deleteField();
                 await updateDoc(userRef, updates);
             } catch (e) {
                 console.error("Erro ao remover expirado:", e);
@@ -312,7 +326,6 @@
             const h = Math.floor((seg % 86400) / 3600);
             const m = Math.floor((seg % 3600) / 60);
             const s = seg % 60;
-            
             if (d > 0) return `${d}d ${h}h`;
             if (h > 0) return `${h}h ${m}m`;
             return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
