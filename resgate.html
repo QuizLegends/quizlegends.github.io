@@ -683,7 +683,6 @@ function atualizarVisualPodio(posicao, nome, foto) {
         b.className = "option-btn"; 
         b.innerText = o.texto;
 
-        // Se a sentinela estiver ativa e esta for a opção correta, adiciona o brilho
         if (sentinelaAtiva && o.correta) {
             b.classList.add('sentinela-revelar');
         }
@@ -695,7 +694,6 @@ function atualizarVisualPodio(posicao, nome, foto) {
             const rect = b.getBoundingClientRect();
             
             try {
-                // Se o usuário usou uma carga nesta pergunta, descontamos agora
                 if (sentinelaAtiva) {
                     await updateDoc(userRef, { "statusAtivo.sentinelas": increment(-1) });
                 }
@@ -703,25 +701,24 @@ function atualizarVisualPodio(posicao, nome, foto) {
                 if (o.correta) {
                     b.classList.add('btn-correct');
 
-                    // --- LÓGICA DA COLETORA (MULTIPLICADOR 2X) ---
+                    // --- LÓGICA DA COLETORA ATUALIZADA (50 base -> 100 dobrado) ---
                     const agora = Date.now();
                     const expiraColetora = dadosUserLocais.statusAtivo?.dobrador_pdl || 0;
                     const temColetoraAtiva = expiraColetora > agora;
                     
-                    let ganhoFinal = 10; 
-                    let textoFlutuante = "+10 PDL";
+                    let ganhoFinal = 50; // Novo valor base
+                    let textoFlutuante = "+50 PDL";
                     let corFlutuante = "#28a745";
 
                     if (temColetoraAtiva) {
-                        ganhoFinal = 20; 
-                        textoFlutuante = "🔥 +20 PDL";
+                        ganhoFinal = 100; // Novo valor dobrado
+                        textoFlutuante = "🔥 +100 PDL";
                         corFlutuante = "#c89b3c"; 
                     }
-                    // ----------------------------------------------
+                    // -------------------------------------------------------------
 
                     showFloatingPDL(textoFlutuante, corFlutuante, rect.left + rect.width/2, rect.top);
                     
-                    // Atualização com o valor calculado (10 ou 20)
                     await updateDoc(userRef, { 
                         saldo: increment(ganhoFinal), 
                         acertos: increment(1), 
@@ -739,9 +736,9 @@ function atualizarVisualPodio(posicao, nome, foto) {
                     if (temAnjoAtivo) {
                         showFloatingPDL("🛡️ PROTEGIDO", "#00cfbc", rect.left + rect.width/2, rect.top);
                     } else {
-                        showFloatingPDL("-2 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
-                        // Mantendo sua lógica original de xp: Math.max(0, pdlInterno - 2)
-                        await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 2) });
+                        // Perda ajustada para 10 para acompanhar o ganho de 50
+                        showFloatingPDL("-10 PDL", "#dc3545", rect.left + rect.width/2, rect.top);
+                        await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 10) });
                     }
                 }
             } finally { 
