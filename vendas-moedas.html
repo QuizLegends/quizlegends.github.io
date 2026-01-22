@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moedas Hextech - Quiz Legends</title>
+    <title>Depósito Hextech - Quiz Legends</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Roboto:wght@400;700;900&display=swap');
 
-        /* Moldura Dourada ao redor da tela */
-        html {
-            height: 100%;
-            border: 15px solid #B8860B; /* Borda grossa dourada */
-            box-sizing: border-box;
+        /* Borda grossa que contorna a tela inteira de ponta a ponta */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 15px solid #B8860B;
+            pointer-events: none;
+            z-index: 9999;
         }
 
         body {
@@ -19,21 +25,21 @@
             color: #ffffff;
             font-family: 'Roboto', sans-serif;
             margin: 0;
+            padding: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            box-sizing: border-box;
         }
 
-        /* Título Centralizado */
         .titulo-principal {
             font-family: 'Orbitron', sans-serif;
             color: #FFD700;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             text-transform: uppercase;
             letter-spacing: 4px;
-            margin: 40px 0;
+            margin-bottom: 60px;
             text-align: center;
             background: linear-gradient(180deg, #FFD700 30%, #967000 100%);
             -webkit-background-clip: text;
@@ -44,9 +50,9 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 40px;
+            gap: 50px;
             max-width: 1200px;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
 
         .card-moeda {
@@ -57,40 +63,41 @@
             align-items: center;
         }
 
-        /* Imagem com chanfro leve nas pontas */
+        /* Container da imagem com borda dourada e corte chanfrado */
         .container-img {
             position: relative;
             width: 100%;
-            height: 300px;
-            clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+            height: 320px;
             background: #111;
-            overflow: hidden;
+            /* O segredo da borda no corte é usar o clip-path e uma borda sólida */
+            clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+            border: 4px solid #B8860B; /* Borda dourada no card */
+            box-sizing: border-box;
         }
 
         .container-img img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
 
-        /* Selo Mais Vendido */
         .selo-popular {
             position: absolute;
-            top: -10px;
+            top: -15px;
             right: -10px;
             background: #ff0000;
             color: white;
             font-weight: 900;
-            padding: 5px 10px;
-            font-size: 0.7rem;
-            border-radius: 5px;
-            z-index: 20;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            z-index: 30;
             text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(255,0,0,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             transform: rotate(5deg);
         }
 
-        /* Textos dentro da imagem */
         .overlay-interno {
             position: absolute;
             top: 0;
@@ -101,6 +108,7 @@
             flex-direction: column;
             align-items: center;
             pointer-events: none;
+            z-index: 10;
         }
 
         .raridade-nome {
@@ -109,12 +117,12 @@
             font-family: 'Orbitron', sans-serif;
             font-weight: 900;
             font-size: 1rem;
-            text-shadow: 0 0 8px #000;
+            text-shadow: 2px 2px 5px #000;
         }
 
         .info-valor-interno {
             margin-top: auto;
-            margin-bottom: 70px;
+            margin-bottom: 80px;
             text-align: center;
         }
 
@@ -123,53 +131,61 @@
             font-size: 1.8rem;
             font-weight: 900;
             color: #fff;
-            text-shadow: 0 0 10px #000;
+            text-shadow: 2px 2px 8px #000;
         }
 
+        /* Bônus agora na cor branca */
         .bonus-txt {
             display: block;
-            font-size: 0.9rem;
-            color: #00ff00; /* Verde para bônus */
+            font-size: 0.85rem;
+            color: #ffffff; 
             font-weight: bold;
             text-transform: uppercase;
+            margin-top: 4px;
+            text-shadow: 1px 1px 4px #000;
         }
 
-        /* Botão Dourado com Preço */
         .btn-preco {
             position: absolute;
-            bottom: -15px;
-            width: 160px;
-            padding: 10px 0;
+            bottom: -20px;
+            width: 170px;
+            padding: 12px 0;
             background: linear-gradient(180deg, #FFD700 0%, #B8860B 100%);
             border: 2px solid #5c4306;
             border-radius: 4px;
             color: #000;
             font-weight: 900;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             cursor: pointer;
-            z-index: 15;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            z-index: 20;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+            transition: 0.2s ease-in-out;
         }
 
-        /* Rodapé Informativo */
+        .btn-preco:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
         .footer-loja {
-            width: 90%;
-            max-width: 800px;
+            width: 100%;
+            max-width: 850px;
             text-align: center;
-            padding: 25px;
-            background: rgba(20, 20, 20, 0.8);
+            padding: 30px;
+            background: rgba(20, 20, 20, 0.9);
             border: 1px solid #333;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
+            z-index: 5;
         }
 
         .footer-loja p {
-            color: #ccc;
-            margin: 5px 0;
-            font-size: 0.9rem;
+            color: #bbb;
+            margin: 8px 0;
+            font-size: 0.95rem;
         }
 
         .destaque-mp { color: #009EE3; font-weight: bold; }
-        .link-suporte { color: #FFD700; text-decoration: none; font-weight: bold; }
+        .link-suporte { color: #FFD700; text-decoration: none; font-weight: bold; border-bottom: 1px solid #FFD700; }
     </style>
 </head>
 <body>
@@ -236,9 +252,9 @@
     </div>
 
     <footer class="footer-loja">
-        <p>🔒 <strong>Compra Segura:</strong> Pagamentos processados via <span class="destaque-mp">Mercado Pago</span>.</p>
-        <p>Moedas entregues instantaneamente após o PIX.</p>
-        <p>Dúvidas? Entre em contato com o <a href="#" class="link-suporte">Suporte Oficial</a>.</p>
+        <p>🔒 <strong>Ambiente Seguro:</strong> Seus dados e pagamentos estão protegidos.</p>
+        <p>Pagamentos via PIX processados pelo <span class="destaque-mp">Mercado Pago</span>.</p>
+        <p>Moedas creditadas na hora! Dúvidas? <a href="#" class="link-suporte">Fale com o suporte</a>.</p>
     </footer>
 
 </body>
