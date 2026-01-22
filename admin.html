@@ -64,7 +64,7 @@
 
         <div class="admin-card-header">
             <strong style="color: var(--ouro); font-size: 14px;">🏆 GERENCIAR TEMPORADA</strong>
-            <p style="font-size: 12px; color: #aaa; margin: 5px 0;">Isso pagará os prêmios e zerará o PDL Semanal de todos.</p>
+            <p style="font-size: 12px; color: #aaa; margin: 5px 0;">Isso pagará os prêmios (até o Top 100) e zerará o PDL Semanal de todos.</p>
             <button class="btn-reset" onclick="resetarRankingSemanal()">PAGAR E ZERAR RANKING SEMANAL</button>
         </div>
 
@@ -109,13 +109,12 @@
 
         document.getElementById('btn_sair').onclick = () => signOut(auth).then(() => location.reload());
 
-        // FUNÇÃO DE RESET CORRIGIDA: Paga um por um em ordem para evitar erros de posição
         window.resetarRankingSemanal = async () => {
             if (!confirm("⚠️ ATENÇÃO: Deseja pagar as recompensas e zerar o ranking de todos os jogadores agora?")) return;
 
             try {
-                // 1. Puxa os jogadores ordenados por PDL Semanal do maior para o menor
-                const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"));
+                // Aumentado o limit para 100 para garantir que todos recebam
+                const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"), limit(100));
                 const querySnapshot = await getDocs(q);
                 
                 if (querySnapshot.empty) {
@@ -126,34 +125,39 @@
                 let contadorPosicao = 1;
                 let premiadosCount = 0;
 
-                // 2. Loop Sequencial (for...of) para garantir que a posição mude corretamente
                 for (const usuarioDoc of querySnapshot.docs) {
                     const userRef = doc(db, "usuarios", usuarioDoc.id);
                     const dados = usuarioDoc.data();
                     const pdlAtual = dados.pdlSemanal || 0;
 
                     if (pdlAtual > 0) {
-                        // Calcula o prêmio baseado na posição exata atual do contador
-                        let premio = 100; // Valor padrão
-                        if (contadorPosicao === 1) premio = 5000;
-                        else if (contadorPosicao === 2) premio = 2500;
-                        else if (contadorPosicao === 3) premio = 1250;
+                        // NOVOS VALORES DE RECOMPENSA
+                        let premio = 0;
+                        if (contadorPosicao === 1) premio = 50000;
+                        else if (contadorPosicao === 2) premio = 40000;
+                        else if (contadorPosicao === 3) premio = 30000;
+                        else if (contadorPosicao >= 4 && contadorPosicao <= 10) premio = 25000;
+                        else if (contadorPosicao >= 11 && contadorPosicao <= 100) premio = 10000;
 
-                        // 3. Atualiza o banco de dados: Incrementa saldo e Zera o PDL
+                        // Atualiza saldo, zera PDL e cria o registro da notificação
                         await updateDoc(userRef, {
                             saldo: increment(premio),
-                            pdlSemanal: 0
+                            pdlSemanal: 0,
+                            notificacaoPremio: {
+                                valor: premio,
+                                posicao: contadorPosicao,
+                                data: new Date().toLocaleDateString()
+                            }
                         });
                         
                         premiadosCount++;
-                        contadorPosicao++; // Só aumenta a posição após confirmar o pagamento do atual
+                        contadorPosicao++; 
                     } else {
-                        // Se o jogador não pontuou, apenas garante que o campo está em 0
                         await updateDoc(userRef, { pdlSemanal: 0 });
                     }
                 }
 
-                alert(`Sucesso! ${premiadosCount} jogadores foram premiados corretamente e o ranking foi reiniciado.`);
+                alert(`Sucesso! ${premiadosCount} jogadores foram premiados e o ranking reiniciado.`);
                 location.reload();
             } catch (e) {
                 console.error("Erro no processamento:", e);
