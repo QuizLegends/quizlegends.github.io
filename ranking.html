@@ -55,35 +55,28 @@
             border: 1px solid var(--borda-item);
             padding: 10px 15px;
             border-radius: 4px;
-            height: 70px; 
-            transition: transform 0.2s;
-        }
-
-        .ranking-item:hover {
-            border-color: var(--ouro);
-            background: rgba(10, 30, 60, 0.95);
+            height: 75px; 
         }
 
         .posicao {
             font-weight: 900;
             color: #f0e6d2;
-            width: 40px;
+            width: 35px;
             flex-shrink: 0;
             font-size: 1.1rem;
-            font-style: italic;
         }
 
         .coluna-elo {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 70px;
+            width: 65px;
             flex-shrink: 0;
         }
 
         .elo-emblema {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             object-fit: contain;
         }
 
@@ -94,15 +87,14 @@
             font-weight: bold;
             text-align: center;
             margin-top: 2px;
-            white-space: nowrap;
         }
 
         .user-avatar {
-            width: 50px;  
-            height: 50px; 
+            width: 55px;  
+            height: 55px; 
             border-radius: 50%; 
             border: 2px solid var(--ouro);      
-            margin: 0 15px;
+            margin: 0 12px;
             flex-shrink: 0;
             object-fit: cover;
             background: #000;
@@ -114,28 +106,21 @@
             text-transform: uppercase;
             font-size: 0.9rem;
             color: #fff;
-            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .info-pdl {
             text-align: right;
             flex-shrink: 0;
-            min-width: 100px;
         }
 
         .pdl-valor {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--hextech-blue);
             font-weight: bold;
             display: block;
-        }
-
-        .label-pdl {
-            font-size: 0.6rem;
-            color: #888;
-            text-transform: uppercase;
         }
 
         .btn-voltar {
@@ -148,13 +133,6 @@
             text-decoration: none;
             text-transform: uppercase;
             font-size: 0.8rem;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .btn-voltar:hover {
-            background: var(--ouro);
-            color: black;
         }
     </style>
 </head>
@@ -164,10 +142,8 @@
         <div class="header-ranking">
             <h1>Ranking Global</h1>
         </div>
-
         <div id="lista-ranking"></div>
-
-        <a href="resgate.html" class="btn-voltar">Voltar ao Menu</a>
+        <a href="resgate.html" class="btn-voltar">Voltar</a>
     </div>
 
     <script type="module">
@@ -186,7 +162,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // CONFIGURAÇÃO DE CAMINHOS - CORRIGIDO PARA RAIZ E PASTA ÍCONES
+        // CONFIGURAÇÃO DE URLS
         const URL_RAIZ = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/";
         const URL_ICONES = URL_RAIZ + "ícones/";
         const ICONE_PADRAO = URL_ICONES + "0.png";
@@ -196,62 +172,13 @@
             if (xp >= 1000000) { elo.nome = "Desafiante"; elo.arquivo = "desafiante.png"; }
             else if (xp >= 600000) { elo.nome = "Grão-Mestre"; elo.arquivo = "graomestre.png"; }
             else if (xp >= 300000) { elo.nome = "Mestre"; elo.arquivo = "mestre.png"; }
-            else if (xp >= 150000) {
-                elo.arquivo = "diamante.png";
-                if (xp >= 270000) elo.nome = "Diamante I";
-                else if (xp >= 240000) elo.nome = "Diamante II";
-                else if (xp >= 210000) elo.nome = "Diamante III";
-                else if (xp >= 180000) elo.nome = "Diamante IV";
-                else elo.nome = "Diamante V";
-            }
-            else if (xp >= 100000) {
-                elo.arquivo = "esmeralda.png";
-                if (xp >= 140000) elo.nome = "Esmeralda I";
-                else if (xp >= 130000) elo.nome = "Esmeralda II";
-                else if (xp >= 120000) elo.nome = "Esmeralda III";
-                else if (xp >= 110000) elo.nome = "Esmeralda IV";
-                else elo.nome = "Esmeralda V";
-            }
-            else if (xp >= 60000) {
-                elo.arquivo = "platina.png";
-                if (xp >= 92000) elo.nome = "Platina I";
-                else if (xp >= 84000) elo.nome = "Platina II";
-                else if (xp >= 76000) elo.nome = "Platina III";
-                else if (xp >= 68000) elo.nome = "Platina IV";
-                else elo.nome = "Platina V";
-            }
-            else if (xp >= 30000) {
-                elo.arquivo = "ouro.png";
-                if (xp >= 54000) elo.nome = "Ouro I";
-                else if (xp >= 48000) elo.nome = "Ouro II";
-                else if (xp >= 42000) elo.nome = "Ouro III";
-                else if (xp >= 36000) elo.nome = "Ouro IV";
-                else elo.nome = "Ouro V";
-            }
-            else if (xp >= 10000) {
-                elo.arquivo = "prata.png";
-                if (xp >= 26000) elo.nome = "Prata I";
-                else if (xp >= 22000) elo.nome = "Prata II";
-                else if (xp >= 18000) elo.nome = "Prata III";
-                else if (xp >= 14000) elo.nome = "Prata IV";
-                else elo.nome = "Prata V";
-            }
-            else if (xp >= 5000) {
-                elo.arquivo = "bronze.png";
-                if (xp >= 9000) elo.nome = "Bronze I";
-                else if (xp >= 8000) elo.nome = "Bronze II";
-                else if (xp >= 7000) elo.nome = "Bronze III";
-                else if (xp >= 6000) elo.nome = "Bronze IV";
-                else elo.nome = "Bronze V";
-            }
-            else {
-                elo.arquivo = "ferro.png";
-                if (xp >= 4000) elo.nome = "Ferro I";
-                else if (xp >= 3000) elo.nome = "Ferro II";
-                else if (xp >= 2000) elo.nome = "Ferro III";
-                else if (xp >= 1000) elo.nome = "Ferro IV";
-                else elo.nome = "Ferro V";
-            }
+            else if (xp >= 150000) { elo.arquivo = "diamante.png"; elo.nome = "Diamante"; }
+            else if (xp >= 100000) { elo.arquivo = "esmeralda.png"; elo.nome = "Esmeralda"; }
+            else if (xp >= 60000) { elo.arquivo = "platina.png"; elo.nome = "Platina"; }
+            else if (xp >= 30000) { elo.arquivo = "ouro.png"; elo.nome = "Ouro"; }
+            else if (xp >= 10000) { elo.arquivo = "prata.png"; elo.nome = "Prata"; }
+            else if (xp >= 5000) { elo.arquivo = "bronze.png"; elo.nome = "Bronze"; }
+            else { elo.arquivo = "ferro.png"; elo.nome = "Ferro"; }
             return elo;
         }
 
@@ -270,52 +197,42 @@
                     
                     let fotoFinal = ICONE_PADRAO;
 
-                    // LÓGICA DE FOTO DO USUÁRIO
-                    if (usuario.fotoAtual) {
-                        const valor = String(usuario.fotoAtual);
-                        fotoFinal = valor.startsWith('http') ? valor : URL_ICONES + valor;
-                    } 
-                    else if (usuario.iconeAtual) {
-                        const idLimpo = usuario.iconeAtual.replace('_', '-');
-                        fotoFinal = URL_ICONES + idLimpo + ".png";
-                    }
-                    else if (usuario.photoURL || usuario.fotoPerfil) {
-                        const valorSocial = usuario.photoURL || usuario.fotoPerfil;
-                        fotoFinal = valorSocial.startsWith('http') ? valorSocial : URL_ICONES + valorSocial;
+                    // LÓGICA DE FOTO CORRIGIDA
+                    // Tentamos pegar o valor de qualquer campo que possa conter a foto
+                    const valorFoto = usuario.fotoAtual || usuario.iconeAtual || usuario.fotoPerfil || usuario.photoURL;
+
+                    if (valorFoto) {
+                        let nome = String(valorFoto);
+                        
+                        if (nome.startsWith('http')) {
+                            fotoFinal = nome;
+                        } else {
+                            // Remove extensões se existirem para evitar "arquivo.png.png"
+                            nome = nome.replace('.png', '').replace('.jpg', '');
+                            // Monta o caminho correto: PASTA ÍCONES + NOME + .PNG
+                            fotoFinal = URL_ICONES + nome + ".png";
+                        }
                     }
 
                     const item = document.createElement('div');
                     item.className = 'ranking-item';
-                    
-                    // Template literal: elo.arquivo agora puxa da URL_RAIZ
                     item.innerHTML = `
                         <div class="posicao">${posicao}°</div>
-                        
                         <div class="coluna-elo">
-                            <img src="${URL_RAIZ + elo.arquivo}" 
-                                 class="elo-emblema" 
-                                 onerror="this.style.display='none'">
+                            <img src="${URL_RAIZ + elo.arquivo}" class="elo-emblema" onerror="this.style.visibility='hidden'">
                             <span class="elo-nome-abaixo">${elo.nome}</span>
                         </div>
-
-                        <img src="${fotoFinal}" 
-                             class="user-avatar" 
-                             onerror="this.src='${ICONE_PADRAO}'">
-
+                        <img src="${fotoFinal}" class="user-avatar" onerror="this.src='${ICONE_PADRAO}'">
                         <div class="nome">${usuario.nome || "Invocador"}</div>
-
                         <div class="info-pdl">
-                            <span class="pdl-valor">${Math.floor(xpAtual).toLocaleString()}</span>
-                            <span class="label-pdl">PDL Totais</span>
+                            <span class="pdl-valor">${Math.floor(xpAtual).toLocaleString()} PDL</span>
                         </div>
                     `;
-                    
                     container.appendChild(item);
                     posicao++;
                 });
-
             } catch (error) {
-                console.error("Erro no ranking:", error);
+                console.error("Erro:", error);
             }
         }
 
