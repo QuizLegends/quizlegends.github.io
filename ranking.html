@@ -9,139 +9,166 @@
             --ouro: #c89b3c;
             --fundo-profundo: #010a13;
             --hextech-blue: #0ac8b9;
+            --borda-item: rgba(200, 155, 60, 0.3);
         }
 
         body {
             background: radial-gradient(circle at center, #091428 0%, var(--fundo-profundo) 100%);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 5px;
+            padding: 10px;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 100%;
-            width: 100%;
+            max-width: 600px;
             margin: 0 auto;
         }
 
         .header-ranking {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border-bottom: 2px solid var(--ouro);
+            padding-bottom: 10px;
         }
 
         .header-ranking h1 {
             color: var(--ouro);
             text-transform: uppercase;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             margin: 10px 0;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
         }
 
         #lista-ranking {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .ranking-item {
             display: flex;
             align-items: center;
-            background: rgba(9, 20, 40, 0.95);
-            border: 1px solid rgba(200, 155, 60, 0.3);
-            padding: 0 12px;
+            background: rgba(9, 20, 40, 0.9);
+            border: 1px solid var(--borda-item);
+            padding: 10px 15px;
             border-radius: 4px;
-            height: 80px; 
-            justify-content: space-between;
+            height: 70px; 
+            transition: transform 0.2s;
+        }
+
+        .ranking-item:hover {
+            border-color: var(--ouro);
+            background: rgba(10, 30, 60, 0.95);
         }
 
         .posicao {
             font-weight: 900;
             color: #f0e6d2;
-            width: 30px;
+            width: 40px;
             flex-shrink: 0;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            font-style: italic;
         }
 
         .coluna-elo {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 75px;
+            width: 70px;
             flex-shrink: 0;
         }
 
         .elo-emblema {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             object-fit: contain;
         }
 
         .elo-nome-abaixo {
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             color: var(--ouro);
             text-transform: uppercase;
             font-weight: bold;
             text-align: center;
             margin-top: 2px;
+            white-space: nowrap;
         }
 
         .user-avatar {
-            width: 55px;  
-            height: 55px; 
+            width: 50px;  
+            height: 50px; 
             border-radius: 50%; 
-            border: none;      
-            margin: 0 10px;
+            border: 2px solid var(--ouro);      
+            margin: 0 15px;
             flex-shrink: 0;
             object-fit: cover;
+            background: #000;
         }
 
         .nome {
             flex-grow: 1;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #fff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 5px;
-            margin-left: 15px;
         }
 
         .info-pdl {
             text-align: right;
             flex-shrink: 0;
-            min-width: 95px;
+            min-width: 100px;
         }
 
         .pdl-valor {
             font-size: 0.9rem;
             color: var(--hextech-blue);
             font-weight: bold;
+            display: block;
+        }
+
+        .label-pdl {
+            font-size: 0.6rem;
+            color: #888;
+            text-transform: uppercase;
         }
 
         .btn-voltar {
             display: block;
             width: fit-content;
-            margin: 20px auto;
+            margin: 30px auto;
             border: 1px solid var(--ouro);
             color: var(--ouro);
-            padding: 8px 20px;
+            padding: 10px 25px;
             text-decoration: none;
             text-transform: uppercase;
             font-size: 0.8rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: var(--ouro);
+            color: black;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
         <div class="header-ranking">
             <h1>Ranking Global</h1>
         </div>
-        <div id="lista-ranking"></div>
-        <a href="resgate.html" class="btn-voltar">Voltar</a>
+
+        <div id="lista-ranking">
+            </div>
+
+        <a href="resgate.html" class="btn-voltar">Voltar ao Menu</a>
     </div>
 
     <script type="module">
@@ -160,9 +187,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // URL base absoluta para garantir que os ícones carreguem em qualquer página
-        const URL_ICONES_BASE = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
-        const ICONE_PADRAO = URL_ICONES_BASE + '0.png';
+        // CONFIGURAÇÃO DE CAMINHOS DE IMAGEM
+        const URL_BASE_GITHUB = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/";
+        const URL_ICONES = URL_BASE_GITHUB + "ícones/";
+        const URL_ELOS = URL_BASE_GITHUB + "elos/"; // Certifique-se que a pasta chama 'elos'
+        const ICONE_PADRAO = URL_ICONES + "0.png";
 
         function getEloInfo(xp) {
             let elo = { nome: "", arquivo: "" };
@@ -230,6 +259,7 @@
 
         async function carregarRanking() {
             try {
+                // Busca os top 50 usuários por XP
                 const q = query(collection(db, "usuarios"), orderBy("xp", "desc"), limit(50));
                 const querySnapshot = await getDocs(q);
                 const container = document.getElementById('lista-ranking');
@@ -241,47 +271,65 @@
                     const xpAtual = usuario.xp || 0;
                     const elo = getEloInfo(xpAtual);
                     
-                    let foto = ICONE_PADRAO;
+                    let fotoFinal = ICONE_PADRAO;
 
-                    // PRIORIDADE 1: Ícone Equipado da Loja (Sistema Novo)
-                    if (usuario.iconeAtual) {
-                        const idLimpo = usuario.iconeAtual.replace('_', '-');
-                        foto = URL_ICONES_BASE + idLimpo + '.png';
+                    // LÓGICA DE FOTO:
+                    // 1. Tenta o campo 'fotoAtual' (nome do arquivo salvo pela loja)
+                    if (usuario.fotoAtual) {
+                        const valor = String(usuario.fotoAtual);
+                        fotoFinal = valor.startsWith('http') ? valor : URL_ICONES + valor;
                     } 
-                    // PRIORIDADE 2: Foto Perfil / photoURL (Antigo)
-                    else {
-                        const valorPerfil = usuario.fotoPerfil || usuario.photoURL;
-                        if (valorPerfil) {
-                            const valor = String(valorPerfil);
-                            if (valor.startsWith('http')) {
-                                foto = valor;
-                            } else {
-                                const idLimpo = valor.replace('.png', '').replace('.jpg', '');
-                                foto = URL_ICONES_BASE + idLimpo + '.png';
-                            }
-                        }
+                    // 2. Fallback para 'iconeAtual' (ID que você usava antes)
+                    else if (usuario.iconeAtual) {
+                        const idLimpo = usuario.iconeAtual.replace('_', '-');
+                        fotoFinal = URL_ICONES + idLimpo + ".png";
+                    }
+                    // 3. Fallback para campos de login social (photoURL)
+                    else if (usuario.photoURL || usuario.fotoPerfil) {
+                        const valorSocial = usuario.photoURL || usuario.fotoPerfil;
+                        fotoFinal = valorSocial.startsWith('http') ? valorSocial : URL_ICONES + valorSocial;
                     }
 
                     const item = document.createElement('div');
                     item.className = 'ranking-item';
+                    
+                    // Template literal para criar a linha do ranking
                     item.innerHTML = `
                         <div class="posicao">${posicao}°</div>
+                        
                         <div class="coluna-elo">
-                            <img src="${elo.arquivo}" class="elo-emblema" onerror="this.src='${ICONE_PADRAO}'">
+                            <img src="${URL_ELOS + elo.arquivo}" 
+                                 class="elo-emblema" 
+                                 alt="${elo.nome}"
+                                 onerror="this.style.display='none'">
                             <span class="elo-nome-abaixo">${elo.nome}</span>
                         </div>
-                        <img src="${foto}" class="user-avatar" onerror="this.src='${ICONE_PADRAO}'">
-                        <div class="nome">${usuario.nome || "Invocador"}</div>
+
+                        <img src="${fotoFinal}" 
+                             class="user-avatar" 
+                             onerror="this.src='${ICONE_PADRAO}'">
+
+                        <div class="nome">${usuario.nome || "Invocador Desconhecido"}</div>
+
                         <div class="info-pdl">
-                            <span class="pdl-valor">${Math.floor(xpAtual).toLocaleString()} PDL</span>
+                            <span class="pdl-valor">${Math.floor(xpAtual).toLocaleString()}</span>
+                            <span class="label-pdl">PDL Totais</span>
                         </div>
                     `;
+                    
                     container.appendChild(item);
                     posicao++;
                 });
-            } catch (e) { console.error(e); }
+
+            } catch (error) {
+                console.error("Erro crítico ao carregar ranking:", error);
+                document.getElementById('lista-ranking').innerHTML = "<p style='text-align:center; color:red;'>Erro ao carregar dados.</p>";
+            }
         }
+
+        // Inicia a carga dos dados
         carregarRanking();
+
     </script>
 </body>
 </html>
