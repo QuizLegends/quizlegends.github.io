@@ -74,8 +74,28 @@
             box-shadow: inset 0 0 15px rgba(200, 155, 60, 0.2);
         }
 
-        .icon-container { width: 80px; height: 80px; margin: 0 auto 15px; position: relative; }
-        .img-item { width: 100%; height: 100%; border-radius: 4px; object-fit: cover; }
+        /* --- ESTILO PADRÃO: ÍCONES (REDONDOS) --- */
+        .icon-container { 
+            width: 80px; 
+            height: 80px; 
+            margin: 0 auto 15px; 
+            position: relative; 
+            overflow: hidden; 
+            border-radius: 50%; /* Redondo por padrão */
+        }
+        .img-item { 
+            width: 100%; 
+            height: 100%; 
+            border-radius: 50%; /* Redondo por padrão */
+            object-fit: cover; 
+        }
+
+        /* --- EXCEÇÃO: ITENS (QUADRADOS) --- */
+        /* Quando o card do inventário tiver a classe 'tipo-item' */
+        .item-card.tipo-item .icon-container,
+        .item-card.tipo-item .img-item {
+            border-radius: 4px !important; /* Volta a ser quadrado */
+        }
 
         .item-nome { 
             font-weight: 900; 
@@ -165,8 +185,7 @@
             </div>
         </div>
     </div>
-
-    <script type="module">
+<script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, onSnapshot, updateDoc, arrayRemove, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -192,7 +211,6 @@
             'ahri_raro': { nome: "Ahri Raposa Flamejante", tipo: "icone", raridade: "raro", img: "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/ahri-raro.png" },
             'ahri_epico': { nome: "Ahri K/DA", tipo: "icone", raridade: "epico", img: "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/ahri-epico.png" },
           
-            
             'anjo_guardiao': { nome: "Anjo Guardião", tipo: "consumivel", raridade: "raro", duracao: 7, img: "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/itens/anjo.png" },
             'sentinela-epico': { nome: "Sentinela de Controle", tipo: "carga", raridade: "epico", unidades: 3, img: "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/itens/sentinela-epico.png" },
             'coletora-comum': { nome: "A Coletora", tipo: "multiplicador", raridade: "comum", duracaoHoras: 2, multiplicadorPDL: 2, img: "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/itens/coletora-comum.png" },
@@ -231,21 +249,26 @@
                 return;
             }
 
+            // MOCHILA (ITENS QUADRADOS)
             mochila.forEach(id => {
                 const item = DATA_BASE[id];
                 if (!item) return;
-                grid.innerHTML += criarCard(id, item, "ATIVAR", false);
+                // Passamos 'true' para indicar que deve ser quadrado (tipo-item)
+                grid.innerHTML += criarCard(id, item, "ATIVAR", false, true);
             });
 
+            // ÍCONES (REDONDOS)
             icones.forEach(id => {
                 const item = DATA_BASE[id];
                 if (!item) return;
                 const estaEquipado = (id === iconeEquipado);
-                grid.innerHTML += criarCard(id, item, estaEquipado ? "EQUIPADO" : "EQUIPAR", estaEquipado);
+                // Passamos 'false' para indicar que deve ser redondo
+                grid.innerHTML += criarCard(id, item, estaEquipado ? "EQUIPADO" : "EQUIPAR", estaEquipado, false);
             });
         }
 
-        function criarCard(id, item, txtBotao, isEquipado) {
+        // Adicionado o parâmetro 'isQuadrado' para controlar a classe CSS
+        function criarCard(id, item, txtBotao, isEquipado, isQuadrado) {
             let tagTexto = "Consumível";
             if (item.tipo === 'icone') tagTexto = "Ícone de Perfil";
             if (item.tipo === 'carga') tagTexto = "Utilizável";
@@ -253,9 +276,12 @@
             if (item.tipo === 'multiplicadorMoedas') tagTexto = `Bônus ${item.multiplicadorMoedas}x Moedas`;
 
             const labelRaridade = item.raridade === 'epico' ? 'Épico' : item.raridade.charAt(0).toUpperCase() + item.raridade.slice(1);
+            
+            // Define se aplica a classe de item quadrado ou não
+            const classeFormato = isQuadrado ? 'tipo-item' : '';
 
             return `
-                <div class="item-card ${item.raridade} ${isEquipado ? 'equipado' : ''}">
+                <div class="item-card ${item.raridade} ${isEquipado ? 'equipado' : ''} ${classeFormato}">
                     <div class="tag-tipo">${tagTexto}</div>
                     <div class="icon-container">
                         <img src="${item.img}" class="img-item">
@@ -414,5 +440,5 @@
             } catch (e) { console.error(e); }
         }
     </script>
-</body>
+    </body>
 </html>
