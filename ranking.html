@@ -165,8 +165,7 @@
             <h1>Ranking Global</h1>
         </div>
 
-        <div id="lista-ranking">
-            </div>
+        <div id="lista-ranking"></div>
 
         <a href="resgate.html" class="btn-voltar">Voltar ao Menu</a>
     </div>
@@ -187,10 +186,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // CONFIGURAÇÃO DE CAMINHOS DE IMAGEM
-        const URL_BASE_GITHUB = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/";
-        const URL_ICONES = URL_BASE_GITHUB + "ícones/";
-        const URL_ELOS = URL_BASE_GITHUB + "elos/"; // Certifique-se que a pasta chama 'elos'
+        // CONFIGURAÇÃO DE CAMINHOS - CORRIGIDO PARA RAIZ E PASTA ÍCONES
+        const URL_RAIZ = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/";
+        const URL_ICONES = URL_RAIZ + "ícones/";
         const ICONE_PADRAO = URL_ICONES + "0.png";
 
         function getEloInfo(xp) {
@@ -259,7 +257,6 @@
 
         async function carregarRanking() {
             try {
-                // Busca os top 50 usuários por XP
                 const q = query(collection(db, "usuarios"), orderBy("xp", "desc"), limit(50));
                 const querySnapshot = await getDocs(q);
                 const container = document.getElementById('lista-ranking');
@@ -273,18 +270,15 @@
                     
                     let fotoFinal = ICONE_PADRAO;
 
-                    // LÓGICA DE FOTO:
-                    // 1. Tenta o campo 'fotoAtual' (nome do arquivo salvo pela loja)
+                    // LÓGICA DE FOTO DO USUÁRIO
                     if (usuario.fotoAtual) {
                         const valor = String(usuario.fotoAtual);
                         fotoFinal = valor.startsWith('http') ? valor : URL_ICONES + valor;
                     } 
-                    // 2. Fallback para 'iconeAtual' (ID que você usava antes)
                     else if (usuario.iconeAtual) {
                         const idLimpo = usuario.iconeAtual.replace('_', '-');
                         fotoFinal = URL_ICONES + idLimpo + ".png";
                     }
-                    // 3. Fallback para campos de login social (photoURL)
                     else if (usuario.photoURL || usuario.fotoPerfil) {
                         const valorSocial = usuario.photoURL || usuario.fotoPerfil;
                         fotoFinal = valorSocial.startsWith('http') ? valorSocial : URL_ICONES + valorSocial;
@@ -293,14 +287,13 @@
                     const item = document.createElement('div');
                     item.className = 'ranking-item';
                     
-                    // Template literal para criar a linha do ranking
+                    // Template literal: elo.arquivo agora puxa da URL_RAIZ
                     item.innerHTML = `
                         <div class="posicao">${posicao}°</div>
                         
                         <div class="coluna-elo">
-                            <img src="${URL_ELOS + elo.arquivo}" 
+                            <img src="${URL_RAIZ + elo.arquivo}" 
                                  class="elo-emblema" 
-                                 alt="${elo.nome}"
                                  onerror="this.style.display='none'">
                             <span class="elo-nome-abaixo">${elo.nome}</span>
                         </div>
@@ -309,7 +302,7 @@
                              class="user-avatar" 
                              onerror="this.src='${ICONE_PADRAO}'">
 
-                        <div class="nome">${usuario.nome || "Invocador Desconhecido"}</div>
+                        <div class="nome">${usuario.nome || "Invocador"}</div>
 
                         <div class="info-pdl">
                             <span class="pdl-valor">${Math.floor(xpAtual).toLocaleString()}</span>
@@ -322,14 +315,11 @@
                 });
 
             } catch (error) {
-                console.error("Erro crítico ao carregar ranking:", error);
-                document.getElementById('lista-ranking').innerHTML = "<p style='text-align:center; color:red;'>Erro ao carregar dados.</p>";
+                console.error("Erro no ranking:", error);
             }
         }
 
-        // Inicia a carga dos dados
         carregarRanking();
-
     </script>
 </body>
 </html>
