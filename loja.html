@@ -352,44 +352,53 @@
         };
 
         window.renderLoja = function() {
-            const grid = document.getElementById('grid-itens');
-            const busca = document.getElementById('input-busca').value.toLowerCase().trim();
-            grid.innerHTML = "";
-            const itensFiltrados = itens.filter(item => {
-                const bateCategoria = item.cat === categoriaAtual;
-                const bateRaridade = raridadeFiltro === 'todos' || item.raridade === raridadeFiltro;
-                const nomeLimpo = item.nome.replace('<br>', '').toLowerCase();
-                const bateBusca = nomeLimpo.includes(busca);
-                return bateCategoria && bateRaridade && bateBusca;
-            });
-            if (itensFiltrados.length === 0) {
-                grid.innerHTML = "<p style='grid-column: 1/-1; opacity: 0.5; text-align:center; margin-top: 50px;'>Nenhum item encontrado.</p>";
-                return;
-            }
-            itensFiltrados.forEach(item => {
-                let jaPossui = false;
-                if (item.cat === 'icones') {
-                    jaPossui = meusItens.includes(item.id);
-                } else if (item.cat === 'itens') {
-                    jaPossui = minhaMochila.includes(item.id);
-                }
-                const desabilitado = jaPossui || (saldoGlobal < item.preco);
-                const labelRaridade = item.raridade === 'epico' ? 'Épico' : item.raridade.charAt(0).toUpperCase() + item.raridade.slice(1);
-                const urlFinal = (item.cat === 'itens') ? URL_ITENS + item.img : URL_ICONES + item.img;
-                grid.innerHTML += `
-                    <div class="item-card ${item.raridade}">
-                        <div class="icon-container">
-                            <img src="${urlFinal}" class="img-campeao">
-                        </div>
-                        <div class="item-nome">${item.nome}</div>
-                        <div class="raridade-label">${labelRaridade}</div>
-                        <button class="btn-comprar" ${desabilitado ? 'disabled' : ''} 
-                            onclick="abrirModalCompra('${item.id}')">
-                            ${jaPossui ? 'Possuído' : '💰 ' + item.preco.toLocaleString()}
-                        </button>
-                    </div>`;
-            });
-        };
+    const grid = document.getElementById('grid-itens');
+    const busca = document.getElementById('input-busca').value.toLowerCase().trim();
+    grid.innerHTML = "";
+
+    const itensFiltrados = itens.filter(item => {
+        const bateCategoria = item.cat === categoriaAtual;
+        const bateRaridade = raridadeFiltro === 'todos' || item.raridade === raridadeFiltro;
+        const nomeLimpo = item.nome.replace('<br>', '').toLowerCase();
+        const bateBusca = nomeLimpo.includes(busca);
+        return bateCategoria && bateRaridade && bateBusca;
+    });
+
+    if (itensFiltrados.length === 0) {
+        grid.innerHTML = "<p style='grid-column: 1/-1; opacity: 0.5; text-align:center; margin-top: 50px;'>Nenhum item encontrado.</p>";
+        return;
+    }
+
+    itensFiltrados.forEach(item => {
+        let jaPossui = false;
+        if (item.cat === 'icones') {
+            jaPossui = meusItens.includes(item.id);
+        } else if (item.cat === 'itens') {
+            jaPossui = minhaMochila.includes(item.id);
+        }
+
+        const desabilitado = jaPossui || (saldoGlobal < item.preco);
+        const labelRaridade = item.raridade === 'epico' ? 'Épico' : item.raridade.charAt(0).toUpperCase() + item.raridade.slice(1);
+        const urlFinal = (item.cat === 'itens') ? URL_ITENS + item.img : URL_ICONES + item.img;
+
+        // A MÁGICA ACONTECE AQUI:
+        // Se item.cat for 'itens', adicionamos a classe 'tipo-item' para o CSS deixar quadrado.
+        const classeExtra = (item.cat === 'itens') ? 'tipo-item' : '';
+
+        grid.innerHTML += `
+            <div class="item-card ${item.raridade} ${classeExtra}">
+                <div class="icon-container">
+                    <img src="${urlFinal}" class="img-campeao">
+                </div>
+                <div class="item-nome">${item.nome}</div>
+                <div class="raridade-label">${labelRaridade}</div>
+                <button class="btn-comprar" ${desabilitado ? 'disabled' : ''} 
+                    onclick="abrirModalCompra('${item.id}')">
+                    ${jaPossui ? 'Possuído' : '💰 ' + item.preco.toLocaleString()}
+                </button>
+            </div>`;
+    });
+};
 
         window.abrirModalCompra = (id) => {
             const item = itens.find(i => i.id === id);
