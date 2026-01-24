@@ -9,6 +9,7 @@
             --ouro: #c89b3c;
             --fundo-profundo: #010a13;
             --hextech-blue: #0ac8b9;
+            --prismatico: linear-gradient(135deg, #1bc8ce 0%, #cefff7 25%, #4739b2 50%, #1bc8ce 75%, #fff311 100%);
         }
 
         body {
@@ -54,6 +55,22 @@
             padding: 10px 15px;
             border-radius: 4px;
             height: 70px; 
+            transition: all 0.3s;
+        }
+
+        /* ESTILO PRISMÁTICO NO RANKING */
+        .ranking-item.prismatico {
+            border: 1px solid transparent !important;
+            background-image: linear-gradient(rgba(9, 20, 40, 0.9), rgba(9, 20, 40, 0.9)), var(--prismatico);
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            animation: animaPrismaticoRank 2s ease-in-out infinite;
+        }
+
+        @keyframes animaPrismaticoRank {
+            0% { filter: drop-shadow(0 0 5px #1bc8ce); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 15px #fff311); transform: scale(1.02); }
+            100% { filter: drop-shadow(0 0 5px #1bc8ce); transform: scale(1); }
         }
 
         .posicao {
@@ -86,15 +103,21 @@
             margin-top: 2px;
         }
 
-        /* AVATAR REDONDO E SEM BORDA */
         .user-avatar {
             width: 55px;  
             height: 55px; 
             margin: 0 15px;
             flex-shrink: 0;
             object-fit: cover;
-            border-radius: 50%; /* Deixa redondo */
-            border: none;       /* Remove a borda */
+            border-radius: 50%;
+            border: none;
+            transition: 0.3s;
+        }
+
+        /* AVATAR PRISMÁTICO NO RANKING */
+        .ranking-item.prismatico .user-avatar {
+            width: 70px;
+            height: 70px;
         }
 
         .nome {
@@ -162,13 +185,16 @@
         const URL_ICONES = URL_RAIZ + "ícones/";
         const ICONE_PADRAO = URL_ICONES + "0.png";
 
+        // Lista de IDs ou nomes de arquivos que são Prismáticos (Adicione aqui os nomes dos seus GIFs)
+        const ICONES_PRISMATICOS = ["brasao-invencivel", "rei-da-loja", "mestre-prismático"]; 
+
         function getEloInfo(xp) {
             let elo = { nome: "Ferro", arquivo: "ferro.png" };
             if (xp >= 1000000) elo = { nome: "Desafiante", arquivo: "desafiante.png" };
             else if (xp >= 600000) elo = { nome: "Grão-Mestre", arquivo: "graomestre.png" };
             else if (xp >= 300000) elo = { nome: "Mestre", arquivo: "mestre.png" };
             else if (xp >= 150000) elo = { nome: "Diamante", arquivo: "diamante.png" };
-            else if (xp >= 100000) elo = { nome: "Esmeralda", arquivo: "esmeralda.png" };
+            else if (xp >= 10000) elo = { nome: "Esmeralda", arquivo: "esmeralda.png" };
             else if (xp >= 60000) elo = { nome: "Platina", arquivo: "platina.png" };
             else if (xp >= 30000) elo = { nome: "Ouro", arquivo: "ouro.png" };
             else if (xp >= 10000) elo = { nome: "Prata", arquivo: "prata.png" };
@@ -190,17 +216,24 @@
                     
                     let fotoUrl = ICONE_PADRAO;
                     const idEquipado = user.iconeAtual;
+                    let classePrismatica = "";
 
                     if (idEquipado) {
-                        // Lógica Dinâmica: Troca _ por - para bater com o GitHub
                         const nomeArquivo = String(idEquipado).replace(/_/g, '-');
-                        fotoUrl = `${URL_ICONES}${nomeArquivo}.png`;
+                        
+                        // Verifica se o ícone equipado está na lista de prismáticos
+                        if (ICONES_PRISMATICOS.includes(nomeArquivo)) {
+                            fotoUrl = `${URL_ICONES}${nomeArquivo}.gif`;
+                            classePrismatica = "prismatico";
+                        } else {
+                            fotoUrl = `${URL_ICONES}${nomeArquivo}.png`;
+                        }
                     } else if (user.photoURL) {
                         fotoUrl = user.photoURL;
                     }
 
                     const item = document.createElement('div');
-                    item.className = 'ranking-item';
+                    item.className = `ranking-item ${classePrismatica}`;
                     item.innerHTML = `
                         <div class="posicao">${posicao}°</div>
                         <div class="coluna-elo">
