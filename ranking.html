@@ -161,17 +161,38 @@
         const ICONE_PADRAO = URL_ICONES + "0.png";
 
         function getEloInfo(xp) {
-            let elo = { nome: "Ferro", arquivo: "ferro.png" };
-            if (xp >= 1000000) elo = { nome: "Desafiante", arquivo: "desafiante.png" };
-            else if (xp >= 600000) elo = { nome: "Grão-Mestre", arquivo: "graomestre.png" };
-            else if (xp >= 300000) elo = { nome: "Mestre", arquivo: "mestre.png" };
-            else if (xp >= 150000) elo = { nome: "Diamante", arquivo: "diamante.png" };
-            else if (xp >= 100000) elo = { nome: "Esmeralda", arquivo: "esmeralda.png" };
-            else if (xp >= 60000) elo = { nome: "Platina", arquivo: "platina.png" };
-            else if (xp >= 30000) elo = { nome: "Ouro", arquivo: "ouro.png" };
-            else if (xp >= 10000) elo = { nome: "Prata", arquivo: "prata.png" };
-            else if (xp >= 5000) elo = { nome: "Bronze", arquivo: "bronze.png" };
-            return elo;
+            // Elos que não possuem divisão
+            if (xp >= 1000000) return { nome: "Desafiante", arquivo: "desafiante.png" };
+            if (xp >= 600000) return { nome: "Grão-Mestre", arquivo: "graomestre.png" };
+            if (xp >= 30000) return { nome: "Mestre", arquivo: "mestre.png" }; // Ajustado para 300k conforme seu código
+
+            // Configuração dos elos com divisões
+            const elosConfig = [
+                { nome: "Diamante", min: 150000, max: 300000, arq: "diamante.png" },
+                { nome: "Esmeralda", min: 100000, max: 150000, arq: "esmeralda.png" },
+                { nome: "Platina", min: 60000, max: 100000, arq: "platina.png" },
+                { nome: "Ouro", min: 30000, max: 60000, arq: "ouro.png" },
+                { nome: "Prata", min: 10000, max: 30000, arq: "prata.png" },
+                { nome: "Bronze", min: 5000, max: 10000, arq: "bronze.png" },
+                { nome: "Ferro", min: 0, max: 5000, arq: "ferro.png" }
+            ];
+
+            for (let e of elosConfig) {
+                if (xp >= e.min) {
+                    const faixa = e.max - e.min;
+                    const progresso = xp - e.min;
+                    const parte = faixa / 4;
+                    
+                    let divisao = "";
+                    if (progresso >= parte * 3) divisao = " I";
+                    else if (progresso >= parte * 2) divisao = " II";
+                    else if (progresso >= parte) divisao = " III";
+                    else divisao = " IV";
+
+                    return { nome: e.nome + divisao, arquivo: e.arq };
+                }
+            }
+            return { nome: "Ferro IV", arquivo: "ferro.png" };
         }
 
         async function carregarRanking() {
