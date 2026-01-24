@@ -9,7 +9,6 @@
             --ouro: #c89b3c;
             --fundo-profundo: #010a13;
             --hextech-blue: #0ac8b9;
-            --prismatico: linear-gradient(135deg, #1bc8ce 0%, #cefff7 25%, #4739b2 50%, #1bc8ce 75%, #fff311 100%);
         }
 
         body {
@@ -55,24 +54,6 @@
             padding: 10px 15px;
             border-radius: 4px;
             height: 70px; 
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        /* CLASSE PRISMÁTICA - APLICADA PELO JS SE FOR GIF */
-        .ranking-item.prismatico {
-            border: 1px solid transparent !important;
-            background-image: linear-gradient(rgba(9, 20, 40, 0.9), rgba(9, 20, 40, 0.9)), var(--prismatico);
-            background-origin: border-box;
-            background-clip: padding-box, border-box;
-            animation: animaPrismaticoRank 2s ease-in-out infinite;
-            z-index: 1;
-        }
-
-        @keyframes animaPrismaticoRank {
-            0% { filter: drop-shadow(0 0 5px #1bc8ce); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 12px #fff311); transform: scale(1.01); }
-            100% { filter: drop-shadow(0 0 5px #1bc8ce); transform: scale(1); }
         }
 
         .posicao {
@@ -112,7 +93,6 @@
             flex-shrink: 0;
             object-fit: cover;
             border-radius: 50%;
-            border: none;
         }
 
         .nome {
@@ -147,9 +127,7 @@
             text-decoration: none;
             text-transform: uppercase;
             font-size: 0.8rem;
-            transition: 0.3s;
         }
-        .btn-voltar:hover { background: var(--ouro); color: black; }
     </style>
 </head>
 <body>
@@ -207,22 +185,27 @@
                 querySnapshot.forEach((docSnap) => {
                     const user = docSnap.data();
                     const elo = getEloInfo(user.xp || 0);
-                    const idEquipado = user.iconeAtual || "0";
+                    
+                    // LÓGICA DO INVENTÁRIO APLICADA AQUI:
+                    let idEquipado = user.iconeAtual || "0";
+                    let fotoUrl = "";
+
+                    // Se o nome salvo no banco contém "prismatico", usa .gif, senão .png
+                    if (idEquipado.includes('prismatico')) {
+                        fotoUrl = `${URL_ICONES}${idEquipado}.gif`;
+                    } else {
+                        fotoUrl = `${URL_ICONES}${idEquipado}.png`;
+                    }
 
                     const item = document.createElement('div');
-                    item.className = "ranking-item";
-                    
-                    // Lógica de "Tentativa e Erro" sem pesar o site
+                    item.className = 'ranking-item';
                     item.innerHTML = `
                         <div class="posicao">${posicao}°</div>
                         <div class="coluna-elo">
                             <img src="${URL_RAIZ + elo.arquivo}" class="elo-emblema">
                             <span class="elo-nome-abaixo">${elo.nome}</span>
                         </div>
-                        <img src="${URL_ICONES}${idEquipado}.gif" 
-                             class="user-avatar" 
-                             onload="this.closest('.ranking-item').classList.add('prismatico')"
-                             onerror="if(this.src.includes('.gif')){ this.src='${URL_ICONES}${idEquipado}.png'; this.closest('.ranking-item').classList.remove('prismatico'); } else { this.src='${ICONE_PADRAO}'; }">
+                        <img src="${fotoUrl}" class="user-avatar" onerror="this.src='${ICONE_PADRAO}'">
                         <div class="nome">${user.nome || "Invocador"}</div>
                         <div class="info-pdl">
                             <span class="pdl-valor">${Math.floor(user.xp || 0).toLocaleString()} PDL</span>
