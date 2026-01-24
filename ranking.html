@@ -186,16 +186,11 @@
                     const user = docSnap.data();
                     const elo = getEloInfo(user.xp || 0);
                     
-                    // LÓGICA DO INVENTÁRIO APLICADA AQUI:
-                    let idEquipado = user.iconeAtual || "0";
-                    let fotoUrl = "";
-
-                    // Se o nome salvo no banco contém "prismatico", usa .gif, senão .png
-                    if (idEquipado.includes('prismatico')) {
-                        fotoUrl = `${URL_ICONES}${idEquipado}.gif`;
-                    } else {
-                        fotoUrl = `${URL_ICONES}${idEquipado}.png`;
-                    }
+                    // LÓGICA DE DETECÇÃO AUTOMÁTICA DE GIF:
+                    let idEquipado = String(user.iconeAtual || "0");
+                    
+                    // Remove qualquer extensão que possa ter vindo do banco por erro
+                    idEquipado = idEquipado.replace('.png', '').replace('.gif', '');
 
                     const item = document.createElement('div');
                     item.className = 'ranking-item';
@@ -205,7 +200,9 @@
                             <img src="${URL_RAIZ + elo.arquivo}" class="elo-emblema">
                             <span class="elo-nome-abaixo">${elo.nome}</span>
                         </div>
-                        <img src="${fotoUrl}" class="user-avatar" onerror="this.src='${ICONE_PADRAO}'">
+                        <img src="${URL_ICONES}${idEquipado}.gif" 
+                             class="user-avatar" 
+                             onerror="if(this.src.includes('.gif')){ this.src='${URL_ICONES}${idEquipado}.png'; } else if(this.src.includes('.png')){ this.src='${ICONE_PADRAO}'; }">
                         <div class="nome">${user.nome || "Invocador"}</div>
                         <div class="info-pdl">
                             <span class="pdl-valor">${Math.floor(user.xp || 0).toLocaleString()} PDL</span>
