@@ -399,56 +399,62 @@
     };
 
     window.renderLoja = function() {
-        const grid = document.getElementById('grid-itens');
-        const busca = document.getElementById('input-busca').value.toLowerCase().trim();
-        grid.innerHTML = "";
+    const grid = document.getElementById('grid-itens');
+    const busca = document.getElementById('input-busca').value.toLowerCase().trim();
+    grid.innerHTML = "";
 
-        const itensFiltrados = itens.filter(item => {
-            const bateCategoria = item.cat === categoriaAtual;
-            const bateRaridade = raridadeFiltro === 'todos' || item.raridade === raridadeFiltro;
-            const nomeLimpo = item.nome.replace('<br>', '').toLowerCase();
-            const bateBusca = nomeLimpo.includes(busca);
-            return bateCategoria && bateRaridade && bateBusca;
-        });
+    const itensFiltrados = itens.filter(item => {
+        const bateCategoria = item.cat === categoriaAtual;
+        const bateRaridade = raridadeFiltro === 'todos' || item.raridade === raridadeFiltro;
+        const nomeLimpo = item.nome.replace('<br>', '').toLowerCase();
+        const bateBusca = nomeLimpo.includes(busca);
+        return bateCategoria && bateRaridade && bateBusca;
+    });
 
-        if (itensFiltrados.length === 0) {
-            grid.innerHTML = "<p style='grid-column: 1/-1; opacity: 0.5; text-align:center; margin-top: 50px;'>Nenhum item encontrado.</p>";
-            return;
+    if (itensFiltrados.length === 0) {
+        grid.innerHTML = "<p style='grid-column: 1/-1; opacity: 0.5; text-align:center; margin-top: 50px;'>Nenhum item encontrado.</p>";
+        return;
+    }
+
+    itensFiltrados.forEach(item => {
+        let jaPossui = false;
+        if (item.cat === 'icones') {
+            jaPossui = meusItens.includes(item.id);
+        } else if (item.cat === 'itens') {
+            jaPossui = minhaMochila.includes(item.id);
         }
 
-        itensFiltrados.forEach(item => {
-            let jaPossui = false;
-            if (item.cat === 'icones') {
-                jaPossui = meusItens.includes(item.id);
-            } else if (item.cat === 'itens') {
-                jaPossui = minhaMochila.includes(item.id);
-            }
+        const desabilitado = jaPossui || (saldoGlobal < item.preco);
+        
+        let labelRaridade = "";
+        if (item.raridade === 'epico') labelRaridade = 'Épico';
+        else if (item.raridade === 'prismatico') labelRaridade = 'Prismático';
+        else labelRaridade = item.raridade.charAt(0).toUpperCase() + item.raridade.slice(1);
 
-            const desabilitado = jaPossui || (saldoGlobal < item.preco);
-            
-            let labelRaridade = "";
-            if (item.raridade === 'epico') labelRaridade = 'Épico';
-            else if (item.raridade === 'prismatico') labelRaridade = 'Prismático';
-            else labelRaridade = item.raridade.charAt(0).toUpperCase() + item.raridade.slice(1);
+        // LÓGICA DE EXTENSÃO: Se for prismático, troca .png por .gif no nome do arquivo
+        let nomeArquivo = item.img;
+        if (item.raridade === 'prismatico') {
+            nomeArquivo = nomeArquivo.replace('.png', '.gif');
+        }
 
-            // CORREÇÃO: Escolha dinâmica da URL baseado no item.cat
-            const urlFinal = (item.cat === 'itens') ? URL_ITENS + item.img : URL_ICONES + item.img;
-            const classeExtra = (item.cat === 'itens') ? 'tipo-item' : '';
+        // CORREÇÃO: Escolha dinâmica da URL baseado no item.cat e no nomeArquivo atualizado
+        const urlFinal = (item.cat === 'itens') ? URL_ITENS + nomeArquivo : URL_ICONES + nomeArquivo;
+        const classeExtra = (item.cat === 'itens') ? 'tipo-item' : '';
 
-            grid.innerHTML += `
-                <div class="item-card ${item.raridade} ${classeExtra}">
-                    <div class="icon-container">
-                        <img src="${urlFinal}" class="img-campeao">
-                    </div>
-                    <div class="item-nome">${item.nome}</div>
-                    <div class="raridade-label">${labelRaridade}</div>
-                    <button class="btn-comprar" ${desabilitado ? 'disabled' : ''} 
-                        onclick="abrirModalCompra('${item.id}')">
-                        ${jaPossui ? 'Possuído' : '💰 ' + item.preco.toLocaleString()}
-                    </button>
-                </div>`;
-        });
-    };
+        grid.innerHTML += `
+            <div class="item-card ${item.raridade} ${classeExtra}">
+                <div class="icon-container">
+                    <img src="${urlFinal}" class="img-campeao">
+                </div>
+                <div class="item-nome">${item.nome}</div>
+                <div class="raridade-label">${labelRaridade}</div>
+                <button class="btn-comprar" ${desabilitado ? 'disabled' : ''} 
+                    onclick="abrirModalCompra('${item.id}')">
+                    ${jaPossui ? 'Possuído' : '💰 ' + item.preco.toLocaleString()}
+                </button>
+            </div>`;
+    });
+};
 
     window.abrirModalCompra = (id) => {
         const item = itens.find(i => i.id === id);
