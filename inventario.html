@@ -265,7 +265,7 @@
 
     <div class="header-inv">
         <h1>Inventário Hextech</h1>
-        <a href="loja.html" class="btn-voltar">Voltar para Loja</a>
+        <a href="resgate.html" class="btn-voltar">Voltar para Resgate</a>
     </div>
 
     <div class="barra-ferramentas-inventario">
@@ -293,7 +293,6 @@
                 </div>
         </div>
     </div>
-
     <div class="header-inv">
         <h1>Meu Inventário</h1>
         <a href="resgate.html" class="btn-voltar">Voltar</a>
@@ -417,11 +416,9 @@
             }
         });
 
-    // Variáveis de controle para os novos filtros
     let filtroRaridadeAtivo = 'todos';
     let buscaTextoAtiva = '';
 
-    // --- NOVAS FUNÇÕES DE CONTROLE DE FILTRO ---
     window.filtrarPorTexto = (valor) => {
         buscaTextoAtiva = valor.toLowerCase();
         renderInventario();
@@ -435,15 +432,21 @@
     };
 
     function passaNoFiltro(item) {
+        if (!item) return false;
         const nomeBate = item.nome.toLowerCase().includes(buscaTextoAtiva);
         const raridadeBate = (filtroRaridadeAtivo === 'todos' || item.raridade === filtroRaridadeAtivo);
         return nomeBate && raridadeBate;
     }
 
-    // --- SUA FUNÇÃO RENDERINVENTARIO CORRIGIDA COM FILTRO ---
     function renderInventario() {
         const grid = document.getElementById('grid-inv');
+        if (!grid) return;
         grid.innerHTML = "";
+
+        if (typeof usuarioDados === 'undefined' || !usuarioDados) {
+            grid.innerHTML = '<p class="vazio">Carregando espólios...</p>';
+            return;
+        }
 
         const icones = usuarioDados.iconesAdquiridos || [];
         const mochila = usuarioDados.mochila || [];
@@ -456,28 +459,21 @@
 
         let itensVisiveis = 0;
 
-        // MOCHILA (ITENS QUADRADOS)
         mochila.forEach(id => {
             const item = DATA_BASE[id];
             if (!item) return;
-            
-            // Aplicação do filtro sem alterar sua lógica de criação
             if (passaNoFiltro(item)) {
                 grid.innerHTML += criarCard(id, item, "ATIVAR", false, true);
                 itensVisiveis++;
             }
         });
 
-        // ÍCONES (REDONDOS)
         icones.forEach(id => {
             const item = DATA_BASE[id];
             if (!item) return;
-
-            // Aplicação do filtro sem alterar sua lógica de criação
             if (passaNoFiltro(item)) {
                 const nomeArquivo = item.img.split('/').pop().replace('.png', '');
                 const estaEquipado = (nomeArquivo === iconeEquipado);
-                
                 grid.innerHTML += criarCard(id, item, estaEquipado ? "EQUIPADO" : "EQUIPAR", estaEquipado, false);
                 itensVisiveis++;
             }
@@ -488,7 +484,6 @@
         }
     }
 
-    // --- SUA FUNÇÃO CRIARCARD (INTEGRAL) ---
     function criarCard(id, item, txtBotao, isEquipado, isQuadrado) {
         let tagTexto = "Consumível";
         if (item.tipo === 'icone') tagTexto = "Ícone de Perfil";
@@ -524,7 +519,6 @@
         `;
     }
 
-    // --- TODAS AS SUAS FUNÇÕES DE AÇÃO E FIREBASE (MANTIDAS EXATAMENTE IGUAIS) ---
     window.acaoItem = (id, tipo) => {
         const item = DATA_BASE[id];
         const modal = document.getElementById('modal-confirm');
@@ -666,5 +660,5 @@
         } catch (e) { console.error(e); }
     }
 </script>
-        </body>
+  </body>
 </html>
