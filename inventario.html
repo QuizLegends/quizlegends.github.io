@@ -428,7 +428,7 @@
                 window.location.href = "index.html";
             }
         });
-
+<script>
     let filtroRaridadeAtivo = 'todos';
     let buscaTextoAtiva = '';
 
@@ -454,6 +454,7 @@
     function renderInventario() {
         const grid = document.getElementById('grid-inv');
         if (!grid) return;
+        
         grid.innerHTML = "";
 
         if (typeof usuarioDados === 'undefined' || !usuarioDados) {
@@ -471,26 +472,27 @@
         }
 
         let itensVisiveis = 0;
+        let htmlFinal = "";
 
         mochila.forEach(id => {
             const item = DATA_BASE[id];
-            if (!item) return;
-            if (passaNoFiltro(item)) {
-                grid.innerHTML += criarCard(id, item, "ATIVAR", false, true);
+            if (item && passaNoFiltro(item)) {
+                htmlFinal += criarCard(id, item, "ATIVAR", false, true);
                 itensVisiveis++;
             }
         });
 
         icones.forEach(id => {
             const item = DATA_BASE[id];
-            if (!item) return;
-            if (passaNoFiltro(item)) {
+            if (item && passaNoFiltro(item)) {
                 const nomeArquivo = item.img.split('/').pop().replace('.png', '');
                 const estaEquipado = (nomeArquivo === iconeEquipado);
-                grid.innerHTML += criarCard(id, item, estaEquipado ? "EQUIPADO" : "EQUIPAR", estaEquipado, false);
+                htmlFinal += criarCard(id, item, estaEquipado ? "EQUIPADO" : "EQUIPAR", estaEquipado, false);
                 itensVisiveis++;
             }
         });
+
+        grid.innerHTML = htmlFinal;
 
         if (itensVisiveis === 0 && (buscaTextoAtiva !== '' || filtroRaridadeAtivo !== 'todos')) {
             grid.innerHTML = '<p class="vazio">Nenhum item encontrado para esta busca.</p>';
@@ -510,11 +512,7 @@
         else labelRaridade = item.raridade.charAt(0).toUpperCase() + item.raridade.slice(1);
         
         const classeFormato = isQuadrado ? 'tipo-item' : '';
-
-        let urlImagem = item.img;
-        if (item.raridade === 'prismatico') {
-            urlImagem = urlImagem.replace('.png', '.gif');
-        }
+        let urlImagem = item.raridade === 'prismatico' ? item.img.replace('.png', '.gif') : item.img;
 
         return `
             <div class="item-card ${item.raridade} ${isEquipado ? 'equipado' : ''} ${classeFormato}">
@@ -550,31 +548,19 @@
             novoBtnSim.onclick = () => equiparIcone(id);
         } else if (tipo === 'carga') {
             titulo.innerText = "ATIVAR REVELAÇÃO";
-            msg.innerText = `Deseja ativar "${item.nome}"? Isso adicionará ${item.unidades} cargas de revelação ao seu Quiz.`;
+            msg.innerText = `Deseja ativar "${item.nome}"? Isso adicionará ${item.unidades} cargas.`;
             novoBtnSim.onclick = () => ativarSentinela(id);
         } else if (tipo === 'multiplicador') {
             titulo.innerText = "ATIVAR MULTIPLICADOR";
-            const agora = Date.now();
-            if (usuarioDados.statusAtivo?.dobrador_pdl && agora < usuarioDados.statusAtivo.dobrador_pdl) {
-                titulo.innerText = "ATENÇÃO INVOCADOR";
-                msg.innerHTML = `<span style="color:var(--ouro)">Você já possui um multiplicador de PDL ativo!</span><br><br>Se ativar este agora, o tempo e o valor (${item.multiplicadorPDL}x) do novo item substituirão o anterior. Deseja prosseguir?`;
-            } else {
-                msg.innerText = `Deseja ativar "${item.nome}" agora? Isso multiplicará seus ganhos de PDL por ${item.multiplicadorPDL} durante ${item.duracaoHoras} horas.`;
-            }
+            msg.innerText = `Deseja ativar "${item.nome}"?`;
             novoBtnSim.onclick = () => ativarMultiplicador(id);
         } else if (tipo === 'multiplicadorMoedas') {
             titulo.innerText = "ATIVAR " + item.nome.toUpperCase();
-            const agora = Date.now();
-            if (usuarioDados.statusAtivo?.dobrador_moedas && agora < usuarioDados.statusAtivo.dobrador_moedas) {
-                titulo.innerText = "ATENÇÃO INVOCADOR";
-                msg.innerHTML = `<span style="color:var(--ouro)">Você já possui um bônus de moedas ativo!</span><br><br>Substituir o efeito atual pelo novo bônus (${item.multiplicadorMoedas}x)?`;
-            } else {
-                msg.innerText = `Deseja ativar "${item.nome}" agora? Isso multiplicará seus ganhos de Moedas por ${item.multiplicadorMoedas} durante ${item.duracaoHoras} horas.`;
-            }
+            msg.innerText = `Deseja ativar "${item.nome}"?`;
             novoBtnSim.onclick = () => ativarMultiplicadorMoedas(id);
         } else {
             titulo.innerText = "ATIVAR CONSUMÍVEL";
-            msg.innerText = `Deseja ativar "${item.nome}" agora? Isso iniciará o tempo de ${item.duracao} dias (acumulativo).`;
+            msg.innerText = `Deseja ativar "${item.nome}"?`;
             novoBtnSim.onclick = () => ativarConsumivel(id);
         }
         modal.style.display = 'flex';
@@ -594,7 +580,6 @@
         fecharModal();
         try {
             const item = DATA_BASE[id];
-            if (!item) return;
             const nomeArquivo = item.img.split('/').pop().replace('.png', '');
             const userRef = doc(db, "usuarios", auth.currentUser.uid);
             await updateDoc(userRef, { iconeAtual: nomeArquivo });
@@ -606,11 +591,8 @@
         const item = DATA_BASE[id];
         const userRef = doc(db, "usuarios", auth.currentUser.uid);
         try {
-            await updateDoc(userRef, {
-                mochila: arrayRemove(id),
-                "statusAtivo.sentinelas": increment(3)
-            });
-            mostrarModalSucesso("SUCESSO", `<p style="color:var(--raro)">${item.nome} Ativada!</p><p>Cargas adicionadas com sucesso.</p>`);
+            await updateDoc(userRef, { mochila: arrayRemove(id), "statusAtivo.sentinelas": increment(3) });
+            mostrarModalSucesso("SUCESSO", `<p>${item.nome} Ativado!</p>`);
         } catch (e) { console.error(e); }
     }
 
@@ -619,18 +601,13 @@
         const item = DATA_BASE[id];
         const userRef = doc(db, "usuarios", auth.currentUser.uid);
         const agora = Date.now();
-        const duracaoMs = item.duracaoHoras * 60 * 60 * 1000;
-        const multiplicador = item.multiplicadorPDL;
         try {
             await updateDoc(userRef, {
                 mochila: arrayRemove(id),
-                "statusAtivo.dobrador_pdl": agora + duracaoMs,
-                "statusAtivo.valor_multiplicador": multiplicador
+                "statusAtivo.dobrador_pdl": agora + (item.duracaoHoras * 3600000),
+                "statusAtivo.valor_multiplicador": item.multiplicadorPDL
             });
-            let textoEfeito = "DOBRADOS";
-            if (multiplicador === 4) textoEfeito = "QUADRUPLICADOS";
-            if (multiplicador === 6) textoEfeito = "SEXTUPLICADOS";
-            mostrarModalSucesso("BÔNUS ATIVADO", `<p>Seus ganhos de PDL estão <strong>${textoEfeito}</strong> por ${item.duracaoHoras}h.</p>`);
+            mostrarModalSucesso("BÔNUS ATIVADO", `<p>${item.nome} Ativado!</p>`);
         } catch (e) { console.error(e); }
     }
 
@@ -639,18 +616,13 @@
         const item = DATA_BASE[id];
         const userRef = doc(db, "usuarios", auth.currentUser.uid);
         const agora = Date.now();
-        const duracaoMs = item.duracaoHoras * 60 * 60 * 1000;
-        const multiplicador = item.multiplicadorMoedas;
         try {
             await updateDoc(userRef, {
                 mochila: arrayRemove(id),
-                "statusAtivo.dobrador_moedas": agora + duracaoMs,
-                "statusAtivo.valor_multiplicador_moedas": multiplicador
+                "statusAtivo.dobrador_moedas": agora + (item.duracaoHoras * 3600000),
+                "statusAtivo.valor_multiplicador_moedas": item.multiplicadorMoedas
             });
-            let textoEfeito = "DOBRADOS";
-            if (multiplicador === 4) textoEfeito = "QUADRUPLICADOS";
-            if (multiplicador === 6) textoEfeito = "SEXTUPLICADOS";
-            mostrarModalSucesso("BÔNUS ATIVADO", `<p>O item <strong>${item.nome}</strong> está ativo! Ganhos de moedas estão <strong>${textoEfeito}</strong> (${multiplicador}x) por ${item.duracaoHoras}h.</p>`);
+            mostrarModalSucesso("BÔNUS ATIVADO", `<p>${item.nome} Ativado!</p>`);
         } catch (e) { console.error(e); }
     }
 
@@ -659,19 +631,15 @@
         const item = DATA_BASE[id];
         const userRef = doc(db, "usuarios", auth.currentUser.uid);
         const agora = Date.now();
-        const tempoMs = item.duracao * 24 * 60 * 60 * 1000; 
+        const tempoMs = item.duracao * 86400000;
         try {
             const snap = await getDoc(userRef);
             const dados = snap.data();
             const tempoAtual = (dados.statusAtivo && dados.statusAtivo[id] > agora) ? dados.statusAtivo[id] : agora;
-            const novaValidade = tempoAtual + tempoMs;
-            await updateDoc(userRef, {
-                mochila: arrayRemove(id),
-                [`statusAtivo.${id}`]: novaValidade
-            });
+            await updateDoc(userRef, { mochila: arrayRemove(id), [`statusAtivo.${id}`]: tempoAtual + tempoMs });
             mostrarModalSucesso("SUCESSO", `<p>${item.nome} Ativado!</p>`);
         } catch (e) { console.error(e); }
     }
 </script>
-  </body>
+      </body>
 </html>
