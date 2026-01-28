@@ -545,53 +545,47 @@
 
     async function processarCompra(id, valor) {
         fecharModal();
-        if (!auth.currentUser) return;
-
         try {
             const userRef = doc(db, "usuarios", auth.currentUser.uid);
             const itemDados = itens.find(i => i.id === id);
             
-            if (!itemDados) throw new Error("Item não encontrado no catálogo.");
-
-            // Validação de saldo antes de enviar ao Firebase
-            if (saldoGlobal < valor) {
-                mostrarSucesso("Saldo insuficiente para esta compra!");
-                return;
-            }
-
-            let updates = {
-                saldo: increment(-valor)
-            };
-
             if (itemDados.cat === 'itens') {
                 if (id === "sentinela-epico") {
-                    updates.estoque_sentinelas = increment(1);
-                    await updateDoc(userRef, updates);
+                    await updateDoc(userRef, {
+                        saldo: increment(-valor),
+                        estoque_sentinelas: increment(1)
+                    });
                     mostrarSucesso("Você adquiriu o pacote de Sentinelas! Ative-as no seu Inventário para ganhar 3 cargas.");
-                } else {
-                    updates.mochila = arrayUnion(id);
-                    await updateDoc(userRef, updates);
+                } 
+                else {
+                    await updateDoc(userRef, {
+                        saldo: increment(-valor),
+                        mochila: arrayUnion(id)
+                    });
                     
                     const mensagens = {
-                        "coletora-comum": "A Coletora foi enviada para seu inventário. Ative-a para dobrar seus PDLs por 2 horas!",
-                        "gume-raro": "O Gume do Infinito foi enviado para seu inventário. Ative-o para quadruplicar seus PDLs por 2 horas!",
-                        "sedenta-epico": "A Sedenta por Sangue foi enviada para seu inventário. Ative-a para multiplicar seus PDLs por 6 por 2 horas!",
-                        "atlas-comum": "O Atlas Mundial foi enviado para seu inventário. Ative-a para dobrar seus ganhos de Moedas por 2 horas!",
-                        "bussola-raro": "A Bússola Rúnica foi enviada para seu inventário. Ative-a para multiplicar seus ganhos de Moedas por 4 por 2 horas!",
-                        "oposicao-epico": "Oposição Celestial enviada! Multiplicador de Moedas x6 ativo por 2 horas após ativação."
+                        "coletora-comum": "A Coletora enviada! Dobra PDLs por 2h.",
+                        "gume-raro": "Gume do Infinito enviado! PDLs x4 por 2h.",
+                        "sedenta-epico": "Sedenta por Sangue enviada! PDLs x6 por 2h.",
+                        "atlas-comum": "Atlas Mundial enviado! Moedas dobradas por 2h.",
+                        "bussola-raro": "Bússola Rúnica enviada! Moedas x4 por 2h.",
+                        "oposicao-epico": "Oposição Celestial enviada! Moedas x6 por 2h."
                     };
                     mostrarSucesso(mensagens[id] || "Item enviado para o seu inventário!");
                 }
-            } else if (itemDados.cat === 'icones') {
-                updates.iconesAdquiridos = arrayUnion(id);
-                await updateDoc(userRef, updates);
+                return;
+            }
+            if (itemDados.cat === 'icones') {
+                await updateDoc(userRef, {
+                    saldo: increment(-valor),
+                    iconesAdquiridos: arrayUnion(id)
+                });
                 mostrarSucesso("Ícone enviado para o seu inventário!");
+                return;
             }
         } catch (e) { 
-            console.error("Erro Firebase:", e);
-            // Se o erro for 'no-permission', pode ser regra de segurança. 
-            // Se for 'undefined', pode ser o campo que não existe no banco.
-            mostrarSucesso("Erro ao processar compra. Verifique se seu perfil está configurado corretamente."); 
+            console.error("ERRO FIREBASE:", e);
+            mostrarSucesso("Erro ao processar compra. Atualize as regras do seu banco de dados."); 
         }
     }
 </script>
