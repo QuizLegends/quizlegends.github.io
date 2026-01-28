@@ -315,6 +315,7 @@
             </div>
         </div>
     </div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, doc, onSnapshot, updateDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -463,7 +464,6 @@
             if (item.cat === 'icones') {
                 jaPossui = meusItens.includes(item.id);
             } else if (item.cat === 'itens') {
-                // EXCEÇÃO DA SENTINELA: Ela nunca é considerada "já possui" para não travar o botão
                 if (item.id !== "sentinela-epico") {
                     jaPossui = minhaMochila.includes(item.id);
                 }
@@ -484,9 +484,13 @@
             const urlFinal = (item.cat === 'itens') ? URL_ITENS + nomeArquivo : URL_ICONES + nomeArquivo;
             const classeExtra = (item.cat === 'itens') ? 'tipo-item' : '';
 
-            // Adicionado onclick no card para Visualização e event.stopPropagation no botão para não conflitar
+            // LOGICA DE TRAVA: Apenas 'itens' abrem o modal informativo e mantêm o cursor help
+            const eItem = (item.cat === 'itens');
+            const eventoClique = eItem ? `onclick="abrirModalCompra('${item.id}', true)"` : "";
+            const estiloCursor = eItem ? "" : "style='cursor: default;'";
+
             grid.innerHTML += `
-                <div class="item-card ${item.raridade} ${classeExtra}" onclick="abrirModalCompra('${item.id}', true)">
+                <div class="item-card ${item.raridade} ${classeExtra}" ${eventoClique} ${estiloCursor}>
                     <div class="icon-container">
                         <img src="${urlFinal}" class="img-campeao">
                     </div>
