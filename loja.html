@@ -484,7 +484,6 @@
             const urlFinal = (item.cat === 'itens') ? URL_ITENS + nomeArquivo : URL_ICONES + nomeArquivo;
             const classeExtra = (item.cat === 'itens') ? 'tipo-item' : '';
 
-            // LOGICA DE TRAVA: Apenas 'itens' abrem o modal informativo e mantêm o cursor help
             const eItem = (item.cat === 'itens');
             const eventoClique = eItem ? `onclick="abrirModalCompra('${item.id}', true)"` : "";
             const estiloCursor = eItem ? "" : "style='cursor: default;'";
@@ -546,56 +545,53 @@
 
     async function processarCompra(id, valor) {
         fecharModal();
+        if (!auth.currentUser) return;
+
         try {
             const userRef = doc(db, "usuarios", auth.currentUser.uid);
             const itemDados = itens.find(i => i.id === id);
             
-            if (itemDados.cat === 'itens') {
-                
-                // --- INÍCIO DA LÓGICA DE ESTOQUE DA SENTINELA ---
-                if (id === "sentinela-epico") {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        estoque_sentinelas: increment(1) // Registra a compra somando ao estoque
-                    });
-                    mostrarSucesso("Você adquiriu o pacote de Sentinelas! Ative-as no seu Inventário para ganhar 3 cargas.");
-                } 
-                // --- FIM DA LÓGICA DE ESTOQUE DA SENTINELA ---
-                else {
-                    await updateDoc(userRef, {
-                        saldo: increment(-valor),
-                        mochila: arrayUnion(id)
-                    });
-                    
-                    if (id === "coletora-comum") {
-                        mostrarSucesso("A Coletora foi enviada para seu inventário. Ative-a para dobrar seus PDLs por 2 horas!");
-                    } else if (id === "gume-raro") {
-                        mostrarSucesso("O Gume do Infinito foi enviado para seu inventário. Ative-o para quadruplicar seus PDLs por 2 horas!");
-                    } else if (id === "sedenta-epico") {
-                        mostrarSucesso("A Sedenta por Sangue foi enviada para seu inventário. Ative-a para multiplicar seus PDLs por 6 por 2 horas!");
-                    } else if (id === "atlas-comum") {
-                        mostrarSucesso("O Atlas Mundial foi enviado para seu inventário. Ative-a para dobrar seus ganhos de Moedas por 2 horas!");
-                    } else if (id === "bussola-raro") {
-                        mostrarSucesso("A Bússola Rúnica foi enviada para seu inventário. Ative-a para multiplicar seus ganhos de Moedas por 4 por 2 horas!");
-                    } else if (id === "oposicao-epico") {
-                        mostrarSucesso("A Oposição Celestial foi enviada para seu inventário. Ative-a para multiplicar seus ganhos de Moedas por 6 por 2 horas!");
-                    } else {
-                        mostrarSucesso("Item enviado para o seu inventário! Vá até lá para ativar seu benefício.");
-                    }
-                }
+            if (!itemDados) throw new Error("Item não encontrado no catálogo.");
+
+            // Validação de saldo antes de enviar ao Firebase
+            if (saldoGlobal < valor) {
+                mostrarSucesso("Saldo insuficiente para esta compra!");
                 return;
             }
-            if (itemDados.cat === 'icones') {
-                await updateDoc(userRef, {
-                    saldo: increment(-valor),
-                    iconesAdquiridos: arrayUnion(id)
-                });
+
+            let updates = {
+                saldo: increment(-valor)
+            };
+
+            if (itemDados.cat === 'itens') {
+                if (id === "sentinela-epico") {
+                    updates.estoque_sentinelas = increment(1);
+                    await updateDoc(userRef, updates);
+                    mostrarSucesso("Você adquiriu o pacote de Sentinelas! Ative-as no seu Inventário para ganhar 3 cargas.");
+                } else {
+                    updates.mochila = arrayUnion(id);
+                    await updateDoc(userRef, updates);
+                    
+                    const mensagens = {
+                        "coletora-comum": "A Coletora foi enviada para seu inventário. Ative-a para dobrar seus PDLs por 2 horas!",
+                        "gume-raro": "O Gume do Infinito foi enviado para seu inventário. Ative-o para quadruplicar seus PDLs por 2 horas!",
+                        "sedenta-epico": "A Sedenta por Sangue foi enviada para seu inventário. Ative-a para multiplicar seus PDLs por 6 por 2 horas!",
+                        "atlas-comum": "O Atlas Mundial foi enviado para seu inventário. Ative-a para dobrar seus ganhos de Moedas por 2 horas!",
+                        "bussola-raro": "A Bússola Rúnica foi enviada para seu inventário. Ative-a para multiplicar seus ganhos de Moedas por 4 por 2 horas!",
+                        "oposicao-epico": "Oposição Celestial enviada! Multiplicador de Moedas x6 ativo por 2 horas após ativação."
+                    };
+                    mostrarSucesso(mensagens[id] || "Item enviado para o seu inventário!");
+                }
+            } else if (itemDados.cat === 'icones') {
+                updates.iconesAdquiridos = arrayUnion(id);
+                await updateDoc(userRef, updates);
                 mostrarSucesso("Ícone enviado para o seu inventário!");
-                return;
             }
         } catch (e) { 
-            console.error(e);
-            mostrarSucesso("Erro ao processar compra. Verifique sua conexão."); 
+            console.error("Erro Firebase:", e);
+            // Se o erro for 'no-permission', pode ser regra de segurança. 
+            // Se for 'undefined', pode ser o campo que não existe no banco.
+            mostrarSucesso("Erro ao processar compra. Verifique se seu perfil está configurado corretamente."); 
         }
     }
 </script>
