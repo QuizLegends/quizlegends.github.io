@@ -626,41 +626,41 @@ function atualizarVisualPodio(posicao, nome, dadosFoto) {
     });
     
     async function finalizarRecompensa() {
-    if (!chaveSeguranca) {
+        if (!chaveSeguranca) {
+            modal.style.display = 'none';
+            openModal("SISTEMA DE SEGURANÇA", "Tentativa de fraude detectada.");
+            return;
+        }
+        chaveSeguranca = false;
         modal.style.display = 'none';
-        openModal("SISTEMA DE SEGURANÇA", "Tentativa de fraude detectada.");
-        return;
-    }
-    chaveSeguranca = false;
-    modal.style.display = 'none';
-    let up = {}; let msg = "";
-    const eloAntes = getEloInfo(pdlInterno).nome;
+        let up = {}; let msg = "";
+        const eloAntes = getEloInfo(pdlInterno).nome;
 
-    if (tipoRecompensa === "moeda") {
-        // Alterado de saldo para moedas
-        up = { moedas: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
-        msg = "Você ganhou 500 moedas!";
-    } else if (tipoRecompensa === "pdl") {
-        up = { xp: increment(500), pdlSemanal: increment(500), videosAssistidos: increment(1) };
-        msg = "Você ganhou 500 PDL!";
-    } else if (tipoRecompensa === "livre") {
-        // Alterado de saldo para moedas
-        up = { moedas: increment(100), xp: increment(100), pdlSemanal: increment(100) };
-        msg = "Bônus Livre: +100 Moedas e +100 PDL!";
-        iniciarCooldownLivre(120);
-    }
+        if (tipoRecompensa === "moeda") {
+            // Mantido 'saldo' para alinhar com seu Firebase
+            up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
+            msg = "Você ganhou 500 moedas!";
+        } else if (tipoRecompensa === "pdl") {
+            up = { xp: increment(500), pdlSemanal: increment(500), videosAssistidos: increment(1) };
+            msg = "Você ganhou 500 PDL!";
+        } else if (tipoRecompensa === "livre") {
+            // Mantido 'saldo' para alinhar com seu Firebase
+            up = { saldo: increment(100), xp: increment(100), pdlSemanal: increment(100) };
+            msg = "Bônus Livre: +100 Moedas e +100 PDL!";
+            iniciarCooldownLivre(120);
+        }
 
-    if (tipoRecompensa !== "livre") {
-        const proxVideo = (videosAssistidos || 0) + 1;
-        if (proxVideo >= 3) { up.acertos = 0; up.videosAssistidos = 0; setTimeout(() => carregarQuestao(), 500); }
+        if (tipoRecompensa !== "livre") {
+            const proxVideo = (videosAssistidos || 0) + 1;
+            if (proxVideo >= 3) { up.acertos = 0; up.videosAssistidos = 0; setTimeout(() => carregarQuestao(), 500); }
+        }
+        
+        await updateDoc(userRef, up);
+        openModal("RECOMPENSA LIBERADA", msg, 'alert', () => {
+            const infoNovo = getEloInfo(pdlInterno);
+            if (infoNovo.nome !== eloAntes) exibirAnimacaoElo(infoNovo, true);
+        });
     }
-    
-    await updateDoc(userRef, up);
-    openModal("RECOMPENSA LIBERADA", msg, 'alert', () => {
-        const infoNovo = getEloInfo(pdlInterno);
-        if (infoNovo.nome !== eloAntes) exibirAnimacaoElo(infoNovo, true);
-    });
-}
 
     async function carregarBanco() {
         const statusText = document.getElementById('perguntaTexto');
