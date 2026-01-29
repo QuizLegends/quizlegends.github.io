@@ -636,42 +636,42 @@ function atualizarVisualPodio(posicao, nome, dadosFoto) {
         }
     });
     
-async function finalizarRecompensa() {
-        if (!chaveSeguranca) {
-            modal.style.display = 'none';
-            openModal("SISTEMA DE SEGURANÇA", "Tentativa de fraude detectada.");
-            return;
-        }
-        chaveSeguranca = false;
+   async function finalizarRecompensa() {
+    if (!chaveSeguranca) {
         modal.style.display = 'none';
-        let up = {}; let msg = "";
-        const eloAntes = getEloInfo(pdlInterno).nome;
-
-        if (tipoRecompensa === "moeda") {
-            // Mantido 'saldo' para alinhar com seu Firebase
-            up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
-            msg = "Você ganhou 500 moedas!";
-        } else if (tipoRecompensa === "pdl") {
-            up = { xp: increment(500), pdlSemanal: increment(500), videosAssistidos: increment(1) };
-            msg = "Você ganhou 500 PDL!";
-        } else if (tipoRecompensa === "livre") {
-            // Mantido 'saldo' para alinhar com seu Firebase
-            up = { saldo: increment(100), xp: increment(100), pdlSemanal: increment(100) };
-            msg = "Bônus Livre: +100 Moedas e +100 PDL!";
-            iniciarCooldownLivre(120);
-        }
-
-        if (tipoRecompensa !== "livre") {
-            const proxVideo = (videosAssistidos || 0) + 1;
-            if (proxVideo >= 3) { up.acertos = 0; up.videosAssistidos = 0; setTimeout(() => carregarQuestao(), 500); }
-        }
-        
-        await updateDoc(userRef, up);
-        openModal("RECOMPENSA LIBERADA", msg, 'alert', () => {
-            const infoNovo = getEloInfo(pdlInterno);
-            if (infoNovo.nome !== eloAntes) exibirAnimacaoElo(infoNovo, true);
-        });
+        openModal("SISTEMA DE SEGURANÇA", "Tentativa de fraude detectada.");
+        return;
     }
+    chaveSeguranca = false;
+    modal.style.display = 'none';
+    let up = {}; 
+    let msg = "";
+
+    if (tipoRecompensa === "moeda") {
+        up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
+        msg = "Você ganhou 500 moedas!";
+    } else if (tipoRecompensa === "pdl") {
+        up = { xp: increment(500), pdlSemanal: increment(500), videosAssistidos: increment(1) };
+        msg = "Você ganhou 500 PDL!";
+    } else if (tipoRecompensa === "livre") {
+        up = { saldo: increment(100), xp: increment(100), pdlSemanal: increment(100) };
+        msg = "Bônus Livre: +100 Moedas e +100 PDL!";
+        iniciarCooldownLivre(120);
+    }
+
+    if (tipoRecompensa !== "livre") {
+        const proxVideo = (videosAssistidos || 0) + 1;
+        if (proxVideo >= 3) { 
+            up.acertos = 0; 
+            up.videosAssistidos = 0; 
+            setTimeout(() => carregarQuestao(), 500); 
+        }
+    }
+    
+    // Atualiza o banco - o onSnapshot vai perceber a mudança de elo e disparar a animação sozinho
+    await updateDoc(userRef, up);
+    openModal("RECOMPENSA LIBERADA", msg, 'alert');
+}
     
     async function carregarBanco() {
         const statusText = document.getElementById('perguntaTexto');
@@ -712,23 +712,19 @@ async function finalizarRecompensa() {
     c.innerHTML = "";
 
     // --- LÓGICA DA SENTINELA (REVELAÇÃO) ---
-    // Verifica se o usuário tem cargas de sentinela ativas no banco de dados local
     const cargasSentinela = dadosUserLocais.statusAtivo?.sentinelas || 0;
     const sentinelaAtiva = cargasSentinela > 0;
-    // ---------------------------------------
     
     opts.forEach(o => {
         const b = document.createElement('button'); 
         b.className = "option-btn"; 
         b.innerText = o.texto;
 
-        // Se houver sentinela ativa, aplica a classe visual na resposta correta antes do clique
         if (sentinelaAtiva && o.correta) {
             b.classList.add('sentinela-revelar');
         }
 
         b.onclick = async () => {
-            const eloAntesDoQuiz = getEloInfo(pdlInterno).nome;
             const all = c.querySelectorAll('button'); 
             all.forEach(x => x.disabled = true);
             const rect = b.getBoundingClientRect();
@@ -741,15 +737,14 @@ async function finalizarRecompensa() {
 
                 if (o.correta) {
                     b.classList.add('btn-correct');
-
                     const agora = Date.now();
                     
-                    // --- LÓGICA DE MULTIPLICADOR DE PDL (COLETORA, GUME OU SEDENTA) ---
+                    // --- LÓGICA DE MULTIPLICADOR DE PDL ---
                     const expiraMultiplicadorPDL = dadosUserLocais.statusAtivo?.dobrador_pdl || 0;
                     const temPDLAtivo = expiraMultiplicadorPDL > agora;
                     const fatorPDL = temPDLAtivo ? (dadosUserLocais.statusAtivo?.valor_multiplicador || 2) : 1;
 
-                    // --- LÓGICA DE MULTIPLICADOR DE MOEDAS (ATLAS, BÚSSOLA OU OPOSIÇÃO) ---
+                    // --- LÓGICA DE MULTIPLICADOR DE MOEDAS ---
                     const expiraMultiplicadorMoedas = dadosUserLocais.statusAtivo?.dobrador_moedas || 0;
                     const temMoedasAtivo = expiraMultiplicadorMoedas > agora;
                     const fatorMoedas = temMoedasAtivo ? (dadosUserLocais.statusAtivo?.valor_multiplicador_moedas || 2) : 1;
@@ -760,18 +755,16 @@ async function finalizarRecompensa() {
                     let ganhoFinalPDL = basePDL * fatorPDL; 
                     let ganhoFinalMoedas = baseMoedas * fatorMoedas;
                     
-                    // --- CONSTRUÇÃO DO FEEDBACK VISUAL ---
                     let textoFlutuante = `+${ganhoFinalPDL} PDL`;
-                    let corFlutuante = "#28a745"; // Verde padrão
+                    let corFlutuante = "#28a745"; 
 
-                    // Feedback visual customizado por raridade do item de PDL
                     if (temPDLAtivo) {
-                        let iconePDL = "💥"; // Comum (Coletora)
+                        let iconePDL = "💥"; 
                         if (fatorPDL === 4) {
-                            iconePDL = "⚡"; // Raro (Gume)
+                            iconePDL = "⚡"; 
                             corFlutuante = "#c89b3c"; 
                         } else if (fatorPDL === 6) {
-                            iconePDL = "🩸"; // Épico (Sedenta)
+                            iconePDL = "🩸"; 
                             corFlutuante = "#a335ee"; 
                         } else {
                             corFlutuante = "#c89b3c";
@@ -779,31 +772,22 @@ async function finalizarRecompensa() {
                         textoFlutuante = `${iconePDL} +${ganhoFinalPDL} PDL`;
                     }
 
-                    // --- LÓGICA DE FEEDBACK DE MOEDAS (ATUALIZADO PARA 6X) ---
                     if (temMoedasAtivo) {
-                        let iconeMoedas = "🪙"; // Comum (Atlas)
-                        if (fatorMoedas === 4) {
-                            iconeMoedas = "💰"; // Raro (Bússola)
-                        } else if (fatorMoedas === 6) {
-                            iconeMoedas = "💸"; // Épico (Oposição Celestial)
-                        }
+                        let iconeMoedas = "🪙"; 
+                        if (fatorMoedas === 4) iconeMoedas = "💰"; 
+                        else if (fatorMoedas === 6) iconeMoedas = "💸"; 
                         
                         textoFlutuante += ` | ${iconeMoedas} +${ganhoFinalMoedas} Moedas`;
                         
-                        // Se não houver PDL ativo, a cor do texto assume a raridade da moeda
                         if (!temPDLAtivo) {
-                            if (fatorMoedas === 4) corFlutuante = "#00cfbc"; // Ciano Raro
-                            else if (fatorMoedas === 6) corFlutuante = "#a335ee"; // Roxo Épico
+                            if (fatorMoedas === 4) corFlutuante = "#00cfbc"; 
+                            else if (fatorMoedas === 6) corFlutuante = "#a335ee"; 
                             else corFlutuante = "#00cfbc"; 
                         }
-                    } else {
-                        console.log(`Ganho padrão: ${ganhoFinalMoedas} moedas`);
                     }
 
                     showFloatingPDL(textoFlutuante, corFlutuante, rect.left + rect.width / 2, rect.top);
                     
-                    // --- ATUALIZAÇÃO DO FIRESTORE ---
-                    // Registra os ganhos multiplicados no banco de dados
                     await updateDoc(userRef, { 
                         saldo: increment(ganhoFinalMoedas), 
                         acertos: increment(1), 
@@ -814,16 +798,13 @@ async function finalizarRecompensa() {
                 } else {
                     // LÓGICA DE ERRO
                     b.classList.add('btn-wrong');
-
                     const agora = Date.now();
                     const dataExpiracaoAnjo = dadosUserLocais.statusAtivo?.anjo_guardiao || 0;
                     const temAnjoAtivo = dataExpiracaoAnjo > agora;
 
                     if (temAnjoAtivo) {
-                        // Se o Anjo Guardião estiver ativo, não subtrai PDL
                         showFloatingPDL("🛡️ PROTEGIDO", "#00cfbc", rect.left + rect.width / 2, rect.top);
                     } else {
-                        // Subtração padrão de PDL em caso de erro
                         showFloatingPDL("-10 PDL", "#dc3545", rect.left + rect.width / 2, rect.top);
                         await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 10) });
                     }
@@ -831,10 +812,8 @@ async function finalizarRecompensa() {
             } catch (error) {
                 console.error("Erro ao processar resposta:", error);
             } finally { 
-                // Delay para o jogador ver o feedback antes da próxima questão
+                // Delay para o próximo passo - Animação de Elo removida daqui (onSnapshot assume)
                 setTimeout(() => {
-                    const infoNovo = getEloInfo(pdlInterno);
-                    if (infoNovo.nome !== eloAntesDoQuiz) exibirAnimacaoElo(infoNovo, true);
                     carregarQuestao();
                 }, 1200); 
             }
