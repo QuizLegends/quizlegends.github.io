@@ -665,6 +665,18 @@
         });
     }
 
+// --- VARIÁVEIS DE CONTROLE DE ESTADO (MANTIDAS PARA ESTABILIDADE DO JOGO) ---
+let userRef;
+let goldDB = 0;
+let acertosNoCiclo = 0;
+let videosAssistidos = 0;
+let totalVideosHoje = 0;
+let pdlInterno = 0;
+let carregadoPelaPrimeiraVez = false;
+let cooldownLivreAtivo = false;
+let dadosUserLocais = {};
+let premioJaColetadoNestaSessao = false;
+
 function atualizarInterface() {
     if(!document.getElementById('goldAmount')) return;
     
@@ -817,7 +829,6 @@ window.solicitarExclusaoConta = () => {
             try {
                 const user = auth.currentUser;
                 if (!user) return;
-                // Deleta o documento no Firestore antes de deletar o Auth para evitar lixo no DB
                 await deleteDoc(doc(db, "usuarios", user.uid));
                 await deleteUser(user);
                 alert("Sua conta foi excluída com sucesso.");
@@ -853,8 +864,6 @@ window.setResgate = (el, v, r) => {
     el.classList.add('active'); 
     atualizarInterface(); 
 }
-
-let premioJaColetadoNestaSessao = false;
 
 async function verificarPremios(data, userRef) {
     if (premioJaColetadoNestaSessao || !data || !data.notificacaoPremio || document.getElementById('modalPremioAtivo')) {
