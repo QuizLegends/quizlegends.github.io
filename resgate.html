@@ -223,6 +223,23 @@
         .item-inventario img { width: 100%; border-radius: 4px; display: block; }
         .item-inventario span { font-size: 10px; display: block; margin-top: 4px; color: var(--gold-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+        /* NOVO: Estilo da Engrenagem Dourada */
+        .btn-config-header {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
+            transition: 0.3s;
+        }
+        .btn-config-header:hover {
+            color: var(--gold-bright);
+            transform: translateY(-50%) rotate(90deg);
+        }
+
     </style>
 </head>
 <body>
@@ -243,7 +260,10 @@
 
     <div class="app-container" id="main-content">
     <div class="header-section">
-        <div class="title-legends"><h1>QUIZ LEGENDS</h1></div>
+        <div class="title-legends" style="position: relative; width: 100%; text-align: center;">
+            <h1>QUIZ LEGENDS</h1>
+            <div class="btn-config-header" onclick="abrirMenuAjustes()">⚙️</div>
+        </div>
         
         <a href="ranking.html" class="btn-ranking-top">🏆 VER RANKING GLOBAL</a>
         
@@ -257,88 +277,10 @@
         </div>
     </div>
 
-    <div class="hex-frame">
-        <div id="quizContent">
-            <p id="perguntaTexto" style="text-align: center; font-size: 1rem; color: var(--gold-bright); font-weight: bold; margin-bottom: 10px;">Autenticando...</p>
-            <div id="opcoes"></div>
-            <p id="avisoStatusQuiz" style="text-align: center; font-size: 0.75rem; color: var(--gold); font-weight: bold; margin-top: 15px; text-transform: uppercase; line-height: 1.4;"></p>
-        </div>
-        
-        <div style="text-align: center;">
-            <div class="video-buttons-container">
-                <button id="btnVideo" class="video-btn">
-                   📺 +500 MOEDAS 
-                   <span id="txtMetaAcertos">META 10 ACERTOS</span>
-                   <span id="txtLimiteBotao" style="font-size: 0.65rem; display: block; opacity: 0.8;">LIMITE DIÁRIO: 0/35</span>
-                </button>
-                
-                <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">
-                    📺 +100 MOEDAS <span>+100 PDL</span>
-                </button>
-                
-                <button id="btnVideoXP" class="video-btn">📺 +500 PDL <span>META 10 ACERTOS</span></button>
-            </div>
-        </div>
-    </div>
-
-       <div class="hex-frame">
-    <div id="containerRankingResumo" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #c89b3c33; margin-bottom: 15px; text-align: center;">
-        <h4 style="color: var(--gold); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">TOP 3 DA SEMANA</h4>
-        
-        <div style="display: flex; justify-content: space-around; align-items: flex-end; min-height: 140px; padding-bottom: 5px;">
-            
-            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
-                <div style="font-size: 0.7rem; color: #C0C0C0; font-weight: bold; margin-bottom: 5px;">2º</div>
-                <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/1.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                </div>
-                <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player B</small>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; align-items: center; width: 40%;">
-                <div style="font-size: 1.6rem; margin-bottom: 2px; filter: drop-shadow(0 0 5px gold);">👑</div>
-                <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/0.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                </div>
-                <small style="font-size: 0.85rem; font-weight: bold; color: var(--gold); margin-top: 8px;">Lenda Atual</small>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
-                <div style="font-size: 0.7rem; color: #cd7f32; font-weight: bold; margin-bottom: 5px;">3º</div>
-                <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/2.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                </div>
-                <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player C</small>
-            </div>
-
-        </div>
-    </div>
-</div>
-        
-        <div class="resgate-selector" style="margin-bottom: 15px;">
-            <div class="resgate-opt" onclick="window.location.href='inventario.html'">🎒 ITENS</div>
-            <div class="resgate-opt" onclick="window.location.href='status.html'">🛡️ STATUS</div>
-            <div class="resgate-opt" onclick="abrirRanking()">🏆 RANKING</div>
-            <div class="resgate-opt" onclick="location.href='baus.html'">🎁 BAÚS</div>
-        </div>
-
-        <button class="option-btn" onclick="location.href='loja.html'" style="margin: 0; background: linear-gradient(to bottom, #091428, #0a323c); border-color: var(--gold); padding: 12px; font-size: 0.8rem;">
-            ACESSAR LOJA HEXTECH
-        </button>
-        
-        <div style="text-align: center; margin-top: 10px;">
-            <a href="politica.html" class="link-politica-quadro">Política de Privacidade</a>
-        </div>
-    </div>
-</div>
-
-<div class="footer-ad-space">
-</div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-    import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection, query, orderBy, limit, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
     // --- 1. CONFIGURAÇÃO E INICIALIZAÇÃO ÚNICA ---
     const firebaseConfig = { 
@@ -843,7 +785,7 @@ async function finalizarRecompensa() {
     });
 }
     
-    function atualizarInterface() {
+   function atualizarInterface() {
     if(!document.getElementById('goldAmount')) return;
     
     // Atualiza Gold
@@ -971,7 +913,45 @@ async function finalizarRecompensa() {
         window.location.href = 'ranking-semanal.html';
     };
 
-    window.abrirPerfil = () => openModal("PERFIL", "Página de perfil em desenvolvimento.");
+    window.abrirPerfil = () => {
+        const htmlPerfil = `
+            <div style="text-align:center; padding:10px;">
+                <p style="color:#f0e6d2; font-size:14px; margin-bottom:20px;">Gerencie as configurações da sua conta de invocador.</p>
+                <button onclick="window.solicitarExclusaoConta()" 
+                        style="background:#dc3545; color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer; width:100%; font-size:12px; text-transform:uppercase;">
+                    ⚠️ EXCLUIR MINHA CONTA
+                </button>
+                <p style="color:#888; font-size:10px; margin-top:10px;">Atenção: Esta ação é irreversível e apagará todos os seus PDLs, Moedas e Itens.</p>
+            </div>
+        `;
+        openModal("CONFIGURAÇÕES DE PERFIL", htmlPerfil);
+    };
+
+    window.solicitarExclusaoConta = () => {
+        openModal(
+            "CONFIRMAR EXCLUSÃO", 
+            "Você tem certeza? Todos os seus dados serão apagados permanentemente.", 
+            'confirm', 
+            async () => {
+                try {
+                    const user = auth.currentUser;
+                    if (!user) return;
+                    await deleteDoc(doc(db, "usuarios", user.uid));
+                    await deleteUser(user);
+                    alert("Sua conta foi excluída com sucesso.");
+                    window.location.href = "index.html";
+                } catch (error) {
+                    console.error(error);
+                    if (error.code === 'auth/requires-recent-login') {
+                        openModal("ERRO DE SEGURANÇA", "Para excluir a conta, você precisa ter feito login recentemente. Saia e entre novamente para completar esta ação.");
+                    } else {
+                        openModal("ERRO", "Não foi possível excluir sua conta no momento.");
+                    }
+                }
+            }
+        );
+    };
+
     window.abrirConquistas = () => openModal("BAÚS HEXTECH", "Ganhe chaves acertando 50 questões seguidas!");
 
     if (document.getElementById('btnVerElos')) {
