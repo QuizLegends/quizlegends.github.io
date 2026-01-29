@@ -11,7 +11,6 @@
             --gold: #c89b3c;
             --blue: #0ac8b9;
             --dark-blue: #091428;
-            --hextech-blue: #0078ff;
             --dark: #010a13;
         }
 
@@ -41,56 +40,44 @@
             position: relative;
         }
 
-        .bau-container-image {
-            width: 220px;
-            height: 220px;
-            margin: 10px auto;
+        .bau-display {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
 
-        .bau-gif {
+        /* Imagem do Baú */
+        .bau-img {
             width: 100%;
-            height: auto;
-            filter: drop-shadow(0 0 10px var(--blue));
-            transition: all 0.4s ease;
-            user-select: none;
-            display: block;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 15px var(--blue));
+            transition: filter 0.5s;
         }
 
-        /* Estado quando o baú está disponível mas ainda não foi clicado (estático) */
-        .bau-estatico {
-            cursor: pointer;
+        /* Estado quando já foi aberto (Preto e Branco) */
+        .bau-aberto-hoje {
+            filter: grayscale(1) brightness(0.3) !important;
         }
 
-        /* Efeito de brilho intenso ao abrir */
-        .bau-gif.aberto {
-            filter: drop-shadow(0 0 30px var(--gold)) !important;
-            transform: scale(1.1);
-        }
-
-        /* Estado desativado (já aberto hoje) */
-        .bau-bloqueado {
-            filter: grayscale(1) brightness(0.4) !important;
-            cursor: not-allowed;
-        }
-
-        .animar {
-            animation: tremer 0.3s infinite;
+        .animar-tremer {
+            animation: tremer 0.4s infinite;
         }
 
         @keyframes tremer {
-            0% { transform: scale(1) rotate(0deg); }
-            25% { transform: scale(1.05) rotate(3deg); }
-            50% { transform: scale(1) rotate(0deg); }
-            75% { transform: scale(1.05) rotate(-3deg); }
-            100% { transform: scale(1) rotate(0deg); }
+            0% { transform: translate(0,0) rotate(0deg); }
+            25% { transform: translate(2px, 2px) rotate(1deg); }
+            50% { transform: translate(-2px, -2px) rotate(-1deg); }
+            75% { transform: translate(2px, -2px) rotate(1deg); }
+            100% { transform: translate(0,0) rotate(0deg); }
         }
 
-        h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; margin: 0; }
-        .status-msg { margin: 20px 0; min-height: 30px; font-size: 1.1rem; color: var(--blue); font-weight: bold; }
+        h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; margin-top: 0; }
+        .status-msg { margin: 20px 0; min-height: 30px; font-size: 1.1rem; color: var(--blue); font-weight: bold; text-transform: uppercase; }
 
         .btn-abrir {
             background: linear-gradient(to bottom, #c89b3c, #785a28);
@@ -101,13 +88,7 @@
             text-transform: uppercase;
             cursor: pointer;
             width: 100%;
-            letter-spacing: 1px;
             transition: 0.3s;
-        }
-
-        .btn-abrir:hover:not(:disabled) {
-            filter: brightness(1.2);
-            box-shadow: 0 0 15px var(--gold);
         }
 
         .btn-abrir:disabled { background: #333; border-color: #555; cursor: not-allowed; opacity: 0.6; }
@@ -134,13 +115,13 @@
     <div class="container-bau">
         <h1>Cofre Hextech</h1>
         
-        <div class="bau-container-image" id="area-bau">
-            <img id="bau-imagem" src="" class="bau-gif" alt="Baú Hextech">
+        <div class="bau-display" id="bau-display">
+            <img id="bau-media" src="" class="bau-img">
         </div>
 
-        <p class="status-msg" id="mensagem">Conectando ao sistema...</p>
+        <p class="status-msg" id="mensagem">Conectando ao cofre...</p>
         
-        <button id="btn-acao" class="btn-abrir" onclick="abrirBau()" disabled>Abrir Baú</button>
+        <button id="btn-acao" class="btn-abrir" onclick="iniciarAbertura()" disabled>Abrir Baú</button>
         <br>
         <a href="resgate.html" class="btn-voltar">Voltar para Resgate</a>
     </div>
@@ -163,66 +144,61 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // AQUI ESTÁ O SEGREDO: Uma imagem estática (PNG/JPG) do baú fechado para o estado inicial
-        // Se você não tiver um .png, usaremos o GIF mas com uma técnica para resetar
-        const URL_GIF_ANIMADO = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif";
-        
+        const GIF_PATH = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif";
         let usuarioAtual = null;
         const somMoedas = new Audio('https://www.soundjay.com/misc/sounds/coins-spilled-1.mp3');
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             if (user) {
                 usuarioAtual = user;
-                verificarStatusBau();
+                verificarStatus();
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        async function verificarStatusBau() {
-            try {
-                const userRef = doc(db, "usuarios", usuarioAtual.uid);
-                const userDoc = await getDoc(userRef);
-                const dados = userDoc.data() || {};
-                
-                const agora = new Date();
-                const hojeStr = agora.toISOString().split('T')[0];
-                const imgBau = document.getElementById('bau-imagem');
+        async function verificarStatus() {
+            const userRef = doc(db, "usuarios", usuarioAtual.uid);
+            const userDoc = await getDoc(userRef);
+            const dados = userDoc.data() || {};
+            const hoje = new Date().toISOString().split('T')[0];
+            
+            const media = document.getElementById('bau-media');
+            const btn = document.getElementById('btn-acao');
 
-                if (dados.ultimoBau === hojeStr) {
-                    document.getElementById('mensagem').innerText = "BAÚ JÁ ABERTO HOJE!";
-                    document.getElementById('btn-acao').disabled = true;
-                    imgBau.src = URL_GIF_ANIMADO; // Mantém o GIF mas bloqueado
-                    imgBau.classList.add('bau-bloqueado');
-                } else {
-                    document.getElementById('mensagem').innerText = "O COFRE ESTÁ PRONTO!";
-                    document.getElementById('btn-acao').disabled = false;
-                    // Mostra o baú parado (através do reset de SRC)
-                    imgBau.src = URL_GIF_ANIMADO; 
-                    imgBau.classList.add('bau-estatico');
-                }
-            } catch (e) { console.error(e); }
+            if (dados.ultimoBau === hoje) {
+                document.getElementById('mensagem').innerText = "BAÚ JÁ ABERTO HOJE!";
+                media.src = GIF_PATH;
+                media.classList.add('bau-aberto-hoje');
+                btn.disabled = true;
+            } else {
+                document.getElementById('mensagem').innerText = "COFRE PRONTO PARA ABRIR";
+                // Inicialmente, definimos o GIF mas vamos "pausar" visualmente se possível 
+                // ou apenas carregar quando clicar para garantir o tempo zero.
+                media.src = GIF_PATH;
+                btn.disabled = false;
+            }
         }
 
-        window.abrirBau = async function() {
+        window.iniciarAbertura = async function() {
             const btn = document.getElementById('btn-acao');
             const msg = document.getElementById('mensagem');
-            const imgBau = document.getElementById('bau-imagem');
-            
-            btn.disabled = true;
-            msg.innerText = "DESCRIPTOGRAFANDO...";
-            
-            // 1. Remove estado estático e adiciona tremor
-            imgBau.classList.remove('bau-estatico');
-            imgBau.classList.add('animar');
+            const media = document.getElementById('bau-media');
 
-            // 2. FORÇA O GIF A RECOMEÇAR DO ZERO (Essencial para sincronizar a abertura)
-            const novaUrl = URL_GIF_ANIMADO + "?t=" + Math.random();
-            imgBau.src = novaUrl;
+            btn.disabled = true;
+            msg.innerText = "ABRINDO COFRE...";
+
+            // RESET DO GIF: Forçamos o navegador a recarregar o arquivo do zero
+            media.src = ""; 
+            media.src = GIF_PATH + "?t=" + Date.now();
+            
+            // Efeito de tremor inicial
+            media.classList.add('animar-tremer');
 
             const recompensa = Math.floor(Math.random() * (5000 - 500 + 1)) + 500;
-            const hojeStr = new Date().toISOString().split('T')[0];
+            const hoje = new Date().toISOString().split('T')[0];
 
+            // SINCRONIA DE 4 SEGUNDOS (4000ms)
             setTimeout(async () => {
                 try {
                     const userRef = doc(db, "usuarios", usuarioAtual.uid);
@@ -231,55 +207,54 @@
 
                     await setDoc(userRef, {
                         saldo: saldoAtual + recompensa,
-                        ultimoBau: hojeStr
+                        ultimoBau: hoje
                     }, { merge: true });
 
-                    // Para o tremor e brilha dourado
-                    imgBau.classList.remove('animar');
-                    imgBau.classList.add('aberto');
-                    
+                    // Finaliza animações
+                    media.classList.remove('animar-tremer');
+                    media.style.filter = "drop-shadow(0 0 30px #c89b3c)"; // Brilho de Ouro
+
+                    // EFEITOS NO TEMPO CERTO
                     dispararFogos();
                     somMoedas.play();
 
-                    msg.innerHTML = `<span style="color: #ff0; font-size: 1.6rem; text-shadow: 0 0 15px rgba(255,255,0,0.7);">+ ${recompensa.toLocaleString()} MOEDAS!</span>`;
+                    msg.innerHTML = `<span style="color: #ff0; font-size: 1.5rem;">+ ${recompensa.toLocaleString()} MOEDAS!</span>`;
                     
-                    btn.innerText = "COLETAR RECOMPENSA";
+                    btn.innerText = "RESGATAR E VOLTAR";
                     btn.disabled = false;
                     btn.classList.add('btn-resgatar');
                     btn.onclick = () => window.location.reload();
 
-                } catch (error) {
-                    console.error(error);
-                    msg.innerText = "ERRO NA CONEXÃO HEXTECH.";
-                    btn.disabled = false;
-                    imgBau.classList.remove('animar');
+                } catch (e) {
+                    console.error(e);
+                    msg.innerText = "ERRO AO PROCESSAR RECOMPENSA";
                 }
-            }, 2500); // Tempo da animação de abertura do seu GIF
-        }
+            }, 4000); // Sincronizado com os 4 segundos do seu GIF
+        };
 
         function dispararFogos() {
-            var duration = 4 * 1000;
-            var end = Date.now() + duration;
+            const duracao = 4 * 1000;
+            const fim = Date.now() + duracao;
 
             (function frame() {
-              confetti({
-                particleCount: 12,
-                angle: 60,
-                spread: 70,
-                origin: { x: 0, y: 0.6 },
-                colors: ['#c89b3c', '#0ac8b9', '#ffffff']
-              });
-              confetti({
-                particleCount: 12,
-                angle: 120,
-                spread: 70,
-                origin: { x: 1, y: 0.6 },
-                colors: ['#c89b3c', '#0ac8b9', '#ffffff']
-              });
+                confetti({
+                    particleCount: 15,
+                    angle: 60,
+                    spread: 80,
+                    origin: { x: 0, y: 0.7 },
+                    colors: ['#c89b3c', '#0ac8b9', '#ffffff']
+                });
+                confetti({
+                    particleCount: 15,
+                    angle: 120,
+                    spread: 80,
+                    origin: { x: 1, y: 0.7 },
+                    colors: ['#c89b3c', '#0ac8b9', '#ffffff']
+                });
 
-              if (Date.now() < end) {
-                requestAnimationFrame(frame);
-              }
+                if (Date.now() < fim) {
+                    requestAnimationFrame(frame);
+                }
             }());
         }
     </script>
