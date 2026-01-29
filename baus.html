@@ -55,20 +55,13 @@
             height: 100%;
             object-fit: contain;
             filter: drop-shadow(0 0 15px var(--blue));
-            position: absolute; /* Para sobrepor as imagens corretamente */
+            position: absolute;
         }
 
-        #bau-gif {
-            display: none; /* Escondido por padrão */
-        }
+        #bau-gif { display: none; }
 
-        .bau-finalizado {
-            filter: drop-shadow(0 0 30px var(--gold)) !important;
-        }
-
-        .bau-bloqueado {
-            filter: grayscale(1) brightness(0.3) !important;
-        }
+        .bau-finalizado { filter: drop-shadow(0 0 30px var(--gold)) !important; }
+        .bau-bloqueado { filter: grayscale(1) brightness(0.3) !important; }
 
         h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; margin-top: 0; }
         .status-msg { margin: 20px 0; min-height: 35px; font-size: 1.1rem; color: var(--blue); font-weight: bold; }
@@ -106,20 +99,17 @@
 </head>
 <body>
 
-    <img src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif" style="display:none;">
-
     <div class="container-bau">
         <h1>Cofre Hextech</h1>
         
         <div class="bau-display">
             <img id="bau-png" src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-img.png" class="bau-img">
-            
-            <img id="bau-gif" src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif" class="bau-img">
+            <img id="bau-gif" class="bau-img">
         </div>
 
-        <p class="status-msg" id="mensagem">Conectando...</p>
+        <p class="status-msg" id="mensagem">Carregando sistema...</p>
         
-        <button id="btn-acao" class="btn-abrir" onclick="abrirCofre()" disabled>Abrir Baú</button>
+        <button id="btn-acao" class="btn-abrir" onclick="abrirCofre()" disabled>Aguarde...</button>
         <br>
         <a href="resgate.html" class="btn-voltar">Voltar para Resgate</a>
     </div>
@@ -143,8 +133,20 @@
         const auth = getAuth(app);
 
         const GIF_PATH = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif";
+        let gifPrecarregado = false;
         let usuarioAtual = null;
         const somMoedas = new Audio('https://www.soundjay.com/misc/sounds/coins-spilled-1.mp3');
+
+        // FUNÇÃO DE PRELOAD
+        function precarregarGif() {
+            const img = new Image();
+            img.src = GIF_PATH;
+            img.onload = () => {
+                gifPrecarregado = true;
+                verificarProntoParaUso();
+            };
+        }
+        precarregarGif();
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -161,16 +163,26 @@
             const dados = userDoc.data() || {};
             const hoje = new Date().toISOString().split('T')[0];
             
-            const png = document.getElementById('bau-png');
-            const btn = document.getElementById('btn-acao');
-
             if (dados.ultimoBau === hoje) {
                 document.getElementById('mensagem').innerText = "BAÚ JÁ RECOLHIDO HOJE!";
-                png.classList.add('bau-bloqueado');
-                btn.disabled = true;
+                document.getElementById('bau-png').classList.add('bau-bloqueado');
+                document.getElementById('btn-acao').disabled = true;
+                document.getElementById('btn-acao').innerText = "Indisponível";
             } else {
-                document.getElementById('mensagem').innerText = "O COFRE ESTÁ PRONTO!";
-                btn.disabled = false;
+                verificarProntoParaUso();
+            }
+        }
+
+        function verificarProntoParaUso() {
+            // Só libera o botão se o Firebase carregou E o GIF já está no cache
+            if (usuarioAtual && gifPrecarregado) {
+                const btn = document.getElementById('btn-acao');
+                const msg = document.getElementById('mensagem');
+                if (btn.innerText !== "Indisponível") {
+                    msg.innerText = "SISTEMA PRONTO!";
+                    btn.disabled = false;
+                    btn.innerText = "Abrir Baú";
+                }
             }
         }
 
@@ -181,13 +193,12 @@
             const gif = document.getElementById('bau-gif');
 
             btn.disabled = true;
-            msg.innerText = "ABRINDO...";
+            msg.innerText = "ABRINDO COFRE...";
 
-            // O SEGREDO: Esconde o PNG e mostra o GIF resetado
+            // TROCA INSTANTÂNEA
+            gif.src = GIF_PATH + "?t=" + Date.now(); // Reinicia o gif que já está no cache
             png.style.display = "none";
             gif.style.display = "block";
-            gif.src = ""; // Limpa
-            gif.src = GIF_PATH + "?t=" + Date.now(); // Força reinício
 
             const recompensa = Math.floor(Math.random() * (5000 - 500 + 1)) + 500;
             const hoje = new Date().toISOString().split('T')[0];
@@ -203,7 +214,6 @@
                         ultimoBau: hoje
                     }, { merge: true });
 
-                    // Finaliza a animação: volta para o PNG (estático) mas com brilho
                     gif.style.display = "none";
                     png.style.display = "block";
                     png.classList.add('bau-finalizado');
@@ -213,16 +223,16 @@
 
                     msg.innerHTML = `<span style="color: #ff0; font-size: 1.6rem;">+ ${recompensa.toLocaleString()} MOEDAS!</span>`;
                     
-                    btn.innerText = "RECOLHER RECOMPENSA";
+                    btn.innerText = "RECOLHER E FINALIZAR";
                     btn.disabled = false;
                     btn.classList.add('btn-resgatar');
                     btn.onclick = () => window.location.reload();
 
                 } catch (e) {
                     console.error(e);
-                    msg.innerText = "ERRO HEXTECH.";
+                    msg.innerText = "ERRO NA REDE HEXTECH.";
                 }
-            }, 4000); // 4 Segundos sincronizados
+            }, 4000); 
         };
 
         function dispararFogos() {
