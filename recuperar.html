@@ -11,6 +11,7 @@
             --card-azul: #091428;
             --erro: #ff4e50;
             --sucesso: #28a745;
+            --ouro-brilhante: #f0e6d2;
         }
 
         body { 
@@ -26,32 +27,115 @@
             overflow: hidden;
         }
 
+        /* BOX PRINCIPAL */
         .login-box { 
-            border: 3px solid var(--ouro); padding: 40px 35px; 
+            border: 3px solid var(--ouro); 
+            padding: 40px 35px; 
             background: linear-gradient(135deg, rgba(9, 20, 40, 0.98) 0%, rgba(1, 10, 19, 1) 100%); 
-            border-radius: 4px; width: 330px; text-align: center; box-sizing: border-box;
+            border-radius: 4px; 
+            width: 330px; 
+            text-align: center; 
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
         }
 
-        .login-title { color: var(--ouro); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; font-weight: bold; display: block; }
+        .login-title { 
+            color: var(--ouro); 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            margin-bottom: 25px; 
+            font-weight: bold; 
+            display: block; 
+        }
 
         input { 
-            width: 100%; padding: 14px 15px; border: 2px solid var(--ouro); 
-            background: rgba(5, 10, 20, 0.9); color: #f0e6d2; 
-            box-sizing: border-box; font-size: 16px; outline: none; margin-bottom: 15px;
+            width: 100%; 
+            padding: 14px 15px; 
+            border: 2px solid var(--ouro); 
+            background: rgba(5, 10, 20, 0.9); 
+            color: var(--ouro-brilhante); 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            outline: none; 
+            margin-bottom: 15px;
         }
 
+        input::placeholder {
+            color: rgba(200, 155, 60, 0.5);
+        }
+
+        /* BOTÃO DOURADO */
         button { 
-            background: var(--ouro); color: #010a13; padding: 16px; width: 100%; 
-            border: none; font-weight: bold; cursor: pointer; text-transform: uppercase;
+            background: var(--ouro); 
+            color: #010a13; 
+            padding: 16px; 
+            width: 100%; 
+            border: 1px solid #785a28; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            transition: 0.3s;
         }
 
-        .step-2 { display: none; } /* Escondido inicialmente */
+        button:hover {
+            background: #e1b34a;
+            filter: brightness(1.2);
+        }
 
-        #msg { margin-top: 15px; font-size: 12px; color: var(--erro); font-weight: bold; text-transform: uppercase; }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            border-color: #333;
+        }
 
-        /* MODAL */
-        #modal-alerta { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; }
-        .modal-content { background: var(--card-azul); border: 2px solid var(--ouro); padding: 30px; border-radius: 8px; text-align: center; width: 85%; max-width: 300px; }
+        .step-2 { display: none; } 
+
+        #msg { 
+            margin-top: 15px; 
+            font-size: 12px; 
+            color: var(--erro); 
+            font-weight: bold; 
+            text-transform: uppercase; 
+        }
+
+        /* MODAL COM FUNDO AZUL E BORDAS DOURADAS */
+        #modal-alerta { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.85); 
+            z-index: 10000; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content { 
+            background: var(--card-azul); 
+            border: 2px solid var(--ouro); 
+            padding: 30px; 
+            border-radius: 4px; 
+            text-align: center; 
+            width: 85%; 
+            max-width: 300px; 
+            box-shadow: 0 0 25px rgba(200, 155, 60, 0.2);
+        }
+
+        .modal-content h3 {
+            color: var(--ouro);
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-content p {
+            color: var(--ouro-brilhante);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -60,7 +144,7 @@
         <div class="modal-content">
             <h3 id="modal-titulo">AVISO</h3>
             <p id="modal-msg"></p>
-            <button id="btnAcaoModal" style="padding:10px; width:100%; background:var(--ouro); border:none; font-weight:bold; cursor:pointer;">ENTENDIDO</button>
+            <button id="btnAcaoModal">ENTENDIDO</button>
         </div>
     </div>
 
@@ -75,13 +159,13 @@
 
         <div id="step2" class="step-2">
             <p style="font-size: 13px; color: #ccc;">Pergaminho enviado!</p>
-            <p id="usuarioEncontrado" style="color: var(--ouro); font-weight: bold; font-size: 16px; margin-bottom: 20px;"></p>
-            <p style="font-size: 12px; color: #fff;">Verifique sua caixa de entrada e spam.</p>
+            <p id="usuarioEncontrado" style="color: var(--ouro); font-weight: bold; font-size: 16px; margin-bottom: 20px; word-break: break-all;"></p>
+            <p style="font-size: 12px; color: #fff; margin-bottom: 20px;">Verifique sua caixa de entrada e spam.</p>
             <button onclick="window.location.href='index.html'">Voltar ao Login</button>
         </div>
         
         <div id="msg"></div>
-        <a href="index.html" style="color: var(--ouro); text-decoration: none; font-size: 12px; display: block; margin-top: 25px; font-weight: bold;">CANCELAR</a>
+        <a href="index.html" style="color: var(--ouro); text-decoration: none; font-size: 12px; display: block; margin-top: 25px; font-weight: bold; letter-spacing: 1px;">CANCELAR</a>
     </div>
 
     <script type="module">
@@ -100,13 +184,21 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        function alerta(titulo, texto, cor) {
+        // Função de Alerta com o Modal Estilizado
+        function alerta(titulo, texto, corTitulo) {
             const modal = document.getElementById('modal-alerta');
-            document.getElementById('modal-titulo').innerText = titulo;
-            document.getElementById('modal-titulo').style.color = cor;
-            document.getElementById('modal-msg').innerText = texto;
+            const tituloEl = document.getElementById('modal-titulo');
+            const msgEl = document.getElementById('modal-msg');
+            
+            tituloEl.innerText = titulo;
+            tituloEl.style.color = corTitulo || "#c89b3c";
+            msgEl.innerText = texto;
+            
             modal.style.display = 'flex';
-            document.getElementById('btnAcaoModal').onclick = () => modal.style.display = 'none';
+            
+            document.getElementById('btnAcaoModal').onclick = () => {
+                modal.style.display = 'none';
+            };
         }
 
         // --- ENVIAR E-MAIL DE RECUPERAÇÃO ---
@@ -115,17 +207,20 @@
             const btn = document.getElementById('btnVerificar');
             const msg = document.getElementById('msg');
 
-            if(!email) { msg.innerText = "DIGITE O SEU E-MAIL!"; return; }
+            if(!email) { 
+                msg.innerText = "DIGITE O SEU E-MAIL!"; 
+                return; 
+            }
             
             btn.disabled = true; 
             btn.innerText = "ENVIANDO...";
             msg.innerText = "";
 
             try {
-                // O Firebase envia um link seguro para o e-mail do usuário
+                // Envio do link de redefinição via Firebase
                 await sendPasswordResetEmail(auth, email);
 
-                // Se o e-mail existir, avançamos para o Step 2 (Design preservado)
+                // Sucesso: Transição de interface
                 document.getElementById('step1').style.display = 'none';
                 document.getElementById('step2').style.display = 'block';
                 document.getElementById('usuarioEncontrado').innerText = email;
@@ -134,12 +229,16 @@
                 btn.disabled = false; 
                 btn.innerText = "Enviar Link";
                 
+                console.error("Erro Firebase:", e.code);
+
                 if (e.code === 'auth/user-not-found') {
                     alerta("ERRO", "Nenhum invocador encontrado com este e-mail.", "#ff4e50");
                 } else if (e.code === 'auth/invalid-email') {
                     msg.innerText = "FORMATO DE E-MAIL INVÁLIDO!";
+                } else if (e.code === 'auth/too-many-requests') {
+                    alerta("AVISO", "Muitas tentativas. Tente novamente mais tarde.", "#ff4e50");
                 } else {
-                    alerta("FALHA", "Erro ao conectar ao servidor.", "#ff4e50");
+                    alerta("FALHA", "Erro ao conectar ao servidor de Runeterra.", "#ff4e50");
                 }
             }
         };
