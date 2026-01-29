@@ -1030,7 +1030,7 @@ function atualizarVisualPodio(posicao, nome, dadosFoto) {
     // 1. Defina o rastro como null no topo do script
 let pdlAnterior = null; 
 
-onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, (user) => {
     if (user) { 
         userRef = doc(db, "usuarios", user.uid); 
         onSnapshot(userRef, (docSnap) => {
@@ -1046,29 +1046,25 @@ onAuthStateChanged(auth, (user) => {
                 } else {
                     const novoXP = Number(data.xp) || 0;
 
-                    // --- LÓGICA DE DETECÇÃO BLINDADA ---
-                    // Só dispara a animação se pdlAnterior já tiver um valor real (não null)
-                    // E se o carregamento inicial já tiver sido feito
-                    if (pdlAnterior !== null && carregadoPelaPrimeiraVez) {
-                        const infoEloAntigo = getEloInfo(pdlAnterior);
+                    // --- LÓGICA DE ELO CENTRALIZADA ---
+                    if (carregadoPelaPrimeiraVez && pdlInterno !== novoXP) {
+                        const infoEloAntigo = getEloInfo(pdlInterno);
                         const infoEloNovo = getEloInfo(novoXP);
 
                         if (infoEloAntigo.nome !== infoEloNovo.nome) {
-                            const subiu = novoXP > pdlAnterior;
+                            const subiu = novoXP > pdlInterno;
                             exibirAnimacaoElo(infoEloNovo, subiu);
                         }
                     }
 
-                    // Atualiza os valores globais
-                    pdlAnterior = novoXP;
                     goldDB = Number(data.saldo) || 0;
                     acertosNoCiclo = data.acertos || 0;
                     videosAssistidos = data.videosAssistidos || 0;
                     totalVideosHoje = data.totalVideosHoje || 0;
-                    pdlInterno = novoXP;
+                    pdlInterno = novoXP; // Atualiza o valor global
                     
                     atualizarInterface();
-                    
+
                     if (!carregadoPelaPrimeiraVez) {
                         carregadoPelaPrimeiraVez = true;
                         carregarBanco(); 
