@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exclusão de Dados - Quiz Legends</title>
+    <style>
+        :root {
+            --gold: #c89b3c;
+            --gold-dark: #785a28;
+            --blue-dark: #091428;
+            --blue-deep: #010a13;
+            --hextech-blue: #0ac8b9;
+        }
+
+        body {
+            background-color: var(--blue-deep);
+            color: #f0e6d2;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--blue-dark);
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 20px rgba(200, 155, 60, 0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Detalhe nas quinas para parecer interface de jogo */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -5px; left: -5px; width: 15px; height: 15px;
+            border-top: 3px solid var(--gold); border-left: 3px solid var(--gold);
+        }
+
+        h1 {
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #a09b8c;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--gold);
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--gold-dark);
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--hextech-blue);
+            box-shadow: 0 0 5px rgba(10, 200, 185, 0.3);
+        }
+
+        .btn-excluir {
+            width: 100%;
+            padding: 15px;
+            margin-top: 25px;
+            background: var(--gold);
+            color: var(--blue-deep);
+            border: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .btn-excluir:hover {
+            background: #e1b34d;
+            box-shadow: 0 0 15px rgba(200, 155, 60, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .footer-link {
+            margin-top: 20px;
+            display: block;
+            color: var(--hextech-blue);
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Solicitar Exclusão</h1>
+    <p>Ao processar este pedido, sua conta, saldo de moedas e progresso no ranking serão removidos permanentemente dentro de 15 dias.</p>
+
+    <form action="mailto:suportequizlegends@gmail.com" method="post" enctype="text/plain">
+        <div class="form-group">
+            <label>E-mail da Conta</label>
+            <input type="email" name="email" placeholder="O e-mail que você usa no jogo" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nome de Usuário</label>
+            <input type="text" name="usuario" placeholder="Seu Nickname" required>
+        </div>
+
+        <div class="form-group">
+            <label>Motivo (Opcional)</label>
+            <input type="text" name="motivo" placeholder="Por que deseja nos deixar?">
+        </div>
+
+        <button type="submit" class="btn-excluir">Confirmar Exclusão</button>
+    </form>
+
+    <a href="index.html" class="footer-link">Voltar para o Jogo</a>
+</div>
+
+</body>
+</html>
