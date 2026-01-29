@@ -122,7 +122,7 @@
         <label class="login-title">Nova Conta</label>
         
         <div class="input-group">
-            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off">
+            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="10" oninput="this.value = this.value.replace(/\s/g, '')">
         </div>
 
         <div class="input-group">
@@ -170,7 +170,7 @@
             
             tituloH3.innerText = titulo;
             tituloH3.style.color = corTitulo;
-            msgP.innerHTML = mensagem; // Usando innerHTML para permitir o bônus de boas-vindas formatado
+            msgP.innerHTML = mensagem; 
             modal.style.display = 'flex';
             
             btn.onclick = () => { 
@@ -180,7 +180,8 @@
         }
 
         document.getElementById('btnCadastrar').onclick = async () => {
-            const usuarioNome = document.getElementById('user').value.trim();
+            // Trim e replace adicional por segurança no envio
+            const usuarioNome = document.getElementById('user').value.replace(/\s/g, '').trim();
             const email = document.getElementById('email').value.trim();
             const senha = document.getElementById('pass').value;
             const policy = document.getElementById('checkPolicy').checked;
@@ -206,7 +207,6 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
                 const user = userCredential.user;
 
-                // Salvar dados no Firestore com o campo de bônus como FALSE
                 await setDoc(doc(db, "usuarios", user.uid), {
                     nome: usuarioNome,
                     email: email,
@@ -215,7 +215,7 @@
                     acertos: 0,
                     videosAssistidos: 0,
                     totalVideosHoje: 0,
-                    boasVindasResgatado: false, // Define que ainda não ganhou o bônus
+                    boasVindasResgatado: false,
                     ultimaDataAcesso: new Date().toLocaleDateString('pt-BR'),
                     dataCriacao: new Date().toISOString(),
                     uid: user.uid
