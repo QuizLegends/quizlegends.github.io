@@ -138,11 +138,11 @@
             <img id="layer-animated" src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif" class="bau-layer">
         </div>
 
-        <div id="status" class="status-text">AUTENTICANDO ACESSO...</div>
+        <div id="status" class="status-text">PREPARANDO AS MOEDAS</div>
         
         <button id="main-button" class="btn-hextech" onclick="executeOpening()" disabled>CARREGANDO...</button>
         
-        <a href="resgate.html" class="btn-voltar">← Voltar para Resgate</a>
+        <a href="resgate.html" class="btn-voltar">Voltar</a>
     </div>
 
     <script type="module">
@@ -196,12 +196,12 @@
                     status.innerText = "ACESSO DIÁRIO CONCLUÍDO";
                     document.getElementById('layer-static').style.filter = "grayscale(1) brightness(0.2)";
                     btn.disabled = true;
-                    btn.innerText = "BLOQUEADO";
+                    btn.innerText = "VOLTE AMANHÃ";
                 } else {
                     isReady = true;
-                    status.innerText = "SISTEMA PRONTO";
+                    status.innerText = "RESGATE SUAS MOEDAS";
                     btn.disabled = false;
-                    btn.innerText = "ABRIR COFRE";
+                    btn.innerText = "ABRIR BAÚ";
                 }
             } catch (e) {
                 document.getElementById('status').innerText = "ERRO DE CONEXÃO";
