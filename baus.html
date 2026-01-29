@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cofre Hextech - Quiz Legends</title>
+    <title>Cofre Hextech Elite - Quiz Legends</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -20,98 +20,112 @@
             font-family: 'Inter', sans-serif;
             margin: 0;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
             overflow: hidden;
         }
 
         .container-bau {
             text-align: center;
-            background: rgba(1, 10, 19, 0.9);
+            background: rgba(1, 10, 19, 0.95);
             border: 2px solid var(--gold);
             padding: 40px;
             border-radius: 4px;
-            box-shadow: 0 0 30px rgba(0, 200, 185, 0.2);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(200, 155, 60, 0.2);
             max-width: 400px;
             width: 100%;
-            position: relative;
+            backdrop-filter: blur(10px);
         }
 
-        .bau-display {
+        .bau-viewport {
             width: 280px;
             height: 280px;
             margin: 0 auto;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            /* Força renderização via Hardware (GPU) */
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
-        .bau-img {
+        .bau-layer {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            filter: drop-shadow(0 0 15px var(--blue));
             position: absolute;
+            top: 0;
+            left: 0;
+            will-change: opacity;
+            transition: opacity 0.05s linear; /* Transição de alta velocidade */
+            pointer-events: none;
         }
 
-        #bau-gif { display: none; }
+        #layer-static { z-index: 2; filter: drop-shadow(0 0 15px var(--blue)); }
+        #layer-animated { z-index: 1; opacity: 0; }
 
-        .bau-finalizado { filter: drop-shadow(0 0 30px var(--gold)) !important; }
-        .bau-bloqueado { filter: grayscale(1) brightness(0.3) !important; }
+        /* Estado Finalizado */
+        .glow-victory {
+            filter: drop-shadow(0 0 40px var(--gold)) brightness(1.2) !important;
+        }
 
-        h1 { color: var(--gold); text-transform: uppercase; letter-spacing: 2px; font-size: 1.5rem; margin-top: 0; }
-        .status-msg { margin: 20px 0; min-height: 35px; font-size: 1.1rem; color: var(--blue); font-weight: bold; }
-
-        .btn-abrir {
-            background: linear-gradient(to bottom, #c89b3c, #785a28);
+        /* Botões Estilizados */
+        .btn-hextech {
+            background: linear-gradient(180deg, #c89b3c 0%, #785a28 100%);
             border: 1px solid var(--gold);
-            color: white;
-            padding: 15px 30px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
+            color: #fff;
+            padding: 16px;
             width: 100%;
-            transition: 0.3s;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: 0.2s;
         }
 
-        .btn-abrir:disabled { background: #333; border-color: #555; cursor: not-allowed; opacity: 0.6; }
+        .btn-hextech:hover:not(:disabled) {
+            box-shadow: 0 0 15px var(--gold);
+            filter: brightness(1.1);
+        }
 
-        .btn-resgatar {
-            background: linear-gradient(to bottom, #0ac8b9, #005a5a);
-            border: 1px solid #fff;
+        .btn-hextech:disabled {
+            filter: grayscale(1);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-reward {
+            background: linear-gradient(180deg, #0ac8b9 0%, #005a5a 100%);
             box-shadow: 0 0 20px var(--blue);
         }
 
-        .btn-voltar {
-            margin-top: 20px;
-            display: inline-block;
-            text-decoration: none;
-            color: var(--gold);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            opacity: 0.7;
+        .status-text {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin: 15px 0;
         }
     </style>
 </head>
 <body>
 
     <div class="container-bau">
-        <h1>Cofre Hextech</h1>
+        <h1 style="color: var(--gold); text-transform: uppercase; margin-bottom: 30px;">Cofre Hextech</h1>
         
-        <div class="bau-display">
-            <img id="bau-png" src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-img.png" class="bau-img">
-            <img id="bau-gif" class="bau-img">
+        <div class="bau-viewport">
+            <img id="layer-static" src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-img.png" class="bau-layer">
+            
+            <img id="layer-animated" src="https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif" class="bau-layer">
         </div>
 
-        <p class="status-msg" id="mensagem">Carregando sistema...</p>
+        <div id="status" class="status-text">AUTENTICANDO...</div>
         
-        <button id="btn-acao" class="btn-abrir" onclick="abrirCofre()" disabled>Aguarde...</button>
-        <br>
-        <a href="resgate.html" class="btn-voltar">Voltar para Resgate</a>
+        <button id="main-button" class="btn-hextech" onclick="executeOpening()" disabled>CARREGANDO...</button>
     </div>
 
     <script type="module">
@@ -119,6 +133,7 @@
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
+        // Configurações e Variáveis de Estado
         const firebaseConfig = { 
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E", 
             authDomain: "quizlegends-f58fc.firebaseapp.com", 
@@ -131,116 +146,131 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        
+        const GIF_URL = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif";
+        const AUDIO_URL = "https://www.soundjay.com/misc/sounds/coins-spilled-1.mp3";
+        
+        let currentUser = null;
+        let isReady = false;
 
-        const GIF_PATH = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/bau-hextec.gif";
-        let gifPrecarregado = false;
-        let usuarioAtual = null;
-        const somMoedas = new Audio('https://www.soundjay.com/misc/sounds/coins-spilled-1.mp3');
+        // Pré-carregamento agressivo de Assets
+        const preloadGIF = new Image();
+        preloadGIF.src = GIF_URL;
+        
+        const rewardAudio = new Audio(AUDIO_URL);
+        rewardAudio.preload = "auto";
 
-        // FUNÇÃO DE PRELOAD
-        function precarregarGif() {
-            const img = new Image();
-            img.src = GIF_PATH;
-            img.onload = () => {
-                gifPrecarregado = true;
-                verificarProntoParaUso();
-            };
-        }
-        precarregarGif();
-
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                usuarioAtual = user;
-                verificarData();
+                currentUser = user;
+                checkDailyStatus();
             } else {
                 window.location.href = "index.html";
             }
         });
 
-        async function verificarData() {
-            const userRef = doc(db, "usuarios", usuarioAtual.uid);
-            const userDoc = await getDoc(userRef);
-            const dados = userDoc.data() || {};
-            const hoje = new Date().toISOString().split('T')[0];
-            
-            if (dados.ultimoBau === hoje) {
-                document.getElementById('mensagem').innerText = "BAÚ JÁ RECOLHIDO HOJE!";
-                document.getElementById('bau-png').classList.add('bau-bloqueado');
-                document.getElementById('btn-acao').disabled = true;
-                document.getElementById('btn-acao').innerText = "Indisponível";
+        async function checkDailyStatus() {
+            const userRef = doc(db, "usuarios", currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            const data = userSnap.data() || {};
+            const today = new Date().toISOString().split('T')[0];
+
+            const btn = document.getElementById('main-button');
+            const status = document.getElementById('status');
+
+            if (data.ultimoBau === today) {
+                status.innerText = "ACESSO DIÁRIO CONCLUÍDO";
+                document.getElementById('layer-static').style.filter = "grayscale(1) brightness(0.2)";
+                btn.disabled = true;
+                btn.innerText = "BLOQUEADO";
             } else {
-                verificarProntoParaUso();
+                isReady = true;
+                status.innerText = "SISTEMA PRONTO PARA ABERTURA";
+                btn.disabled = false;
+                btn.innerText = "ABRIR COFRE";
             }
         }
 
-        function verificarProntoParaUso() {
-            // Só libera o botão se o Firebase carregou E o GIF já está no cache
-            if (usuarioAtual && gifPrecarregado) {
-                const btn = document.getElementById('btn-acao');
-                const msg = document.getElementById('mensagem');
-                if (btn.innerText !== "Indisponível") {
-                    msg.innerText = "SISTEMA PRONTO!";
-                    btn.disabled = false;
-                    btn.innerText = "Abrir Baú";
-                }
-            }
-        }
+        window.executeOpening = async function() {
+            if (!isReady) return;
+            isReady = false; // Trava de segurança
 
-        window.abrirCofre = async function() {
-            const btn = document.getElementById('btn-acao');
-            const msg = document.getElementById('mensagem');
-            const png = document.getElementById('bau-png');
-            const gif = document.getElementById('bau-gif');
+            const btn = document.getElementById('main-button');
+            const status = document.getElementById('status');
+            const staticImg = document.getElementById('layer-static');
+            const animatedImg = document.getElementById('layer-animated');
 
             btn.disabled = true;
-            msg.innerText = "ABRINDO COFRE...";
+            status.innerText = "DESCRIPTOGRAFANDO...";
 
-            // TROCA INSTANTÂNEA
-            gif.src = GIF_PATH + "?t=" + Date.now(); // Reinicia o gif que já está no cache
-            png.style.display = "none";
-            gif.style.display = "block";
+            // O MÁXIMO DA PERFORMANCE:
+            // 1. Resetar o GIF em background
+            animatedImg.src = GIF_URL + "?t=" + performance.now();
+            
+            // 2. Usar RequestAnimationFrame para garantir troca limpa no próximo refresh do monitor
+            requestAnimationFrame(() => {
+                staticImg.style.opacity = "0";
+                animatedImg.style.opacity = "1";
+            });
 
-            const recompensa = Math.floor(Math.random() * (5000 - 500 + 1)) + 500;
-            const hoje = new Date().toISOString().split('T')[0];
+            const reward = Math.floor(Math.random() * 4501) + 500;
+            const todayStr = new Date().toISOString().split('T')[0];
 
+            // Sincronia de 4000ms cravada com o seu GIF
             setTimeout(async () => {
                 try {
-                    const userRef = doc(db, "usuarios", usuarioAtual.uid);
+                    const userRef = doc(db, "usuarios", currentUser.uid);
                     const userSnap = await getDoc(userRef);
-                    const saldoAtual = Number(userSnap.data()?.saldo || 0);
+                    const currentBalance = Number(userSnap.data()?.saldo || 0);
 
                     await setDoc(userRef, {
-                        saldo: saldoAtual + recompensa,
-                        ultimoBau: hoje
+                        saldo: currentBalance + reward,
+                        ultimoBau: todayStr
                     }, { merge: true });
 
-                    gif.style.display = "none";
-                    png.style.display = "block";
-                    png.classList.add('bau-finalizado');
+                    // Retorno ao PNG com brilho (Hardware Accelerated)
+                    animatedImg.style.opacity = "0";
+                    staticImg.style.opacity = "1";
+                    staticImg.classList.add('glow-victory');
                     
-                    dispararFogos();
-                    somMoedas.play();
+                    triggerConfetti();
+                    rewardAudio.play();
 
-                    msg.innerHTML = `<span style="color: #ff0; font-size: 1.6rem;">+ ${recompensa.toLocaleString()} MOEDAS!</span>`;
-                    
-                    btn.innerText = "RECOLHER E FINALIZAR";
+                    status.innerHTML = `<b style="color: #ff0; font-size: 1.2rem;">+ ${reward.toLocaleString()} MOEDAS!</b>`;
+                    btn.innerText = "COLETAR E SAIR";
+                    btn.classList.add('btn-reward');
                     btn.disabled = false;
-                    btn.classList.add('btn-resgatar');
                     btn.onclick = () => window.location.reload();
 
-                } catch (e) {
-                    console.error(e);
-                    msg.innerText = "ERRO NA REDE HEXTECH.";
+                } catch (err) {
+                    console.error(err);
+                    status.innerText = "ERRO NA TRANSMISSÃO DE DADOS";
+                    btn.disabled = false;
                 }
-            }, 4000); 
+            }, 4000);
         };
 
-        function dispararFogos() {
-            const fim = Date.now() + 3000;
+        function triggerConfetti() {
+            const end = Date.now() + 3000;
+            const colors = ['#c89b3c', '#ffffff', '#0ac8b9'];
+
             (function frame() {
-                confetti({ particleCount: 15, angle: 60, spread: 70, origin: { x: 0, y: 0.6 }, colors: ['#c89b3c', '#0ac8b9'] });
-                confetti({ particleCount: 15, angle: 120, spread: 70, origin: { x: 1, y: 0.6 }, colors: ['#c89b3c', '#0ac8b9'] });
-                if (Date.now() < fim) requestAnimationFrame(frame);
+                confetti({
+                    particleCount: 15,
+                    angle: 60,
+                    spread: 80,
+                    origin: { x: 0, y: 0.7 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 15,
+                    angle: 120,
+                    spread: 80,
+                    origin: { x: 1, y: 0.7 },
+                    colors: colors
+                });
+
+                if (Date.now() < end) requestAnimationFrame(frame);
             }());
         }
     </script>
