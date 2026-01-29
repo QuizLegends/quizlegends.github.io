@@ -1048,40 +1048,62 @@ async function finalizarRecompensa() {
         };
     }
 
-    onAuthStateChanged(auth, (user) => {
-        if (user) { 
-            userRef = doc(db, "usuarios", user.uid); 
-            onSnapshot(userRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    dadosUserLocais = data; 
-                    const hoje = new Date().toLocaleDateString('pt-BR');
+    // Adicione esta variável no topo do seu script, fora do onAuthStateChanged
+let pdlAnterior = -1;
 
-                    // Chama a verificação (A trava global dentro dela impedirá o loop)
-                    verificarPremios(data, userRef);
+onAuthStateChanged(auth, (user) => {
+    if (user) { 
+        userRef = doc(db, "usuarios", user.uid); 
+        onSnapshot(userRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                dadosUserLocais = data; 
+                const hoje = new Date().toLocaleDateString('pt-BR');
 
-                    if (data.ultimaDataAcesso !== hoje) {
-                        updateDoc(userRef, { totalVideosHoje: 0, videosAssistidos: 0, acertos: 0, ultimaDataAcesso: hoje });
-                    } else {
-                        goldDB = Number(data.saldo) || 0;
-                        acertosNoCiclo = data.acertos || 0;
-                        videosAssistidos = data.videosAssistidos || 0;
-                        totalVideosHoje = data.totalVideosHoje || 0;
-                        pdlInterno = data.xp || 0;
-                        atualizarInterface();
-                        if (!carregadoPelaPrimeiraVez) {
-                            carregadoPelaPrimeiraVez = true;
-                            carregarBanco(); 
-                            atualizarPodioSemanal(); 
-                            verificarCooldownLivre(); 
+                // Chama a verificação (A trava global dentro dela impedirá o loop)
+                verificarPremios(data, userRef);
+
+                if (data.ultimaDataAcesso !== hoje) {
+                    updateDoc(userRef, { totalVideosHoje: 0, videosAssistidos: 0, acertos: 0, ultimaDataAcesso: hoje });
+                } else {
+                    // --- LÓGICA DE DETECÇÃO DE MUDANÇA DE ELO ---
+                    const novoXP = Number(data.xp) || 0;
+                    
+                    if (pdlAnterior !== -1) {
+                        const infoEloAntigo = getEloInfo(pdlAnterior);
+                        const infoEloNovo = getEloInfo(novoXP);
+
+                        // Se o nome do Elo mudou, dispara a animação correta
+                        if (infoEloAntigo.nome !== infoEloNovo.nome) {
+                            const subiu = novoXP > pdlAnterior;
+                            exibirAnimacaoElo(infoEloNovo, subiu);
                         }
                     }
+                    // Atualiza o rastreador para a próxima mudança
+                    pdlAnterior = novoXP;
+
+                    // Manutenção das suas variáveis originais
+                    goldDB = Number(data.saldo) || 0;
+                    acertosNoCiclo = data.acertos || 0;
+                    videosAssistidos = data.videosAssistidos || 0;
+                    totalVideosHoje = data.totalVideosHoje || 0;
+                    pdlInterno = novoXP;
+                    
+                    atualizarInterface();
+                    
+                    if (!carregadoPelaPrimeiraVez) {
+                        carregadoPelaPrimeiraVez = true;
+                        carregarBanco(); 
+                        atualizarPodioSemanal(); 
+                        verificarCooldownLivre(); 
+                    }
                 }
-            });
-        } else { 
-            if (!window.location.href.includes("index.html")) window.location.href = "index.html"; 
-        }
-    });
+            }
+        });
+    } else { 
+        if (!window.location.href.includes("index.html")) window.location.href = "index.html"; 
+    }
+});
    
     // Pull to Refresh
     let sY = 0;
