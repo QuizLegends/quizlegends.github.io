@@ -174,7 +174,18 @@
         input { width: 100%; padding: 12px; background: #010a13; color: white; border: 1px solid var(--gold-dark); margin: 8px 0; box-sizing: border-box; }
         
         .footer-ad-space { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--ad-space); background: #000; border-top: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .link-politica-quadro { display: block; text-align: center; color: var(--gold); font-size: 9px; text-decoration: none; margin-top: 10px; opacity: 0.5; text-transform: uppercase; }
+        
+        /* AJUSTADO PARA CENTRALIZAR */
+        .link-politica-quadro { 
+            display: inline-block; 
+            text-align: center; 
+            color: var(--gold); 
+            font-size: 9px; 
+            text-decoration: none; 
+            margin-top: 10px; 
+            opacity: 0.5; 
+            text-transform: uppercase; 
+        }
         
         #pull-to-refresh { position: fixed; top: -60px; left: 0; width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; z-index: 2000; transition: transform 0.2s ease; }
         .refresh-badge { border: 2px solid var(--gold); padding: 8px 20px; background: rgba(9, 20, 40, 0.95); color: var(--gold); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%); }
@@ -315,15 +326,15 @@
             ACESSAR LOJA HEXTECH
         </button>
         
-        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
-            <a href="regras.html" class="link-politica-quadro" style="font-size: 0.6rem;">Como subir no Ranking?</a>
-            <a href="politica.html" class="link-politica-quadro" style="font-size: 0.6rem;">Privacidade</a>
+        <div style="text-align: center; margin-top: 10px;">
+            <a href="politica.html" class="link-politica-quadro">Política de Privacidade</a>
         </div>
     </div>
 </div>
 
 <div class="footer-ad-space">
-    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
@@ -1134,7 +1145,7 @@ window.equiparIcone = async (nomeImg) => {
             fotoPerfil: nomeImg 
         });
 
-        modal.style.display = 'none';
+        if(document.getElementById('custom-modal')) document.getElementById('custom-modal').style.display = 'none';
         // Feedback para o usuário saber que funcionou
         openModal("SUCESSO", "Ícone equipado com sucesso!");
         
@@ -1142,34 +1153,6 @@ window.equiparIcone = async (nomeImg) => {
         console.error("Erro ao equipar:", e);
         openModal("ERRO", "Não foi possível equipar o ícone.");
     }
-};
-
-// Função para Abrir Inventário (Com gatilho de confirmação)
-window.abrirInventario = async () => {
-    if (!userRef) return;
-    
-    // Busca os dados atualizados do usuário
-    const userDoc = await getDocs(query(collection(db, "usuarios")));
-    const dadosUsuario = userDoc.docs.find(d => d.id === auth.currentUser.uid).data();
-    const meusItensIDs = dadosUsuario.iconesAdquiridos || [];
-    
-    let html = `<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px;">`;
-    
-    // Filtra os itens que o jogador possui
-    CATALOGO_ITENS.filter(i => meusItensIDs.includes(i.id)).forEach(item => {
-        // Agora o onclick chama uma confirmação em vez de equipar direto
-        html += `
-        <div onclick="window.confirmarTroca('${item.img}', '${item.nome}')" style="cursor:pointer; text-align:center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-            <img src="${URL_BASE_ICON + item.img}" style="width:100%; border-radius:8px; border: 1px solid #c89b3c33;">
-            <div style="font-size:10px; color:var(--gold); margin-top:5px; font-weight:bold;">${item.nome}</div>
-        </div>`;
-    });
-
-    if (meusItensIDs.length === 0) {
-        html = `<div style="color:#eee; text-align:center; padding:20px;">Seu inventário está vazio.</div>`;
-    }
-
-    openModal("MEUS ITENS", html + "</div>");
 };
 
 // Nova Função: Janela de Confirmação
