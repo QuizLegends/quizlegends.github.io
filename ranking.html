@@ -128,6 +128,7 @@
             flex-shrink: 0;
             object-fit: cover;
             border-radius: 50%;
+            border: 1px solid var(--ouro);
         }
 
         .nome {
@@ -199,7 +200,8 @@
 
         const URL_RAIZ = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/";
         const URL_ICONES = URL_RAIZ + "ícones/";
-        const ICONE_PADRAO = URL_ICONES + "0.png";
+        // Definindo o ícone padrão corretamente
+        const ICONE_PADRAO = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/icone-padrao.png";
 
         const TABELA_ELOS = [
             { min: 1000000, nome: "Desafiante", arq: "desafiante.png" },
@@ -283,8 +285,19 @@
                     const user = docSnap.data();
                     const elo = getEloInfo(user.xp || 0);
                     
-                    let idEquipado = String(user.iconeAtual || "0");
-                    idEquipado = idEquipado.replace('.png', '').replace('.gif', '');
+                    // LÓGICA DE DEFINIÇÃO DA IMAGEM
+                    let srcFinal = ICONE_PADRAO;
+
+                    // Se houver link direto (sistema novo)
+                    if (user.iconeEquipado) {
+                        srcFinal = user.iconeEquipado;
+                    } 
+                    // Se houver apenas o ID do ícone
+                    else if (user.iconeAtual || user.fotoPerfil) {
+                        let id = String(user.iconeAtual || user.fotoPerfil)
+                                 .replace('.png', '').replace('.gif', '').replace('.jpg', '');
+                        srcFinal = `${URL_ICONES}${id}.gif`;
+                    }
 
                     const item = document.createElement('div');
                     item.className = 'ranking-item';
@@ -294,9 +307,9 @@
                             <img src="${URL_RAIZ + elo.arquivo}" class="elo-emblema">
                             <span class="elo-nome-abaixo">${elo.nome}</span>
                         </div>
-                        <img src="${URL_ICONES}${idEquipado}.gif" 
+                        <img src="${srcFinal}" 
                              class="user-avatar" 
-                             onerror="if(this.src.includes('.gif')){ this.src='${URL_ICONES}${idEquipado}.png'; } else if(this.src.includes('.png')){ this.src='${ICONE_PADRAO}'; }">
+                             onerror="if(this.src.includes('.gif')){ this.src='${srcFinal.replace('.gif', '.png')}'; } else { this.src='${ICONE_PADRAO}'; }">
                         <div class="nome">${user.nome || "Invocador"}</div>
                         <div class="info-pdl">
                             <span class="pdl-valor">${Math.floor(user.xp || 0).toLocaleString()} PDL</span>
