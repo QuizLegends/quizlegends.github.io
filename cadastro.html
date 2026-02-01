@@ -51,6 +51,7 @@
 
         .input-group { margin-bottom: 12px; text-align: left; }
 
+        /* AQUI ESTAVA O ERRO: Removido qualquer text-transform */
         input[type="text"], input[type="email"], input[type="password"] { 
             width: 100%; 
             padding: 12px 15px; 
@@ -60,6 +61,7 @@
             box-sizing: border-box; 
             font-size: 15px; 
             outline: none;
+            text-transform: none !important; /* FORÇA PARA NÃO FICAR MAIÚSCULO */
         }
 
         #aviso-limite {
@@ -93,55 +95,38 @@
 
         .footer-links a { color: var(--ouro) !important; text-decoration: none; font-weight: bold; display: block; margin-top: 20px; font-size: 12px; }
 
-        /* MODAL COM ESTÉTICA PEDIDA: FUNDO AZUL E BORDAS DOURADAS */
         #modal-alerta { 
             display: none; 
             position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
+            top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0, 0, 0, 0.9); 
             z-index: 10000; 
-            align-items: center; 
-            justify-content: center; 
+            align-items: center; justify-content: center; 
         }
 
         .modal-content { 
-            background: #091428; /* Azul Escuro (Card Azul) */
+            background: #091428; 
             border: 2px solid var(--ouro); 
             padding: 40px; 
             border-radius: 4px; 
             text-align: center; 
-            max-width: 320px; 
-            width: 85%; 
+            max-width: 320px; width: 85%; 
             box-shadow: 0 0 40px rgba(200, 155, 60, 0.4); 
-            animation: surgindo 0.4s cubic-bezier(0.23, 1, 0.32, 1); 
         }
 
         .modal-content h3 { 
-            color: var(--ouro); /* Letras Douradas */
+            color: var(--ouro); 
             margin: 0; 
             text-transform: uppercase; 
-            letter-spacing: 2px; 
-            font-size: 20px; 
-            font-weight: bold;
+            letter-spacing: 2px; font-size: 20px; 
         }
 
         .btn-modal { 
-            background: linear-gradient(to bottom, #c89b3c, #855f13); 
-            color: #010a13; 
-            border: 1px solid var(--ouro); 
-            padding: 14px; 
-            width: 100%; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            margin-top: 25px;
+            background: var(--ouro); color: #010a13; 
+            border: none; padding: 14px; width: 100%; 
+            font-weight: bold; cursor: pointer; margin-top: 25px;
+            text-transform: uppercase;
         }
-
-        @keyframes surgindo { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -211,19 +196,16 @@
 
         function exibirModal(titulo, acaoFinal) {
             const modal = document.getElementById('modal-alerta');
-            const tituloH3 = document.getElementById('modal-titulo');
-            const btn = document.getElementById('btnAcaoModal');
-            
-            tituloH3.innerText = titulo;
+            document.getElementById('modal-titulo').innerText = titulo;
             modal.style.display = 'flex';
-            
-            btn.onclick = () => { 
-                modal.style.display = 'none'; 
-                if (acaoFinal) acaoFinal(); 
+            document.getElementById('btnAcaoModal').onclick = () => {
+                modal.style.display = 'none';
+                if (acaoFinal) acaoFinal();
             };
         }
 
         document.getElementById('btnCadastrar').onclick = async () => {
+            // AQUI ESTÁ A CHAVE: Pegamos o valor bruto do campo
             const nomeOriginal = document.getElementById('user').value.trim();
             const nomeParaBusca = nomeOriginal.toUpperCase();
             const email = document.getElementById('email').value.trim();
@@ -264,7 +246,7 @@
                 const user = userCredential.user;
 
                 await setDoc(doc(db, "usuarios", user.uid), {
-                    nome: nomeOriginal, 
+                    nome: nomeOriginal, // SALVA EXATAMENTE COMO O USUÁRIO DIGITOU
                     nomeBusca: nomeParaBusca,
                     email: email,
                     saldo: 0,
@@ -278,7 +260,6 @@
                     uid: user.uid
                 });
 
-                // Chamada do modal simplificada para o que você pediu
                 exibirModal("CRIADA COM SUCESSO", () => {
                     window.location.href = "index.html";
                 });
