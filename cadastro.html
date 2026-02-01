@@ -93,25 +93,52 @@
 
         .footer-links a { color: var(--ouro) !important; text-decoration: none; font-weight: bold; display: block; margin-top: 20px; font-size: 12px; }
 
-        #modal-alerta { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 10000; align-items: center; justify-content: center; }
+        /* MODAL COM ESTÉTICA PEDIDA: FUNDO AZUL E BORDAS DOURADAS */
+        #modal-alerta { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.9); 
+            z-index: 10000; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
         .modal-content { 
-            background: radial-gradient(circle at top, #091428 0%, #010a13 100%); 
+            background: #091428; /* Azul Escuro (Card Azul) */
             border: 2px solid var(--ouro); 
-            padding: 30px; 
+            padding: 40px; 
             border-radius: 4px; 
             text-align: center; 
             max-width: 320px; 
             width: 85%; 
-            box-shadow: 0 0 50px rgba(200, 155, 60, 0.3); 
+            box-shadow: 0 0 40px rgba(200, 155, 60, 0.4); 
             animation: surgindo 0.4s cubic-bezier(0.23, 1, 0.32, 1); 
         }
-        .modal-content h3 { color: var(--ouro); margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 2px; font-size: 19px; border-bottom: 1px solid rgba(200, 155, 60, 0.3); padding-bottom: 10px; }
-        .modal-content p { color: #f0e6d2; font-size: 13px; line-height: 1.6; margin-bottom: 25px; text-align: justify; }
+
+        .modal-content h3 { 
+            color: var(--ouro); /* Letras Douradas */
+            margin: 0; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            font-size: 20px; 
+            font-weight: bold;
+        }
+
         .btn-modal { 
             background: linear-gradient(to bottom, #c89b3c, #855f13); 
-            color: #010a13; border: 1px solid var(--ouro); 
-            padding: 14px; width: 100%; font-weight: bold; cursor: pointer; 
-            text-transform: uppercase; letter-spacing: 1px;
+            color: #010a13; 
+            border: 1px solid var(--ouro); 
+            padding: 14px; 
+            width: 100%; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            margin-top: 25px;
         }
 
         @keyframes surgindo { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
@@ -121,9 +148,8 @@
 
     <div id="modal-alerta">
         <div class="modal-content">
-            <h3 id="modal-titulo">AVISO</h3>
-            <p id="modal-msg">Mensagem...</p>
-            <button class="btn-modal" id="btnAcaoModal">ENTENDIDO</button>
+            <h3 id="modal-titulo">CRIADA COM SUCESSO</h3>
+            <button class="btn-modal" id="btnAcaoModal">ENTRAR AGORA</button>
         </div>
     </div>
 
@@ -175,7 +201,6 @@
         const inputUser = document.getElementById('user');
         const avisoLimite = document.getElementById('aviso-limite');
 
-        // Ajustado para 9 caracteres conforme seu HTML
         inputUser.oninput = () => {
             if (inputUser.value.length >= 9) {
                 avisoLimite.style.display = 'block';
@@ -184,15 +209,12 @@
             }
         };
 
-        function exibirModal(titulo, mensagem, corTitulo, acaoFinal) {
+        function exibirModal(titulo, acaoFinal) {
             const modal = document.getElementById('modal-alerta');
             const tituloH3 = document.getElementById('modal-titulo');
-            const msgP = document.getElementById('modal-msg');
             const btn = document.getElementById('btnAcaoModal');
             
             tituloH3.innerText = titulo;
-            tituloH3.style.color = corTitulo;
-            msgP.innerHTML = mensagem; 
             modal.style.display = 'flex';
             
             btn.onclick = () => { 
@@ -226,7 +248,6 @@
             btn.innerText = "VERIFICANDO...";
 
             try {
-                // Busca se o nome já existe (case-insensitive)
                 const q = query(collection(db, "usuarios"), where("nomeBusca", "==", nomeParaBusca));
                 const querySnapshot = await getDocs(q);
 
@@ -237,13 +258,13 @@
                     return;
                 }
 
-                btn.innerText = "FORJANDO CONTA...";
+                btn.innerText = "FORJANDO...";
 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
                 const user = userCredential.user;
 
                 await setDoc(doc(db, "usuarios", user.uid), {
-                    nome: nomeOriginal,
+                    nome: nomeOriginal, 
                     nomeBusca: nomeParaBusca,
                     email: email,
                     saldo: 0,
@@ -257,10 +278,8 @@
                     uid: user.uid
                 });
 
-                // CORREÇÃO AQUI: Fechamento correto da String e da Função
-                const avisoInvocador = "<b>CRIADA COM SUCESSO!</b><br><br>Sua conta foi forjada nos campos da justiça. Agora você pode entrar e provar seu valor!";
-
-                exibirModal("SAUDAÇÕES", avisoInvocador, "var(--ouro)", () => {
+                // Chamada do modal simplificada para o que você pediu
+                exibirModal("CRIADA COM SUCESSO", () => {
                     window.location.href = "index.html";
                 });
 
@@ -268,7 +287,6 @@
                 btn.disabled = false;
                 btn.innerText = "Criar Conta";
                 if (error.code === 'auth/email-already-in-use') msg.innerText = "E-MAIL JÁ EM USO!";
-                else if (error.code === 'auth/invalid-email') msg.innerText = "E-MAIL INVÁLIDO!";
                 else msg.innerText = "FALHA AO CRIAR CONTA.";
                 console.error(error);
             }
