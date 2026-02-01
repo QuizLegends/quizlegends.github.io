@@ -60,6 +60,7 @@
             box-sizing: border-box; 
             font-size: 15px; 
             outline: none;
+            /* REMOVIDO: text-transform: uppercase; (Agora aceita como você digitar) */
         }
 
         #aviso-limite {
@@ -131,8 +132,8 @@
         <label class="login-title">Nova Conta</label>
         
         <div class="input-group">
-            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="11">
-            <div id="aviso-limite">Limite máximo de 11 caracteres atingido!</div>
+            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="9">
+            <div id="aviso-limite">Limite máximo de 9 caracteres atingido!</div>
         </div>
 
         <div class="input-group">
@@ -176,7 +177,7 @@
         const avisoLimite = document.getElementById('aviso-limite');
 
         inputUser.oninput = () => {
-            if (inputUser.value.length >= 11) {
+            if (inputUser.value.length >= 9) {
                 avisoLimite.style.display = 'block';
             } else {
                 avisoLimite.style.display = 'none';
@@ -201,8 +202,9 @@
         }
 
         document.getElementById('btnCadastrar').onclick = async () => {
+            // Pegamos o valor EXATO que está no campo agora
             const nomeOriginal = document.getElementById('user').value.trim();
-            // Criamos uma versão em maiúsculas apenas para a verificação
+            // Apenas para a busca, comparamos em maiúsculas
             const nomeParaBusca = nomeOriginal.toUpperCase();
             
             const email = document.getElementById('email').value.trim();
@@ -227,7 +229,7 @@
             btn.innerText = "VERIFICANDO...";
 
             try {
-                // VERIFICAÇÃO: Procuramos no campo 'nomeBusca' que sempre salvamos em maiúsculas
+                // VERIFICAÇÃO: Procuramos se alguém já tem esse nome (independente de maiúsculo/minúsculo)
                 const q = query(collection(db, "usuarios"), where("nomeBusca", "==", nomeParaBusca));
                 const querySnapshot = await getDocs(q);
 
@@ -244,8 +246,8 @@
                 const user = userCredential.user;
 
                 await setDoc(doc(db, "usuarios", user.uid), {
-                    nome: nomeOriginal,      // Salva do jeito que ele escreveu (Ex: Pedro Henrique)
-                    nomeBusca: nomeParaBusca, // Salva tudo grande para validação (Ex: PEDRO HENRIQUE)
+                    nome: nomeOriginal,      // AQUI: Salva exatamente como digitou (Pedro Henrique)
+                    nomeBusca: nomeParaBusca, // Salva tudo grande para a trava de segurança
                     email: email,
                     saldo: 0,
                     xp: 0,
@@ -259,15 +261,8 @@
                 });
 
                 const avisoInvocador = `
-                    <b>ATENÇÃO INVOCADOR!</b><br><br>
-                    Que fique bem claro: este aplicativo não é uma 'renda extra'. Ele nasceu para ser um lugar de diversão e competição real entre fãs de League of Legends.
 
-                    O sistema de recompensas? É um bônus pelo seu conhecimento e pelas suas vitórias nos desafios. Mas vou logo avisando: não tem nada de fácil aqui. O caminho é difícil, as questões são para quem entende do jogo e o mérito é todo seu.
-
-                    Divirta-se, suba de elo e prove que você é uma verdadeira lenda!"
-                `;
-
-                exibirModal("SAUDAÇÕES", avisoInvocador, "var(--ouro)", () => {
+                exibirModal("CRIADA COM SUCESSO", avisoInvocador, "var(--ouro)", () => {
                     window.location.href = "index.html";
                 });
 
