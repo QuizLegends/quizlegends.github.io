@@ -94,7 +94,7 @@
         .posicao {
             font-weight: 900;
             color: #f0e6d2;
-            width: 40px;
+            width: 35px; /* Reduzi 5px para ganhar espaço */
             flex-shrink: 0;
             font-size: 1.1rem;
         }
@@ -103,7 +103,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 70px;
+            width: 65px; /* Reduzi 5px para ganhar espaço */
             flex-shrink: 0;
         }
 
@@ -124,7 +124,7 @@
         .user-avatar {
             width: 55px;  
             height: 55px; 
-            margin: 0 15px;
+            margin: 0 10px; /* Reduzi a margem de 15px para 10px */
             flex-shrink: 0;
             object-fit: cover;
             border-radius: 50%;
@@ -135,19 +135,20 @@
             flex-grow: 1;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Reduzi levemente de 0.9 para 0.85 */
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            overflow: visible; /* Alterado de hidden para visible */
+            text-overflow: clip; /* Removido o ellipsis (...) */
+            min-width: 100px; /* Garante espaço para o nome */
         }
 
         .info-pdl {
             text-align: right;
-            min-width: 100px;
+            min-width: 90px; /* Reduzi de 100px para 90px */
         }
 
         .pdl-valor {
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Ajustado para acompanhar o nome */
             color: var(--hextech-blue);
             font-weight: bold;
             display: block;
@@ -200,7 +201,6 @@
 
         const URL_RAIZ = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/";
         const URL_ICONES = URL_RAIZ + "ícones/";
-        // Definindo o ícone padrão corretamente
         const ICONE_PADRAO = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/icone-padrao.png";
 
         const TABELA_ELOS = [
@@ -285,14 +285,11 @@
                     const user = docSnap.data();
                     const elo = getEloInfo(user.xp || 0);
                     
-                    // LÓGICA DE DEFINIÇÃO DA IMAGEM
                     let srcFinal = ICONE_PADRAO;
 
-                    // Se houver link direto (sistema novo)
                     if (user.iconeEquipado) {
                         srcFinal = user.iconeEquipado;
                     } 
-                    // Se houver apenas o ID do ícone
                     else if (user.iconeAtual || user.fotoPerfil) {
                         let id = String(user.iconeAtual || user.fotoPerfil)
                                  .replace('.png', '').replace('.gif', '').replace('.jpg', '');
