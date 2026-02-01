@@ -60,7 +60,6 @@
             box-sizing: border-box; 
             font-size: 15px; 
             outline: none;
-            /* REMOVIDO: text-transform: uppercase; (Agora aceita como você digitar) */
         }
 
         #aviso-limite {
@@ -176,6 +175,7 @@
         const inputUser = document.getElementById('user');
         const avisoLimite = document.getElementById('aviso-limite');
 
+        // Ajustado para 9 caracteres conforme seu HTML
         inputUser.oninput = () => {
             if (inputUser.value.length >= 9) {
                 avisoLimite.style.display = 'block';
@@ -202,11 +202,8 @@
         }
 
         document.getElementById('btnCadastrar').onclick = async () => {
-            // Pegamos o valor EXATO que está no campo agora
             const nomeOriginal = document.getElementById('user').value.trim();
-            // Apenas para a busca, comparamos em maiúsculas
             const nomeParaBusca = nomeOriginal.toUpperCase();
-            
             const email = document.getElementById('email').value.trim();
             const senha = document.getElementById('pass').value;
             const policy = document.getElementById('checkPolicy').checked;
@@ -229,7 +226,7 @@
             btn.innerText = "VERIFICANDO...";
 
             try {
-                // VERIFICAÇÃO: Procuramos se alguém já tem esse nome (independente de maiúsculo/minúsculo)
+                // Busca se o nome já existe (case-insensitive)
                 const q = query(collection(db, "usuarios"), where("nomeBusca", "==", nomeParaBusca));
                 const querySnapshot = await getDocs(q);
 
@@ -246,8 +243,8 @@
                 const user = userCredential.user;
 
                 await setDoc(doc(db, "usuarios", user.uid), {
-                    nome: nomeOriginal,      // AQUI: Salva exatamente como digitou (Pedro Henrique)
-                    nomeBusca: nomeParaBusca, // Salva tudo grande para a trava de segurança
+                    nome: nomeOriginal,
+                    nomeBusca: nomeParaBusca,
                     email: email,
                     saldo: 0,
                     xp: 0,
@@ -260,9 +257,10 @@
                     uid: user.uid
                 });
 
-                const avisoInvocador = `
+                // CORREÇÃO AQUI: Fechamento correto da String e da Função
+                const avisoInvocador = "<b>CRIADA COM SUCESSO!</b><br><br>Sua conta foi forjada nos campos da justiça. Agora você pode entrar e provar seu valor!";
 
-                exibirModal("CRIADA COM SUCESSO", avisoInvocador, "var(--ouro)", () => {
+                exibirModal("SAUDAÇÕES", avisoInvocador, "var(--ouro)", () => {
                     window.location.href = "index.html";
                 });
 
@@ -270,6 +268,7 @@
                 btn.disabled = false;
                 btn.innerText = "Criar Conta";
                 if (error.code === 'auth/email-already-in-use') msg.innerText = "E-MAIL JÁ EM USO!";
+                else if (error.code === 'auth/invalid-email') msg.innerText = "E-MAIL INVÁLIDO!";
                 else msg.innerText = "FALHA AO CRIAR CONTA.";
                 console.error(error);
             }
