@@ -133,8 +133,8 @@
         <label class="login-title">Nova Conta</label>
         
         <div class="input-group">
-            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="12">
-            <div id="aviso-limite">Limite máximo de 12 caracteres atingido!</div>
+            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="9">
+            <div id="aviso-limite">Limite máximo de 9 caracteres atingido!</div>
         </div>
 
         <div class="input-group">
@@ -178,7 +178,7 @@
         const avisoLimite = document.getElementById('aviso-limite');
 
         inputUser.oninput = () => {
-            if (inputUser.value.length >= 12) {
+            if (inputUser.value.length >= 9) {
                 avisoLimite.style.display = 'block';
             } else {
                 avisoLimite.style.display = 'none';
