@@ -62,6 +62,17 @@
             outline: none;
         }
 
+        /* AVISO DE LIMITE DE CARACTERES */
+        #aviso-limite {
+            display: none;
+            color: var(--erro);
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 5px;
+            text-align: center;
+        }
+
         .policy-group { 
             text-align: left; font-size: 11px; color: #ccc; margin: 18px 0; 
             display: flex; align-items: center; justify-content: flex-start;
@@ -122,7 +133,8 @@
         <label class="login-title">Nova Conta</label>
         
         <div class="input-group">
-            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="10" oninput="this.value = this.value.replace(/\s/g, '')">
+            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="11">
+            <div id="aviso-limite">Limite máximo de 11 caracteres atingido!</div>
         </div>
 
         <div class="input-group">
@@ -162,6 +174,18 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Lógica do aviso de limite de caracteres
+        const inputUser = document.getElementById('user');
+        const avisoLimite = document.getElementById('aviso-limite');
+
+        inputUser.oninput = () => {
+            if (inputUser.value.length >= 11) {
+                avisoLimite.style.display = 'block';
+            } else {
+                avisoLimite.style.display = 'none';
+            }
+        };
+
         function exibirModal(titulo, mensagem, corTitulo, acaoFinal) {
             const modal = document.getElementById('modal-alerta');
             const tituloH3 = document.getElementById('modal-titulo');
@@ -180,8 +204,8 @@
         }
 
         document.getElementById('btnCadastrar').onclick = async () => {
-            // Trim e replace adicional por segurança no envio
-            const usuarioNome = document.getElementById('user').value.replace(/\s/g, '').trim();
+            // Agora permitindo espaços (apenas removendo espaços extras nas extremidades com trim)
+            const usuarioNome = document.getElementById('user').value.trim();
             const email = document.getElementById('email').value.trim();
             const senha = document.getElementById('pass').value;
             const policy = document.getElementById('checkPolicy').checked;
@@ -225,9 +249,9 @@
                     <b>ATENÇÃO INVOCADOR!</b><br><br>
                     Que fique bem claro: este aplicativo não é uma 'renda extra'. Ele nasceu para ser um lugar de diversão e competição real entre fãs de League of Legends.
 
-O sistema de recompensas? É um bônus pelo seu conhecimento e pelas suas vitórias nos desafios. Mas vou logo avisando: não tem nada de fácil aqui. O caminho é difícil, as questões são para quem entende do jogo e o mérito é todo seu.
+                    O sistema de recompensas? É um bônus pelo seu conhecimento e pelas suas vitórias nos desafios. Mas vou logo avisando: não tem nada de fácil aqui. O caminho é difícil, as questões são para quem entende do jogo e o mérito é todo seu.
 
-Divirta-se, suba de elo e prove que você é uma verdadeira lenda!"
+                    Divirta-se, suba de elo e prove que você é uma verdadeira lenda!"
                 `;
 
                 exibirModal("SAUDAÇÕES", avisoInvocador, "var(--ouro)", () => {
