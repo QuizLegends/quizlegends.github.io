@@ -133,8 +133,8 @@
         <label class="login-title">Nova Conta</label>
         
         <div class="input-group">
-            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="15">
-            <div id="aviso-limite">Limite máximo de 15 caracteres atingido!</div>
+            <input type="text" id="user" placeholder="NOME DE USUÁRIO" autocomplete="off" maxlength="12">
+            <div id="aviso-limite">Limite máximo de 12 caracteres atingido!</div>
         </div>
 
         <div class="input-group">
@@ -159,7 +159,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
@@ -174,12 +174,11 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Lógica do aviso de limite de caracteres
         const inputUser = document.getElementById('user');
         const avisoLimite = document.getElementById('aviso-limite');
 
         inputUser.oninput = () => {
-            if (inputUser.value.length >= 15) {
+            if (inputUser.value.length >= 12) {
                 avisoLimite.style.display = 'block';
             } else {
                 avisoLimite.style.display = 'none';
@@ -204,7 +203,6 @@
         }
 
         document.getElementById('btnCadastrar').onclick = async () => {
-            // Agora permitindo espaços (apenas removendo espaços extras nas extremidades com trim)
             const usuarioNome = document.getElementById('user').value.trim();
             const email = document.getElementById('email').value.trim();
             const senha = document.getElementById('pass').value;
@@ -225,9 +223,22 @@
             }
 
             btn.disabled = true;
-            btn.innerText = "FORJANDO CONTA...";
+            btn.innerText = "VERIFICANDO...";
 
             try {
+                // LÓGICA DE VERIFICAÇÃO DE NOME DUPLICADO
+                const q = query(collection(db, "usuarios"), where("nome", "==", usuarioNome));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    msg.innerText = "NOME DE USUÁRIO JÁ EM USO!";
+                    btn.disabled = false;
+                    btn.innerText = "Criar Conta";
+                    return;
+                }
+
+                btn.innerText = "FORJANDO CONTA...";
+
                 const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
                 const user = userCredential.user;
 
