@@ -5,93 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quiz Legends - Game</title>
     <style>
-        :root {
-            --bg-dark: #010a13; --lol-blue: #091428; --gold: #c89b3c;
+        :root { 
+            --bg-dark: #010a13; --lol-blue: #091428; --gold: #c89b3c; 
             --gold-dark: #785a28; --gold-bright: #f0e6d2; --text: #f0e6d2;
-            --ad-space: 65px;
+            --ad-space: 65px; 
             --correct: #28a745; --wrong: #dc3545;
         }
+        
+        html {
+            height: 100%;
+            overflow-y: auto;
+        }
 
-        html { height: 100%; overflow-y: auto; }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            /* Máscara negra (rgba 0,0,0,0.6) combinada com a imagem */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
                         url('admin-vertical.png') no-repeat center center fixed;
             background-size: cover;
-            color: var(--text);
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh; width: 100vw;
-            overflow-y: visible; overflow-x: hidden;
+            color: var(--text); 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            /* Alterado de min-height para permitir rolagem natural */
+            min-height: 100vh; 
+            width: 100vw; 
+            /* overflow e overscroll ajustados para permitir scroll mobile */
+            overflow-y: visible; 
+            overflow-x: hidden; 
             -webkit-overflow-scrolling: touch;
         }
 
-        .modal-premiação {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(1, 10, 19, 0.98); display: flex; align-items: center; justify-content: center; z-index: 10000;
+            /* Modal de Premiação Estilo Hextech */
+            .modal-premiação {
+             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+             background: rgba(1, 10, 19, 0.98); display: flex; align-items: center; justify-content: center; z-index: 10000;
+        }
+             .modal-content {
+             background: #091428; border: 2px solid #c89b3c; padding: 30px;
+             text-align: center; max-width: 350px; width: 85%;
+             box-shadow: 0 0 25px rgba(200, 155, 60, 0.4);
+             animation: zoomIn 0.3s ease-out;
+        }
+             .modal-content h2 { color: #c89b3c; text-transform: uppercase; margin: 0 0 15px; font-size: 1.2rem; }
+             .pos-destaque { font-size: 3.5rem; color: #0ac8b9; font-weight: bold; margin: 10px 0; text-shadow: 0 0 10px rgba(10, 200, 185, 0.3); }
+             .btn-coletar {
+             background: #c89b3c; color: #010a13; border: none; padding: 15px;
+             font-weight: bold; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 20px;
+             transition: 0.3s;
+        }
+             .btn-coletar:hover { background: #f0e6d2; }
+             @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+            /* Efeito de revelação da Sentinela de Controle */
+            .sentinela-revelar {
+             border: 2px solid #00cfbc !important;
+             box-shadow: 0 0 15px rgba(0, 207, 188, 0.6) !important;
+             animation: pulseSentinela 1.5s infinite ease-in-out;
         }
 
-        .modal-content {
-            background: #091428; border: 2px solid #c89b3c; padding: 30px;
-            text-align: center; max-width: 350px; width: 85%;
-            box-shadow: 0 0 25px rgba(200, 155, 60, 0.4);
-            animation: zoomIn 0.3s ease-out;
+             @keyframes pulseSentinela {
+             0% { box-shadow: 0 0 5px rgba(0, 207, 188, 0.4); }
+             50% { box-shadow: 0 0 20px rgba(0, 207, 188, 0.8); }
+             100% { box-shadow: 0 0 5px rgba(0, 207, 188, 0.4); }
         }
-
-        .modal-content h2 { color: #c89b3c; text-transform: uppercase; margin: 0 0 15px; font-size: 1.2rem; }
-        .pos-destaque { font-size: 3.5rem; color: #0ac8b9; font-weight: bold; margin: 10px 0; text-shadow: 0 0 10px rgba(10, 200, 185, 0.3); }
-        .btn-coletar { background: #c89b3c; color: #010a13; border: none; padding: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 20px; transition: 0.3s; }
-        .btn-coletar:hover { background: #f0e6d2; }
-
-        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .sentinela-revelar {
-            border: 2px solid #00cfbc !important;
-            box-shadow: 0 0 15px rgba(0, 207, 188, 0.6) !important;
-            animation: pulseSentinela 1.5s infinite ease-in-out;
-        }
-
-        @keyframes pulseSentinela {
-            0% { box-shadow: 0 0 5px rgba(0, 207, 188, 0.4); }
-            50% { box-shadow: 0 0 20px rgba(0, 207, 188, 0.8); }
-            100% { box-shadow: 0 0 5px rgba(0, 207, 188, 0.4); }
-        }
-
+        
+        /* --- NOVO: CSS DO BOTÃO DE RANKING (ESTILO GRANDE ACIMA DAS MOEDAS) --- */
         .btn-ranking-top {
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(9, 20, 40, 0.9); border: 1px solid var(--gold);
-            color: var(--gold); font-size: 11px; font-weight: 900;
-            text-transform: uppercase; padding: 10px; border-radius: 4px;
-            cursor: pointer; text-decoration: none; transition: 0.2s;
-            letter-spacing: 2px; width: 100%; box-sizing: border-box;
-            margin-bottom: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(9, 20, 40, 0.9);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+            letter-spacing: 2px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .btn-ranking-top:hover {
+            background: var(--gold);
+            color: var(--bg-dark);
         }
 
-        .btn-ranking-top:hover { background: var(--gold); color: var(--bg-dark); }
-
+        /* --- ANIMAÇÕES --- */
         #elo-transition-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9); z-index: 9999; flex-direction: column;
             align-items: center; justify-content: center; backdrop-filter: blur(10px);
             animation: fadeInElo 0.5s ease forwards;
         }
-
         .elo-ani-title { color: var(--gold); font-size: 1.1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
         .elo-ani-name { font-size: 2.8rem; font-weight: 900; text-transform: uppercase; text-align: center; text-shadow: 0 0 20px currentColor; animation: scaleUpElo 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
+        
         @keyframes fadeInElo { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleUpElo { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         .floating-pdl { position: fixed; pointer-events: none; font-weight: 900; font-size: 1.2rem; z-index: 5000; animation: floatUp 1s ease-out forwards; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
 
+        /* --- MODAL E COMPONENTES --- */
         #custom-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.9); z-index: 3000; align-items: center; justify-content: center;
             backdrop-filter: blur(8px);
         }
-
         .modal-content {
             width: 85%; max-width: 350px; background: var(--lol-blue); border: 2px solid var(--gold);
             padding: 25px; text-align: center; position: relative;
@@ -99,9 +128,8 @@
             box-shadow: 0 0 30px rgba(200, 155, 60, 0.4); animation: modalPop 0.3s ease-out;
             max-height: 80vh; overflow-y: auto;
         }
-
         @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
+        
         .modal-title { color: var(--gold); font-weight: 900; text-transform: uppercase; margin-bottom: 12px; font-size: 1.1rem; }
         .modal-text { font-size: 0.9rem; line-height: 1.4; color: var(--gold-bright); margin-bottom: 20px; }
         .modal-footer { display: flex; flex-direction: column; gap: 10px; align-items: center; }
@@ -114,27 +142,28 @@
 
         .contador-video { font-size: 2.5rem; font-weight: 900; color: var(--gold); margin: 15px 0; text-shadow: 0 0 15px rgba(200, 155, 60, 0.6); }
 
-        .modal-btn-confirm {
+        .modal-btn-confirm { 
             background: linear-gradient(to bottom, var(--gold), var(--gold-dark)); border: 1px solid var(--gold-bright);
             color: #000; padding: 12px 20px; font-weight: 900; text-transform: uppercase; cursor: pointer; width: 100%;
             clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%);
         }
 
-        .header-section { display: flex; flex-direction: column; align-items: center; padding: 0 10px; width: 100%; box-sizing: border-box; gap: 10px; }
+        .header-section { display: flex; flex-direction: column; align-items: center; padding: 0 10px; width: 100%; box-sizing: border-box; gap: 10px;}
         .title-legends h1 { font-size: 1.6rem; margin: 0; color: var(--gold); text-transform: uppercase; background: linear-gradient(to bottom, var(--gold-bright), var(--gold), var(--gold-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
+        
+        /* --- ELO GRANDE NOVAMENTE --- */
         .elo-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 250px; cursor: pointer; margin-bottom: 5px; }
         .elo-badge { border: 2px solid var(--gold); padding: 8px 15px; font-size: 0.9rem; font-weight: 900; text-transform: uppercase; border-radius: 4px; width: 100%; text-align: center; box-sizing: border-box; transition: 0.2s; background: rgba(1, 10, 19, 0.5); }
         .xp-mini-bar-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(200, 155, 60, 0.3); border-radius: 3px; margin-top: 5px; overflow: hidden; }
         .xp-mini-bar-fill { height: 100%; width: 0%; transition: width 0.3s ease; }
 
         .coin-badge { border: 2px solid var(--gold); padding: 8px 20px; background: rgba(1, 10, 19, 0.9); color: var(--gold); font-weight: 900; font-size: 1.1rem; width: 100%; text-align: center; box-sizing: border-box; }
-
-        .hex-frame { background: var(--lol-blue); border: 2px solid var(--gold); position: relative; padding: 12px; display: flex; flex-direction: column; box-sizing: border-box; clip-path: polygon(4% 0, 96% 0, 100% 8%, 100% 92%, 96% 100%, 4% 100%, 0 92%, 0 8%); margin-bottom: 5px; width: 100%; }
+        
+        .hex-frame { background: var(--lol-blue); border: 2px solid var(--gold); position: relative; padding: 12px; display: flex; flex-direction: column; box-sizing: border-box; clip-path: polygon(4% 0, 96% 0, 100% 8%, 100% 92%, 96% 100%, 4% 100%, 0 92%, 0 8%); margin-bottom: 5px; width: 100%;}
         .option-btn { background: #1e2328; border: 1px solid var(--gold-dark); color: var(--gold-bright); padding: 12px; margin: 5px 0; width: 100%; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; position: relative; }
         .btn-correct { background-color: var(--correct) !important; border-color: #fff !important; }
         .btn-wrong { background-color: var(--wrong) !important; border-color: #fff !important; }
-
+        
         .video-buttons-container { display: flex; gap: 8px; margin-top: 8px; }
         .video-btn { flex: 1; background: #1e2328; border: 1px solid #333; color: #666; padding: 12px 5px; font-weight: bold; text-transform: uppercase; cursor: not-allowed; font-size: 0.55rem; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .video-btn.active { background: linear-gradient(to bottom, #c8a355, #785a28); border: 1px solid var(--gold-bright); color: #f0e6d2; cursor: pointer; box-shadow: 0 0 10px rgba(200, 155, 60, 0.4); }
@@ -142,26 +171,58 @@
         .resgate-selector { display: flex; justify-content: flex-start; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .resgate-opt { flex: 0 0 auto; min-width: 85px; background: #010a13; border: 1px solid var(--gold-dark); color: var(--gold); padding: 12px 5px; font-size: 0.8rem; font-weight: 900; cursor: pointer; text-align: center; }
         .resgate-opt.active { background: var(--gold); color: #000; border-color: var(--gold-bright); }
-
+        input { width: 100%; padding: 12px; background: #010a13; color: white; border: 1px solid var(--gold-dark); margin: 8px 0; box-sizing: border-box; }
+        
         .footer-ad-space { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--ad-space); background: #000; border-top: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-
-        .link-politica-quadro { display: inline-block; text-align: center; color: var(--gold); font-size: 9px; text-decoration: none; margin-top: 10px; opacity: 0.5; text-transform: uppercase; }
-
+        
+        /* AJUSTADO PARA CENTRALIZAR */
+        .link-politica-quadro { 
+            display: inline-block; 
+            text-align: center; 
+            color: var(--gold); 
+            font-size: 9px; 
+            text-decoration: none; 
+            margin-top: 10px; 
+            opacity: 0.5; 
+            text-transform: uppercase; 
+        }
+        
         #pull-to-refresh { position: fixed; top: -60px; left: 0; width: 100%; height: 60px; display: flex; align-items: center; justify-content: center; z-index: 2000; transition: transform 0.2s ease; }
         .refresh-badge { border: 2px solid var(--gold); padding: 8px 20px; background: rgba(9, 20, 40, 0.95); color: var(--gold); font-weight: 900; font-size: 0.8rem; text-transform: uppercase; clip-path: polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0 50%); }
-
-        .app-container {
-            flex: 0 0 auto; display: flex; flex-direction: column;
-            padding: 15px 0; gap: 10px; width: 94%; max-width: 400px;
-            box-sizing: border-box; margin-bottom: calc(var(--ad-space) + 20px);
-            justify-content: flex-start; transition: transform 0.2s ease;
+        
+        /* Container principal ajustado para permitir crescimento */
+        .app-container { 
+            flex: 0 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 15px 0; 
+            gap: 10px; 
+            width: 94%; 
+            max-width: 400px; 
+            box-sizing: border-box; 
+            margin-bottom: calc(var(--ad-space) + 20px); 
+            justify-content: flex-start; 
+            transition: transform 0.2s ease; 
         }
 
-        .grid-inventario-modal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px 0; }
-        .item-inventario { border: 1px solid var(--gold-dark); padding: 5px; cursor: pointer; transition: 0.2s; position: relative; }
+        /* --- ESTILOS PARA O GRID DO INVENTÁRIO DENTRO DO MODAL --- */
+        .grid-inventario-modal {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 10px 0;
+        }
+        .item-inventario {
+            border: 1px solid var(--gold-dark);
+            padding: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
         .item-inventario.equipado { border-color: #28a745; background: rgba(40, 167, 69, 0.2); }
         .item-inventario img { width: 100%; border-radius: 4px; display: block; }
         .item-inventario span { font-size: 10px; display: block; margin-top: 4px; color: var(--gold-bright); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
     </style>
 </head>
 <body>
@@ -181,68 +242,79 @@
     <div id="pull-to-refresh"><div class="refresh-badge">Solte para Recarregar</div></div>
 
     <div class="app-container" id="main-content">
-        <div class="header-section">
-            <div class="title-legends"><h1>QUIZ LEGENDS</h1></div>
-            <a href="ranking.html" class="btn-ranking-top">🏆 VER RANKING GLOBAL</a>
-            <div class="coin-badge">🟡 <span id="goldAmount">...</span></div>
-            <div class="elo-container" id="btnVerElos" style="cursor:pointer;">
-                <span class="elo-badge" id="txtElo">...</span>
-                <div class="xp-mini-bar-bg">
-                    <div id="xpMiniFill" class="xp-mini-bar-fill"></div>
-                </div>
+    <div class="header-section">
+        <div class="title-legends"><h1>QUIZ LEGENDS</h1></div>
+        
+        <a href="ranking.html" class="btn-ranking-top">🏆 VER RANKING GLOBAL</a>
+        
+        <div class="coin-badge">🟡 <span id="goldAmount">...</span></div>
+
+        <div class="elo-container" id="btnVerElos" style="cursor:pointer;">
+            <span class="elo-badge" id="txtElo">...</span>
+            <div class="xp-mini-bar-bg">
+                <div id="xpMiniFill" class="xp-mini-bar-fill"></div>
             </div>
         </div>
+    </div>
 
-        <div class="hex-frame">
-            <div id="quizContent">
-                <p id="perguntaTexto" style="text-align: center; font-size: 1rem; color: var(--gold-bright); font-weight: bold; margin-bottom: 10px;">Autenticando...</p>
-                <div id="opcoes"></div>
-                <p id="avisoStatusQuiz" style="text-align: center; font-size: 0.75rem; color: var(--gold); font-weight: bold; margin-top: 15px; text-transform: uppercase; line-height: 1.4;"></p>
-            </div>
-            <div style="text-align: center;">
-                <div class="video-buttons-container">
-                    <button id="btnVideo" class="video-btn">
-                        📺 +500 MOEDAS
-                        <span id="txtMetaAcertos">META 10 ACERTOS</span>
-                        <span id="txtLimiteBotao" style="font-size: 0.65rem; display: block; opacity: 0.8;">LIMITE DIÁRIO: 0/35</span>
-                    </button>
-                    <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">
-                        📺 +100 MOEDAS <span>+100 PDL</span>
-                    </button>
-                    <button id="btnVideoXP" class="video-btn">📺 +500 PDL <span>META 10 ACERTOS</span></button>
-                </div>
+    <div class="hex-frame">
+        <div id="quizContent">
+            <p id="perguntaTexto" style="text-align: center; font-size: 1rem; color: var(--gold-bright); font-weight: bold; margin-bottom: 10px;">Autenticando...</p>
+            <div id="opcoes"></div>
+            <p id="avisoStatusQuiz" style="text-align: center; font-size: 0.75rem; color: var(--gold); font-weight: bold; margin-top: 15px; text-transform: uppercase; line-height: 1.4;"></p>
+        </div>
+        
+        <div style="text-align: center;">
+            <div class="video-buttons-container">
+                <button id="btnVideo" class="video-btn">
+                   📺 +500 MOEDAS 
+                   <span id="txtMetaAcertos">META 10 ACERTOS</span>
+                   <span id="txtLimiteBotao" style="font-size: 0.65rem; display: block; opacity: 0.8;">LIMITE DIÁRIO: 0/35</span>
+                </button>
+                
+                <button id="btnVideoLivre" class="video-btn active" style="border-color: #28a745 !important;">
+                    📺 +100 MOEDAS <span>+100 PDL</span>
+                </button>
+                
+                <button id="btnVideoXP" class="video-btn">📺 +500 PDL <span>META 10 ACERTOS</span></button>
             </div>
         </div>
+    </div>
 
-        <div class="hex-frame">
-            <div id="containerRankingResumo" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #c89b3c33; margin-bottom: 15px; text-align: center;">
-                <h4 style="color: var(--gold); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">TOP 3 DA SEMANA</h4>
-                <div style="display: flex; justify-content: space-around; align-items: flex-end; min-height: 140px; padding-bottom: 5px;">
-                    <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
-                        <div style="font-size: 0.7rem; color: #C0C0C0; font-weight: bold; margin-bottom: 5px;">2º</div>
-                        <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                            <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/1.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                        </div>
-                        <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player B</small>
-                    </div>
-                    <div style="display: flex; flex-direction: column; align-items: center; width: 40%;">
-                        <div style="font-size: 1.6rem; margin-bottom: 2px; filter: drop-shadow(0 0 5px gold);">👑</div>
-                        <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                            <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/0.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                        </div>
-                        <small style="font-size: 0.85rem; font-weight: bold; color: var(--gold); margin-top: 8px;">Lenda Atual</small>
-                    </div>
-                    <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
-                        <div style="font-size: 0.7rem; color: #cd7f32; font-weight: bold; margin-bottom: 5px;">3º</div>
-                        <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
-                            <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/2.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                        </div>
-                        <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player C</small>
-                    </div>
+       <div class="hex-frame">
+    <div id="containerRankingResumo" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid #c89b3c33; margin-bottom: 15px; text-align: center;">
+        <h4 style="color: var(--gold); font-size: 0.7rem; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8;">TOP 3 DA SEMANA</h4>
+        
+        <div style="display: flex; justify-content: space-around; align-items: flex-end; min-height: 140px; padding-bottom: 5px;">
+            
+            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+                <div style="font-size: 0.7rem; color: #C0C0C0; font-weight: bold; margin-bottom: 5px;">2º</div>
+                <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
+                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/1.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
                 </div>
+                <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player B</small>
             </div>
-        </div>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; width: 40%;">
+                <div style="font-size: 1.6rem; margin-bottom: 2px; filter: drop-shadow(0 0 5px gold);">👑</div>
+                <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
+                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/0.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                </div>
+                <small style="font-size: 0.85rem; font-weight: bold; color: var(--gold); margin-top: 8px;">Lenda Atual</small>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; width: 30%;">
+                <div style="font-size: 0.7rem; color: #cd7f32; font-weight: bold; margin-bottom: 5px;">3º</div>
+                <div style="width: 75px; height: 75px; border-radius: 50%; overflow: hidden; display: flex; background: transparent;">
+                    <img src="https://ddragon.leagueoflegends.com/cdn/13.24.1/img/profileicon/2.png" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                </div>
+                <small style="font-size: 0.65rem; color: #eee; margin-top: 8px;">Player C</small>
+            </div>
 
+        </div>
+    </div>
+</div>
+        
         <div class="resgate-selector" style="margin-bottom: 15px;">
             <div class="resgate-opt" onclick="window.location.href='inventario.html'">🎒 ITENS</div>
             <div class="resgate-opt" onclick="window.location.href='status.html'">🛡️ STATUS</div>
@@ -253,606 +325,853 @@
         <button class="option-btn" onclick="location.href='loja.html'" style="margin: 0; background: linear-gradient(to bottom, #091428, #0a323c); border-color: var(--gold); padding: 12px; font-size: 0.8rem;">
             ACESSAR LOJA HEXTECH
         </button>
-
+        
         <div style="text-align: center; margin-top: 10px;">
             <a href="politica.html" class="link-politica-quadro">Política de Privacidade</a>
         </div>
     </div>
+</div>
 
-    <div class="footer-ad-space"></div>
+<div class="footer-ad-space">
+</div>
 
-   <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, increment, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, increment, addDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E",
-            authDomain: "quizlegends-f58fc.firebaseapp.com",
-            projectId: "quizlegends-f58fc",
-            storageBucket: "quizlegends-f58fc.firebasestorage.app",
-            messagingSenderId: "1050463164018",
-            appId: "1:1050463164018:web:91de002b8afc8e678f54eb"
-        };
+    // --- 1. CONFIGURAÇÃO E INICIALIZAÇÃO ÚNICA ---
+    const firebaseConfig = { 
+        apiKey: "AIzaSyC4dm0KoyJswhyCY7tgbF4D2nmuZl84X8E", 
+        authDomain: "quizlegends-f58fc.firebaseapp.com", 
+        projectId: "quizlegends-f58fc", 
+        storageBucket: "quizlegends-f58fc.firebasestorage.app", 
+        messagingSenderId: "1050463164018", 
+        appId: "1:1050463164018:web:91de002b8afc8e678f54eb" 
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        const modal = document.getElementById('custom-modal');
-        const mTitle = document.getElementById('m-title');
-        const mContent = document.getElementById('modal-body-content');
-        const mFooter = document.getElementById('m-footer');
+    // Variáveis Globais do Script
+    const modal = document.getElementById('custom-modal');
+    const mTitle = document.getElementById('m-title');
+    const mContent = document.getElementById('modal-body-content');
+    const mFooter = document.getElementById('m-footer');
 
-        let bancoPerguntas = [];
-        let tempoRestanteAnuncio = 15;
-        let intervaloAnuncio = null;
-        let anuncioEmAndamento = false;
-        let tipoRecompensa = "moeda";
-        let chaveSeguranca = false;
-        let cooldownLivreAtivo = false;
-        const linkAnuncioAdsterra = "https://www.effectivegatecpm.com/jt82yz19rk?key=427afd02462871777b7bf2742e74b44f";
+    let bancoPerguntas = [];
+    let tempoRestanteAnuncio = 15; 
+    let intervaloAnuncio = null;
+    let anuncioEmAndamento = false;
+    let tipoRecompensa = "moeda"; 
+    let chaveSeguranca = false;
+    let cooldownLivreAtivo = false;
+    const linkAnuncioAdsterra = "https://www.effectivegatecpm.com/jt82yz19rk?key=427afd02462871777b7bf2742e74b44f";
 
-        let goldDB = 0, acertosNoCiclo = 0, videosAssistidos = 0, totalVideosHoje = 0;
-        let pdlInterno = 0, userRef = null, carregadoPelaPrimeiraVez = false;
+    let metaAtual = 195000, valorReaisMeta = "0,50";
+    let goldDB = 0, acertosNoCiclo = 0, videosAssistidos = 0, totalVideosHoje = 0;
+    let pdlInterno = 0, userRef = null, carregadoPelaPrimeiraVez = false, ultimoEloNome = null;
 
-        const URL_BASE_ICON = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/icone-padrao.png";
+    // --- LISTA DE REFERÊNCIA PARA O INVENTÁRIO (Sincronizado com a Loja) ---
+    // Link do ícone padrão definido como constante global para fácil manutenção
+    const URL_BASE_ICON = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/icone-padrao.png";
+    
+    const CATALOGO_ITENS = [
+        { id: "aatrox_comum", nome: "Aatrox", img: "aatrox-comum.png" },
+        { id: "aatrox_raro", nome: "Aatrox Caçador de Almas", img: "aatrox-raro.png" },
+        { id: "aatrox_epico", nome: "Aatrox Vitorioso", img: "aatrox-epico.png" },
+        { id: "ahri_comum", nome: "Ahri", img: "ahri-comum.png" },
+        { id: "ahri_raro", nome: "Ahri Raposa Flamejante", img: "ahri-raro.png" },
+        { id: "ahri_epico", nome: "Ahri K/DA", img: "ahri-epico.png" },
+        { id: "anjo_guardiao", nome: "Anjo Guardião", img: "anjo.png" }
+    ];
 
-        const CATALOGO_ITENS = [
-            { id: "aatrox_comum", nome: "Aatrox", img: "aatrox-comum.png" },
-            { id: "aatrox_raro", nome: "Aatrox Caçador de Almas", img: "aatrox-raro.png" },
-            { id: "aatrox_epico", nome: "Aatrox Vitorioso", img: "aatrox-epico.png" },
-            { id: "ahri_comum", nome: "Ahri", img: "ahri-comum.png" },
-            { id: "ahri_raro", nome: "Ahri Raposa Flamejante", img: "ahri-raro.png" },
-            { id: "ahri_epico", nome: "Ahri K/DA", img: "ahri-epico.png" },
-            { id: "anjo_guardiao", nome: "Anjo Guardião", img: "anjo.png" }
-        ];
+    // --- 2. FUNÇÕES DE INTERFACE (MODAIS E PÓDIO) ---
 
-        function openModal(title, text, type = 'alert', onConfirm = null) {
-            if (!modal) return;
-            mTitle.innerHTML = title;
-            mContent.innerHTML = `<div class="modal-text">${text}</div>`;
-            mFooter.innerHTML = '';
-            if (type === 'confirm') {
-                const bC = document.createElement('button'); bC.className = 'modal-btn-confirm'; bC.innerText = 'CONFIRMAR'; bC.onclick = onConfirm;
-                const bX = document.createElement('button'); bX.className = 'option-btn'; bX.innerText = 'VOLTAR'; bX.onclick = () => modal.style.display = 'none';
-                mFooter.appendChild(bC); mFooter.appendChild(bX);
-            } else {
-                const bO = document.createElement('button'); bO.className = 'modal-btn-confirm'; bO.innerText = 'ENTENDI';
-                bO.onclick = () => { modal.style.display = 'none'; if (onConfirm) onConfirm(); };
-                mFooter.appendChild(bO);
+    function openModal(title, text, type = 'alert', onConfirm = null) {
+        if (!modal) return;
+        mTitle.innerHTML = title; 
+        mContent.innerHTML = `<div class="modal-text">${text}</div>`;
+        mFooter.innerHTML = '';
+
+        if (type === 'confirm') {
+            const bC = document.createElement('button'); 
+            bC.className = 'modal-btn-confirm'; 
+            bC.innerText = 'CONFIRMAR'; 
+            bC.onclick = onConfirm;
+            const bX = document.createElement('button'); 
+            bX.className = 'option-btn'; 
+            bX.innerText = 'VOLTAR'; 
+            bX.onclick = () => modal.style.display = 'none';
+            mFooter.appendChild(bC); mFooter.appendChild(bX);
+        } else {
+            const bO = document.createElement('button'); 
+            bO.className = 'modal-btn-confirm'; 
+            bO.innerText = 'ENTENDI'; 
+            bO.onclick = () => { modal.style.display = 'none'; if (onConfirm) onConfirm(); };
+            mFooter.appendChild(bO);
+        }
+        modal.style.display = 'flex';
+    }
+    window.openModal = openModal;
+
+    async function atualizarPodioSemanal() {
+    try {
+        const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"), limit(3));
+        const querySnapshot = await getDocs(q);
+        const vencedores = [];
+        querySnapshot.forEach((doc) => { vencedores.push(doc.data()); });        
+
+        const obterDadosFoto = (usuario) => {
+            const URL_BASE_GH = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
+            // Usamos a constante global para garantir que o ícone padrão seja o correto
+            const fotoPadrao = URL_BASE_ICON;
+            
+            let idLimpo = null;
+            let urlDireta = null;
+
+            // 1ª PRIORIDADE: Novo sistema de Ícone Equipado (Link direto)
+            if (usuario.iconeEquipado) {
+                urlDireta = usuario.iconeEquipado;
             }
-            modal.style.display = 'flex';
-        }
-        window.openModal = openModal;
-
-        async function atualizarPodioSemanal() {
-            try {
-                const q = query(collection(db, "usuarios"), orderBy("pdlSemanal", "desc"), limit(3));
-                const querySnapshot = await getDocs(q);
-                const vencedores = [];
-                querySnapshot.forEach((doc) => { vencedores.push(doc.data()); });
-
-                const obterDadosFoto = (usuario) => {
-                    const URL_BASE_GH = "https://raw.githubusercontent.com/QuizLegends/quizlegends.github.io/main/ícones/";
-                    const fotoPadrao = URL_BASE_ICON;
-                    let idLimpo = null;
-                    let urlDireta = null;
-
-                    if (usuario.iconeEquipado) { urlDireta = usuario.iconeEquipado; }
-                    else if (usuario.iconeAtual) { idLimpo = String(usuario.iconeAtual).replace('.png', '').replace('.gif', '').replace('_', '-'); }
-                    else if (usuario.fotoPerfil) {
-                        const valor = String(usuario.fotoPerfil);
-                        if (valor.startsWith('http')) { urlDireta = valor; }
-                        else { idLimpo = valor.replace('.png', '').replace('.gif', '').replace('.jpg', ''); }
-                    }
-                    else if (usuario.photoURL || usuario.fotoUrl) { urlDireta = usuario.photoURL || usuario.fotoUrl; }
-                    if (!idLimpo && !urlDireta) { urlDireta = fotoPadrao; }
-                    return { id: idLimpo, urlFixa: urlDireta, urlBaseGH: URL_BASE_GH, padrao: fotoPadrao };
-                };
-
-                if(vencedores[0]) atualizarVisualPodio(1, vencedores[0].nome, obterDadosFoto(vencedores[0]));
-                if(vencedores[1]) atualizarVisualPodio(2, vencedores[1].nome, obterDadosFoto(vencedores[1]));
-                if(vencedores[2]) atualizarVisualPodio(3, vencedores[2].nome, obterDadosFoto(vencedores[2]));
-            } catch (error) { console.error("Erro ao carregar pódio:", error); }
-        }
-
-        function atualizarVisualPodio(posicao, nome, dadosFoto) {
-            const containers = document.querySelectorAll("#containerRankingResumo div[style*='flex-direction: column']");
-            if (containers.length < 3) return;
-            let alvo = null;
-            if (posicao === 2) alvo = containers[0];
-            if (posicao === 1) alvo = containers[1];
-            if (posicao === 3) alvo = containers[2];
-            if (alvo) {
-                const small = alvo.querySelector("small");
-                const imgTag = alvo.querySelector("img");
-                if (small) small.innerText = nome.split(' ')[0];
-                if (imgTag) {
-                    if (dadosFoto.urlFixa) {
-                        imgTag.src = dadosFoto.urlFixa;
-                        imgTag.onerror = () => { imgTag.src = dadosFoto.padrao; };
-                    } else if (dadosFoto.id) {
-                        const urlSemExtensao = dadosFoto.urlBaseGH + dadosFoto.id;
-                        imgTag.src = urlSemExtensao + ".gif";
-                        imgTag.onerror = () => {
-                            if (imgTag.src.includes('.gif')) { imgTag.src = urlSemExtensao + ".png"; }
-                            else if (imgTag.src.includes('.png')) { imgTag.src = dadosFoto.padrao; }
-                        };
-                    } else { imgTag.src = dadosFoto.padrao; }
-                    imgTag.style.width = "100%";
-                    imgTag.style.height = "100%";
-                    imgTag.style.objectFit = "cover";
-                }
+            // 2ª PRIORIDADE: Ícone Atual (ID para montagem de link)
+            else if (usuario.iconeAtual) {
+                idLimpo = String(usuario.iconeAtual).replace('.png', '').replace('.gif', '').replace('_', '-');
             }
-        }
-
-        const configElo = [];
-        const divisoes = ["V", "IV", "III", "II", "I"];
-        const coresElos = {
-            "FERRO": { bg: "#2a2a2a", color: "#8a8a8a", bar: "#555" },
-            "BRONZE": { bg: "#4e3629", color: "#cd7f32", bar: "#8b4513" },
-            "PRATA": { bg: "#4a5d6e", color: "#e2e2e2", bar: "#a9b9c9" },
-            "OURO": { bg: "#7a5c12", color: "#f1d37e", bar: "#c89b3c" },
-            "PLATINA": { bg: "#1d5c5c", color: "#a3e7e7", bar: "#46abb0" },
-            "ESMERALDA": { bg: "#0d5c2e", color: "#a3e7bc", bar: "#28a745" },
-            "DIAMANTE": { bg: "#1f3a7a", color: "#b3c7f7", bar: "#5c85d6" }
-        };
-
-        function gerarEloComDivisoes(nome, min, max) {
-            let passo = (max - min) / 5;
-            divisoes.forEach((div, i) => {
-                configElo.push({ nome: `${nome} ${div}`, min: min + (passo * i), max: min + (passo * (i + 1)), ...coresElos[nome] });
-            });
-        }
-
-        gerarEloComDivisoes("FERRO", 0, 5000);
-        gerarEloComDivisoes("BRONZE", 5000, 10000);
-        gerarEloComDivisoes("PRATA", 10000, 30000);
-        gerarEloComDivisoes("OURO", 30000, 60000);
-        gerarEloComDivisoes("PLATINA", 60000, 100000);
-        gerarEloComDivisoes("ESMERALDA", 100000, 150000);
-        gerarEloComDivisoes("DIAMANTE", 150000, 300000);
-        configElo.push({ nome: "MESTRE", min: 300000, max: 600000, bg: "#5a1f7a", color: "#dfb3f7", bar: "#9b59b6" });
-        configElo.push({ nome: "GRÃO-MESTRE", min: 600000, max: 1000000, bg: "#7a1f1f", color: "#f7b3b3", bar: "#e74c3c" });
-        configElo.push({ nome: "DESAFIANTE", min: 1000000, max: 99999999, bg: "#1a4a5a", color: "#b3e7f7", bar: "#3498db" });
-
-        function getEloInfo(valorXP) {
-            if (valorXP <= 0) return configElo[0];
-            return configElo.find(e => valorXP >= e.min && valorXP < e.max) || configElo[configElo.length - 1];
-        }
-
-        function verificarCooldownLivre() {
-            const salvo = localStorage.getItem('proximoVideoLivre');
-            if (salvo) {
-                const agora = Date.now();
-                const tempoDesbloqueio = parseInt(salvo);
-                if (tempoDesbloqueio > agora) { executarCronometroVisual(Math.floor((tempoDesbloqueio - agora) / 1000)); }
-                else { localStorage.removeItem('proximoVideoLivre'); }
-            }
-        }
-
-        function iniciarCooldownLivre(segundos) {
-            localStorage.setItem('proximoVideoLivre', Date.now() + (segundos * 1000));
-            executarCronometroVisual(segundos);
-        }
-
-        function executarCronometroVisual(segundos) {
-            const btn = document.getElementById('btnVideoLivre');
-            if (!btn) return;
-            cooldownLivreAtivo = true;
-            btn.disabled = true;
-            let restante = segundos;
-            const intervalo = setInterval(() => {
-                restante--;
-                btn.innerHTML = `AGUARDE <span style="color:#28a745">${restante}s</span>`;
-                if (restante <= 0) {
-                    clearInterval(intervalo);
-                    cooldownLivreAtivo = false;
-                    localStorage.removeItem('proximoVideoLivre');
-                    btn.disabled = false;
-                    btn.innerHTML = `📺 +100 MOEDAS <span>+100 PDL</span>`;
-                    atualizarInterface();
-                }
-            }, 1000);
-        }
-
-        function iniciarFluxoAnuncio(tipo) {
-            if (tipo === 'livre' && cooldownLivreAtivo) return;
-            chaveSeguranca = false;
-            tipoRecompensa = tipo; anuncioEmAndamento = true; tempoRestanteAnuncio = 15;
-            if(intervaloAnuncio) clearInterval(intervaloAnuncio);
-            window.open(linkAnuncioAdsterra, '_blank');
-            openModal("VALIDANDO RECOMPENSA", `Permaneça na página do anúncio.<br><div class="contador-video" id="modalContador">15</div>`, 'alert');
-            mFooter.innerHTML = '<span style="font-size:0.7rem; color:var(--gold-dark); font-weight:900;">CONTANDO...</span>';
-            intervaloAnuncio = setInterval(() => {
-                if (document.visibilityState === 'hidden') {
-                    tempoRestanteAnuncio--;
-                    const display = document.getElementById('modalContador');
-                    if(display) display.innerText = tempoRestanteAnuncio;
-                }
-                if (tempoRestanteAnuncio <= 0) {
-                    clearInterval(intervaloAnuncio);
-                    anuncioEmAndamento = false;
-                    chaveSeguranca = true;
-                    finalizarRecompensa();
-                }
-            }, 1000);
-        }
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && anuncioEmAndamento && tempoRestanteAnuncio > 0) {
-                clearInterval(intervaloAnuncio);
-                anuncioEmAndamento = false;
-                mTitle.innerText = "VALIDAÇÃO FALHOU!";
-                mContent.innerHTML = `<div class="modal-text" style="color:#dc3545; font-weight:bold;">Você voltou muito cedo!<br>Aguarde os 15 segundos no anúncio para receber sua recompensa.</div>`;
-                mFooter.innerHTML = '';
-                const btnRetry = document.createElement('button');
-                btnRetry.className = 'modal-btn-confirm';
-                btnRetry.style.width = "100%";
-                btnRetry.innerText = 'VER ANÚNCIO NOVAMENTE';
-                btnRetry.onclick = () => { modal.style.display = 'none'; iniciarFluxoAnuncio(tipoRecompensa); };
-                mFooter.appendChild(btnRetry);
-            }
-        });
-
-        async function finalizarRecompensa() {
-            if (!chaveSeguranca) {
-                modal.style.display = 'none';
-                openModal("SISTEMA DE SEGURANÇA", "Tentativa de fraude detectada.");
-                return;
-            }
-            chaveSeguranca = false;
-            modal.style.display = 'none';
-            let up = {};
-            let msg = "";
-
-            if (tipoRecompensa === "moeda") {
-                up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
-                msg = "Você ganhou 500 moedas!";
-            } else if (tipoRecompensa === "pdl") {
-                up = { xp: increment(500), pdlSemanal: increment(500), videosAssistidos: increment(1) };
-                msg = "Você ganhou 500 PDL!";
-            } else if (tipoRecompensa === "livre") {
-                up = { saldo: increment(100), xp: increment(100), pdlSemanal: increment(100) };
-                msg = "Bônus Livre: +100 Moedas e +100 PDL!";
-                iniciarCooldownLivre(120);
-            }
-
-            if (tipoRecompensa !== "livre") {
-                const proxVideo = (videosAssistidos || 0) + 1;
-                if (proxVideo >= 3) {
-                    up.acertos = 0;
-                    up.videosAssistidos = 0;
-                    setTimeout(() => carregarQuestao(), 500);
-                }
-            }
-
-            await updateDoc(userRef, up);
-            openModal("RECOMPENSA LIBERADA", msg, 'alert');
-        }
-
-        async function carregarBanco() {
-            let tentativas = 0;
-            async function tentarImportar() {
-                try {
-                    const modulo = await import(`./pergunta.js?t=${Date.now()}`);
-                    bancoPerguntas = modulo.bancoPerguntas;
-                    if (carregadoPelaPrimeiraVez && bancoPerguntas.length > 0) carregarQuestao();
-                } catch (e) {
-                    tentativas++;
-                    if (tentativas < 8) setTimeout(tentarImportar, 2500);
-                }
-            }
-            tentarImportar();
-        }
-
-        let dadosUserLocais = {};
-
-        async function carregarQuestao() {
-            const c = document.getElementById('opcoes'), t = document.getElementById('perguntaTexto');
-            if (!c || !t) return;
-
-            if (acertosNoCiclo >= 10 && videosAssistidos < 3) {
-                t.innerText = "META DE ACERTOS ATINGIDA!";
-                c.innerHTML = "<p style='color:var(--gold); font-weight:bold; text-align:center;'>Assista aos anúncios para liberar o quiz novamente!</p>";
-                return;
-            }
-
-            if (bancoPerguntas.length === 0) { t.innerText = "A sincronizar questões..."; return; }
-            if (totalVideosHoje >= 35 && acertosNoCiclo >= 10) { t.innerText = "LIMITE DIÁRIO ATINGIDO!"; c.innerHTML = ""; return; }
-
-            const q = bancoPerguntas[Math.floor(Math.random() * bancoPerguntas.length)];
-            let opts = q.opcoes.map((o, i) => ({ texto: o, correta: i === q.correta })).sort(() => Math.random() - 0.5);
-
-            t.innerText = q.pergunta;
-            c.innerHTML = "";
-
-            const cargasSentinela = dadosUserLocais.statusAtivo?.sentinelas || 0;
-            const sentinelaAtiva = cargasSentinela > 0;
-
-            opts.forEach(o => {
-                const b = document.createElement('button');
-                b.className = "option-btn";
-                b.innerText = o.texto;
-                if (sentinelaAtiva && o.correta) b.classList.add('sentinela-revelar');
-
-                b.onclick = async () => {
-                    const all = c.querySelectorAll('button');
-                    all.forEach(x => x.disabled = true);
-                    const rect = b.getBoundingClientRect();
-
-                    try {
-                        if (sentinelaAtiva) await updateDoc(userRef, { "statusAtivo.sentinelas": increment(-1) });
-
-                        if (o.correta) {
-                            b.classList.add('btn-correct');
-                            const agora = Date.now();
-                            const expiraMultiplicadorPDL = dadosUserLocais.statusAtivo?.dobrador_pdl || 0;
-                            const temPDLAtivo = expiraMultiplicadorPDL > agora;
-                            const fatorPDL = temPDLAtivo ? (dadosUserLocais.statusAtivo?.valor_multiplicador || 2) : 1;
-                            const expiraMultiplicadorMoedas = dadosUserLocais.statusAtivo?.dobrador_moedas || 0;
-                            const temMoedasAtivo = expiraMultiplicadorMoedas > agora;
-                            const fatorMoedas = temMoedasAtivo ? (dadosUserLocais.statusAtivo?.valor_multiplicador_moedas || 2) : 1;
-
-                            let ganhoFinalPDL = 50 * fatorPDL;
-                            let ganhoFinalMoedas = 50 * fatorMoedas;
-
-                            let textoFlutuante = `+${ganhoFinalPDL} PDL`;
-                            let corFlutuante = "#28a745";
-
-                            if (temPDLAtivo) {
-                                let iconePDL = "💥";
-                                if (fatorPDL === 4) { iconePDL = "⚡"; corFlutuante = "#c89b3c"; }
-                                else if (fatorPDL === 6) { iconePDL = "🩸"; corFlutuante = "#a335ee"; }
-                                else { corFlutuante = "#c89b3c"; }
-                                textoFlutuante = `${iconePDL} +${ganhoFinalPDL} PDL`;
-                            }
-
-                            if (temMoedasAtivo) {
-                                let iconeMoedas = "🪙";
-                                if (fatorMoedas === 4) iconeMoedas = "💰";
-                                else if (fatorMoedas === 6) iconeMoedas = "💸";
-                                textoFlutuante += ` | ${iconeMoedas} +${ganhoFinalMoedas} Moedas`;
-                                if (!temPDLAtivo) {
-                                    if (fatorMoedas === 4) corFlutuante = "#00cfbc";
-                                    else if (fatorMoedas === 6) corFlutuante = "#a335ee";
-                                    else corFlutuante = "#00cfbc";
-                                }
-                            }
-
-                            showFloatingPDL(textoFlutuante, corFlutuante, rect.left + rect.width / 2, rect.top);
-                            await updateDoc(userRef, { saldo: increment(ganhoFinalMoedas), acertos: increment(1), xp: increment(ganhoFinalPDL), pdlSemanal: increment(ganhoFinalPDL) });
-                        } else {
-                            b.classList.add('btn-wrong');
-                            const agora = Date.now();
-                            const temAnjoAtivo = (dadosUserLocais.statusAtivo?.anjo_guardiao || 0) > agora;
-
-                            if (temAnjoAtivo) {
-                                showFloatingPDL("🛡️ PROTEGIDO", "#00cfbc", rect.left + rect.width / 2, rect.top);
-                            } else {
-                                showFloatingPDL("-10 PDL", "#dc3545", rect.left + rect.width / 2, rect.top);
-                                await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 10) });
-                            }
-                        }
-                    } catch (error) { console.error("Erro ao processar resposta:", error); }
-                    finally { setTimeout(() => carregarQuestao(), 1200); }
-                };
-                c.appendChild(b);
-            });
-        }
-
-        function atualizarInterface() {
-            if(!document.getElementById('goldAmount')) return;
-            document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
-
-            const elementoLimite = document.getElementById('txtLimiteBotao');
-            if (elementoLimite) {
-                elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
-                elementoLimite.style.color = (totalVideosHoje >= 35) ? "#dc3545" : "inherit";
-            }
-
-            const info = getEloInfo(pdlInterno);
-            const eloBadge = document.getElementById('txtElo');
-            if(eloBadge) { eloBadge.innerText = info.nome; eloBadge.style.backgroundColor = info.bg; eloBadge.style.color = info.color; }
-
-            const bar = document.getElementById('xpMiniFill');
-            if(bar) { bar.style.width = Math.min(((pdlInterno - info.min) / (info.max - info.min)) * 100, 100) + "%"; bar.style.backgroundColor = info.bar; }
-
-            const btnV = document.getElementById('btnVideo');
-            const btnVXP = document.getElementById('btnVideoXP');
-            const aviso = document.getElementById('avisoStatusQuiz');
-            const liberadoPeloCiclo = (acertosNoCiclo >= 10);
-            const limiteDiarioDisponivel = (totalVideosHoje < 35);
-
-            if(btnV) {
-                const ativo = liberadoPeloCiclo && limiteDiarioDisponivel;
-                btnV.disabled = !ativo;
-                btnV.style.backgroundColor = ativo ? "var(--gold)" : "#555";
-                btnV.style.color = ativo ? "#ffffff" : "#aaa";
-                btnV.style.cursor = ativo ? "pointer" : "not-allowed";
-                btnV.style.filter = ativo ? "none" : "";
-            }
-
-            if(btnVXP) {
-                btnVXP.disabled = !liberadoPeloCiclo;
-                btnVXP.style.backgroundColor = liberadoPeloCiclo ? "var(--gold)" : "#555";
-                btnVXP.style.color = liberadoPeloCiclo ? "#ffffff" : "#aaa";
-                btnVXP.style.cursor = liberadoPeloCiclo ? "pointer" : "not-allowed";
-                btnVXP.style.filter = liberadoPeloCiclo ? "none" : "";
-            }
-
-            if (acertosNoCiclo < 10) {
-                aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
-            } else if (videosAssistidos < 3) {
-                aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS</span>`;
-            } else {
-                aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
-            }
-
-            const btnLivre = document.getElementById('btnVideoLivre');
-            const salvoLivre = localStorage.getItem('proximoVideoLivre');
-            if (btnLivre) {
-                if (salvoLivre && parseInt(salvoLivre) > Date.now()) {
-                    btnLivre.disabled = true; btnLivre.style.backgroundColor = "#555"; btnLivre.style.color = "#aaa";
-                    cooldownLivreAtivo = true;
-                } else if (!cooldownLivreAtivo) {
-                    btnLivre.disabled = false; btnLivre.style.backgroundColor = "var(--gold)"; btnLivre.style.color = "#ffffff";
-                }
-            }
-        }
-
-        function showFloatingPDL(text, color, x, y) {
-            const el = document.createElement('div'); el.className = 'floating-pdl'; el.innerText = text;
-            el.style.color = color; el.style.left = `${x}px`; el.style.top = `${y}px`;
-            document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
-        }
-
-        function exibirAnimacaoElo(infoElo, subiu) {
-            const overlay = document.getElementById('elo-transition-overlay');
-            if(!overlay) return;
-            document.getElementById('elo-status-label').innerText = subiu ? "PROMOÇÃO DE ELO" : "REBAIXAMENTO DE ELO";
-            document.getElementById('elo-status-label').style.color = subiu ? "#c89b3c" : "#dc3545";
-            document.getElementById('elo-ani-text').innerText = infoElo.nome;
-            document.getElementById('elo-ani-text').style.color = infoElo.color;
-            overlay.style.display = 'flex';
-            setTimeout(() => { overlay.style.display = 'none'; }, 5000);
-        }
-
-        if(document.getElementById('btnVideo')) document.getElementById('btnVideo').onclick = () => iniciarFluxoAnuncio('moeda');
-        if(document.getElementById('btnVideoXP')) document.getElementById('btnVideoXP').onclick = () => iniciarFluxoAnuncio('pdl');
-        if(document.getElementById('btnVideoLivre')) document.getElementById('btnVideoLivre').onclick = () => iniciarFluxoAnuncio('livre');
-
-        window.abrirRanking = () => { window.location.href = 'ranking-semanal.html'; };
-
-        if (document.getElementById('btnVerElos')) {
-            document.getElementById('btnVerElos').onclick = () => {
-                let htmlElos = `<div style="text-align:left; max-height:300px; overflow-y:auto; padding:5px;">`;
-                configElo.forEach(e => {
-                    htmlElos += `<div style="background:${e.bg}; color:${e.color}; margin-bottom:5px; padding:10px; border-radius:5px; font-weight:bold; font-size:0.8rem;">${e.nome} - ${e.min.toLocaleString()} PDL</div>`;
-                });
-                openModal("TABELA DE ELOS", htmlElos + "</div>");
-            };
-        }
-
-        let premioJaColetadoNestaSessao = false;
-
-        async function verificarPremios(data, userRef) {
-            if (premioJaColetadoNestaSessao || !data || !data.notificacaoPremio || document.getElementById('modalPremioAtivo')) return;
-            const dados = data.notificacaoPremio;
-            const div = document.createElement('div');
-            div.id = 'modalPremioAtivo';
-            div.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(1, 10, 19, 0.98); display: flex; align-items: center; justify-content: center; z-index: 10000;`;
-            div.innerHTML = `
-                <div class="modal-content" style="animation: fadeIn 0.3s;">
-                    <h2 style="color: #c89b3c; text-transform: uppercase; margin: 0 0 15px; font-size: 1.2rem;">RANKING ENCERRADO</h2>
-                    <p style="color:#888; font-size: 13px;">Sua posição final foi:</p>
-                    <div class="pos-destaque">${dados.posicao}º</div>
-                    <p style="color: #f0e6d2;">Você recebeu:</p>
-                    <div style="color:#c89b3c; font-size: 1.5rem; font-weight: bold;">${dados.valor.toLocaleString()} <span style="font-size: 12px;">MOEDAS</span></div>
-                    <button id="btnColetar" style="background: #c89b3c; color: #010a13; border: none; padding: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 20px;">Coletar Recompensa</button>
-                </div>`;
-            document.body.appendChild(div);
-            document.getElementById('btnColetar').onclick = async () => {
-                premioJaColetadoNestaSessao = true;
-                const modal = document.getElementById('modalPremioAtivo');
-                if (modal) modal.remove();
-                try { await updateDoc(userRef, { notificacaoPremio: null }); }
-                catch (error) { premioJaColetadoNestaSessao = false; }
-            };
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                userRef = doc(db, "usuarios", user.uid);
-                onSnapshot(userRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        dadosUserLocais = data;
-                        const hoje = new Date().toLocaleDateString('pt-BR');
-                        verificarPremios(data, userRef);
-
-                        if (data.ultimaDataAcesso !== hoje) {
-                            updateDoc(userRef, { totalVideosHoje: 0, videosAssistidos: 0, acertos: 0, ultimaDataAcesso: hoje });
-                        } else {
-                            const novoXP = Number(data.xp) || 0;
-                            if (carregadoPelaPrimeiraVez && pdlInterno !== novoXP) {
-                                const infoEloAntigo = getEloInfo(pdlInterno);
-                                const infoEloNovo = getEloInfo(novoXP);
-                                if (infoEloAntigo.nome !== infoEloNovo.nome) exibirAnimacaoElo(infoEloNovo, novoXP > pdlInterno);
-                            }
-                            goldDB = Number(data.saldo) || 0;
-                            acertosNoCiclo = data.acertos || 0;
-                            videosAssistidos = data.videosAssistidos || 0;
-                            totalVideosHoje = data.totalVideosHoje || 0;
-                            pdlInterno = novoXP;
-                            atualizarInterface();
-                            if (!carregadoPelaPrimeiraVez) {
-                                carregadoPelaPrimeiraVez = true;
-                                carregarBanco();
-                                atualizarPodioSemanal();
-                                verificarCooldownLivre();
-                            }
-                        }
-                    }
-                });
-            } else {
-                if (!window.location.href.includes("index.html")) window.location.href = "index.html";
-            }
-        });
-
-        let sY = 0;
-        const pullDiv = document.getElementById('pull-to-refresh');
-        if(pullDiv) {
-            window.addEventListener('touchstart', (e) => { if(window.scrollY === 0) sY = e.touches[0].pageY; }, {passive:true});
-            window.addEventListener('touchmove', (e) => {
-                const p = e.touches[0].pageY - sY;
-                if(window.scrollY === 0 && p > 0) {
-                    const move = Math.min(p * 0.4, 70);
-                    pullDiv.style.transform = `translateY(${move}px)`;
-                    if(move >= 60) pullDiv.querySelector('.refresh-badge').innerText = "Solte para Recarregar";
-                }
-            }, {passive:true});
-            window.addEventListener('touchend', () => {
-                if (new WebKitCSSMatrix(window.getComputedStyle(pullDiv).transform).m42 >= 60) location.reload();
-                else pullDiv.style.transform = 'translateY(0)';
-            });
-        }
-
-        window.abrirInventario = async () => {
-            try {
-                if (!auth.currentUser) return;
-                const meusItensIDs = dadosUserLocais.iconesAdquiridos || [];
-                const fotoAtual = dadosUserLocais.fotoPerfil || "0.jpg";
-                let html = `<div class="grid-inventario-modal">`;
-                const itensPossuidos = CATALOGO_ITENS.filter(i => meusItensIDs.includes(i.id));
-                if(itensPossuidos.length === 0) {
-                    html = `<p style="color:#c89b3c; text-align:center; font-size:12px;">Sua coleção está vazia. Visite a Loja Hextech!</p>`;
+            // 3ª PRIORIDADE: fotoPerfil antiga (Link ou ID)
+            else if (usuario.fotoPerfil) {
+                const valor = String(usuario.fotoPerfil);
+                if (valor.startsWith('http')) {
+                    urlDireta = valor;
                 } else {
-                    itensPossuidos.forEach(item => {
-                        const estaEquipado = (fotoAtual === item.img);
-                        html += `
-                            <div class="item-inventario" onclick="window.equiparIcone('${item.img}')"
-                                 style="border-color: ${estaEquipado ? '#c89b3c' : '#1e2328'}; padding:8px; text-align:center; background: rgba(9,20,40,0.9); border-radius: 5px;">
-                                <img src="${URL_BASE_ICON + item.img}" style="width:100%; border-radius:4px; margin-bottom:5px; display:block;">
-                                <span style="font-size:10px; display:block; color:white; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.nome}</span>
-                                ${estaEquipado ? '<b style="color:#28a745; font-size:9px; display:block; margin-top:3px;">EQUIPADO</b>' : ''}
-                            </div>`;
-                    });
+                    idLimpo = valor.replace('.png', '').replace('.gif', '').replace('.jpg', '');
                 }
-                openModal("MEUS ITENS", html + `</div>`);
-            } catch (e) { console.error("Erro no Inventário:", e); }
+            }
+            // 4ª PRIORIDADE: photoURL do Firebase Auth
+            else if (usuario.photoURL || usuario.fotoUrl) {
+                urlDireta = usuario.photoURL || usuario.fotoUrl;
+            }
+
+            // SEGURANÇA FINAL: Se não houver nenhuma imagem, aplica o ícone padrão
+            if (!idLimpo && !urlDireta) {
+                urlDireta = fotoPadrao;
+            }
+
+            return {
+                id: idLimpo,
+                urlFixa: urlDireta,
+                urlBaseGH: URL_BASE_GH,
+                padrao: fotoPadrao
+            };
         };
 
-        window.equiparIcone = async (nomeImg) => {
+        if(vencedores[0]) atualizarVisualPodio(1, vencedores[0].nome, obterDadosFoto(vencedores[0]));
+        if(vencedores[1]) atualizarVisualPodio(2, vencedores[1].nome, obterDadosFoto(vencedores[1]));
+        if(vencedores[2]) atualizarVisualPodio(3, vencedores[2].nome, obterDadosFoto(vencedores[2]));
+
+    } catch (error) {
+        console.error("Erro ao carregar pódio:", error);
+    }
+}
+
+function atualizarVisualPodio(posicao, nome, dadosFoto) {
+    const containers = document.querySelectorAll("#containerRankingResumo div[style*='flex-direction: column']");
+    if (containers.length < 3) return;
+
+    let alvo = null;
+    if (posicao === 2) alvo = containers[0];
+    if (posicao === 1) alvo = containers[1];
+    if (posicao === 3) alvo = containers[2];
+
+    if (alvo) {
+        const small = alvo.querySelector("small");
+        const imgTag = alvo.querySelector("img");
+        
+        if (small) small.innerText = nome.split(' ')[0];
+        
+        if (imgTag) {
+            // Se for uma URL externa ou o ícone padrão fixo, carrega direto
+            if (dadosFoto.urlFixa) {
+                imgTag.src = dadosFoto.urlFixa;
+                imgTag.onerror = () => { imgTag.src = dadosFoto.padrao; };
+            } 
+            // Se for ID do GitHub, aplica a lógica GIF -> PNG
+            else if (dadosFoto.id) {
+                const urlSemExtensao = dadosFoto.urlBaseGH + dadosFoto.id;
+                
+                imgTag.src = urlSemExtensao + ".gif";
+                
+                imgTag.onerror = () => {
+                    if (imgTag.src.includes('.gif')) {
+                        imgTag.src = urlSemExtensao + ".png";
+                    } 
+                    else if (imgTag.src.includes('.png')) {
+                        imgTag.src = dadosFoto.padrao;
+                    }
+                };
+            } else {
+                imgTag.src = dadosFoto.padrao;
+            }
+
+            imgTag.style.width = "100%";
+            imgTag.style.height = "100%";
+            imgTag.style.objectFit = "cover";
+        }
+    }
+}
+
+    // --- 3. CONFIGURAÇÃO DE ELOS E CORES ---
+
+    const configElo = [];
+    const divisoes = ["V", "IV", "III", "II", "I"];
+    const coresElos = {
+        "FERRO": { bg: "#2a2a2a", color: "#8a8a8a", bar: "#555" },
+        "BRONZE": { bg: "#4e3629", color: "#cd7f32", bar: "#8b4513" },
+        "PRATA": { bg: "#4a5d6e", color: "#e2e2e2", bar: "#a9b9c9" },
+        "OURO": { bg: "#7a5c12", color: "#f1d37e", bar: "#c89b3c" },
+        "PLATINA": { bg: "#1d5c5c", color: "#a3e7e7", bar: "#46abb0" },
+        "ESMERALDA": { bg: "#0d5c2e", color: "#a3e7bc", bar: "#28a745" },
+        "DIAMANTE": { bg: "#1f3a7a", color: "#b3c7f7", bar: "#5c85d6" }
+    };
+
+    function gerarEloComDivisoes(nome, min, max) {
+        let passo = (max - min) / 5;
+        divisoes.forEach((div, i) => {
+            configElo.push({ 
+                nome: `${nome} ${div}`, 
+                min: min + (passo * i), 
+                max: min + (passo * (i + 1)), 
+                ...coresElos[nome] 
+            });
+        });
+    }
+
+    gerarEloComDivisoes("FERRO", 0, 5000);
+    gerarEloComDivisoes("BRONZE", 5000, 10000);
+    gerarEloComDivisoes("PRATA", 10000, 30000);
+    gerarEloComDivisoes("OURO", 30000, 60000);
+    gerarEloComDivisoes("PLATINA", 60000, 100000);
+    gerarEloComDivisoes("ESMERALDA", 100000, 150000);
+    gerarEloComDivisoes("DIAMANTE", 150000, 300000);
+
+    configElo.push({ nome: "MESTRE", min: 300000, max: 600000, bg: "#5a1f7a", color: "#dfb3f7", bar: "#9b59b6" });
+    configElo.push({ nome: "GRÃO-MESTRE", min: 600000, max: 1000000, bg: "#7a1f1f", color: "#f7b3b3", bar: "#e74c3c" });
+    configElo.push({ nome: "DESAFIANTE", min: 1000000, max: 99999999, bg: "#1a4a5a", color: "#b3e7f7", bar: "#3498db" });
+
+    function getEloInfo(valorXP) { 
+        if (valorXP <= 0) return configElo[0];
+        const eloEncontrado = configElo.find(e => valorXP >= e.min && valorXP < e.max);
+        return eloEncontrado || configElo[configElo.length - 1]; 
+    }
+
+    function verificarCooldownLivre() {
+        const salvo = localStorage.getItem('proximoVideoLivre');
+        if (salvo) {
+            const agora = Date.now();
+            const tempoDesbloqueio = parseInt(salvo);
+            if (tempoDesbloqueio > agora) {
+                const restante = Math.floor((tempoDesbloqueio - agora) / 1000);
+                executarCronometroVisual(restante);
+            } else {
+                localStorage.removeItem('proximoVideoLivre');
+            }
+        }
+    }
+
+    function iniciarCooldownLivre(segundos) {
+        const tempoDesbloqueio = Date.now() + (segundos * 1000);
+        localStorage.setItem('proximoVideoLivre', tempoDesbloqueio);
+        executarCronometroVisual(segundos);
+    }
+
+    function executarCronometroVisual(segundos) {
+        const btn = document.getElementById('btnVideoLivre');
+        if (!btn) return;
+        cooldownLivreAtivo = true;
+        btn.disabled = true;
+        let restante = segundos;
+        const intervalo = setInterval(() => {
+            restante--;
+            btn.innerHTML = `AGUARDE <span style="color:#28a745">${restante}s</span>`;
+            if (restante <= 0) {
+                clearInterval(intervalo);
+                cooldownLivreAtivo = false;
+                localStorage.removeItem('proximoVideoLivre');
+                btn.disabled = false;
+                btn.innerHTML = `📺 +100 MOEDAS <span>+100 PDL</span>`;
+                if(typeof atualizarInterface === 'function') atualizarInterface();
+            }
+        }, 1000);
+    }
+
+    function iniciarFluxoAnuncio(tipo) {
+        if (tipo === 'livre' && cooldownLivreAtivo) return;
+        chaveSeguranca = false;
+        tipoRecompensa = tipo; anuncioEmAndamento = true; tempoRestanteAnuncio = 15;
+        if(intervaloAnuncio) clearInterval(intervaloAnuncio);
+        window.open(linkAnuncioAdsterra, '_blank');
+        openModal("VALIDANDO RECOMPENSA", `Permaneça na página do anúncio.<br><div class="contador-video" id="modalContador">15</div>`, 'alert');
+        mFooter.innerHTML = '<span style="font-size:0.7rem; color:var(--gold-dark); font-weight:900;">CONTANDO...</span>';
+        intervaloAnuncio = setInterval(() => {
+            if (document.visibilityState === 'hidden') {
+                tempoRestanteAnuncio--;
+                const display = document.getElementById('modalContador');
+                if(display) display.innerText = tempoRestanteAnuncio;
+            }
+            if (tempoRestanteAnuncio <= 0) { 
+                clearInterval(intervaloAnuncio); 
+                anuncioEmAndamento = false; 
+                chaveSeguranca = true; 
+                finalizarRecompensa(); 
+            }
+        }, 1000);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && anuncioEmAndamento && tempoRestanteAnuncio > 0) {
+            clearInterval(intervaloAnuncio);
+            anuncioEmAndamento = false;
+            mTitle.innerText = "VALIDAÇÃO FALHOU!";
+            mContent.innerHTML = `<div class="modal-text" style="color:#dc3545; font-weight:bold;">Você voltou muito cedo!<br>Aguarde os 15 segundos no anúncio para receber sua recompensa.</div>`;
+            mFooter.innerHTML = '';
+            const btnRetry = document.createElement('button');
+            btnRetry.className = 'modal-btn-confirm';
+            btnRetry.style.width = "100%";
+            btnRetry.innerText = 'VER ANÚNCIO NOVAMENTE';
+            btnRetry.onclick = () => { modal.style.display = 'none'; iniciarFluxoAnuncio(tipoRecompensa); };
+            mFooter.appendChild(btnRetry);
+        }
+    });
+    
+   async function finalizarRecompensa() {
+    if (!chaveSeguranca) {
+        modal.style.display = 'none';
+        openModal("SISTEMA DE SEGURANÇA", "Tentativa de fraude detectada.");
+        return;
+    }
+    chaveSeguranca = false;
+    modal.style.display = 'none';
+    let up = {}; 
+    let msg = "";
+
+    if (tipoRecompensa === "moeda") {
+        up = { saldo: increment(500), videosAssistidos: increment(1), totalVideosHoje: increment(1) };
+        msg = "Você ganhou 500 moedas!";
+    } else if (tipoRecompensa === "pdl") {
+        up = { xp: increment(500), pdlSemanal: increment(500), videosAssistidos: increment(1) };
+        msg = "Você ganhou 500 PDL!";
+    } else if (tipoRecompensa === "livre") {
+        up = { saldo: increment(100), xp: increment(100), pdlSemanal: increment(100) };
+        msg = "Bônus Livre: +100 Moedas e +100 PDL!";
+        iniciarCooldownLivre(120);
+    }
+
+    if (tipoRecompensa !== "livre") {
+        const proxVideo = (videosAssistidos || 0) + 1;
+        if (proxVideo >= 3) { 
+            up.acertos = 0; 
+            up.videosAssistidos = 0; 
+            setTimeout(() => carregarQuestao(), 500); 
+        }
+    }
+    
+    // Atualiza o banco - o onSnapshot vai perceber a mudança de elo e disparar a animação sozinho
+    await updateDoc(userRef, up);
+    openModal("RECOMPENSA LIBERADA", msg, 'alert');
+}
+    
+    async function carregarBanco() {
+        const statusText = document.getElementById('perguntaTexto');
+        let tentativas = 0;
+        async function tentarImportar() {
             try {
-                if(!auth.currentUser) return;
-                await updateDoc(doc(db, "usuarios", auth.currentUser.uid), { fotoPerfil: nomeImg });
-                if(document.getElementById('custom-modal')) document.getElementById('custom-modal').style.display = 'none';
-                openModal("SUCESSO", "Ícone equipado com sucesso!");
-            } catch(e) { openModal("ERRO", "Não foi possível equipar o ícone."); }
+                const modulo = await import(`./pergunta.js?t=${Date.now()}`);
+                bancoPerguntas = modulo.bancoPerguntas;
+                if (carregadoPelaPrimeiraVez && bancoPerguntas.length > 0) carregarQuestao();
+            } catch (e) {
+                tentativas++;
+                if (tentativas < 8) setTimeout(tentarImportar, 2500); 
+                else if(statusText) statusText.innerText = "Erro ao carregar banco.";
+            }
+        }
+        tentarImportar();
+    }
+
+    async function carregarQuestao() {
+    const c = document.getElementById('opcoes'), t = document.getElementById('perguntaTexto');
+    if (!c || !t) return;
+    
+    // Verificação de ciclo de acertos e anúncios
+    if (acertosNoCiclo >= 10 && videosAssistidos < 3) { 
+        t.innerText = "META DE ACERTOS ATINGIDA!"; 
+        c.innerHTML = "<p style='color:var(--gold); font-weight:bold; text-align:center;'>Assista aos anúncios para liberar o quiz novamente!</p>"; 
+        return; 
+    }
+
+    if (bancoPerguntas.length === 0) { t.innerText = "A sincronizar questões..."; return; }
+    if (totalVideosHoje >= 35 && acertosNoCiclo >= 10) { t.innerText = "LIMITE DIÁRIO ATINGIDO!"; c.innerHTML = ""; return; }
+
+    // Seleção da pergunta e embaralhamento das opções
+    const q = bancoPerguntas[Math.floor(Math.random() * bancoPerguntas.length)];
+    let opts = q.opcoes.map((o, i) => ({ texto: o, correta: i === q.correta })).sort(() => Math.random() - 0.5);
+    
+    t.innerText = q.pergunta; 
+    c.innerHTML = "";
+
+    // --- LÓGICA DA SENTINELA (REVELAÇÃO) ---
+    const cargasSentinela = dadosUserLocais.statusAtivo?.sentinelas || 0;
+    const sentinelaAtiva = cargasSentinela > 0;
+    
+    opts.forEach(o => {
+        const b = document.createElement('button'); 
+        b.className = "option-btn"; 
+        b.innerText = o.texto;
+
+        if (sentinelaAtiva && o.correta) {
+            b.classList.add('sentinela-revelar');
+        }
+
+        b.onclick = async () => {
+            const all = c.querySelectorAll('button'); 
+            all.forEach(x => x.disabled = true);
+            const rect = b.getBoundingClientRect();
+            
+            try {
+                // CONSUMO DE CARGA DA SENTINELA
+                if (sentinelaAtiva) {
+                    await updateDoc(userRef, { "statusAtivo.sentinelas": increment(-1) });
+                }
+
+                if (o.correta) {
+                    b.classList.add('btn-correct');
+                    const agora = Date.now();
+                    
+                    // --- LÓGICA DE MULTIPLICADOR DE PDL ---
+                    const expiraMultiplicadorPDL = dadosUserLocais.statusAtivo?.dobrador_pdl || 0;
+                    const temPDLAtivo = expiraMultiplicadorPDL > agora;
+                    const fatorPDL = temPDLAtivo ? (dadosUserLocais.statusAtivo?.valor_multiplicador || 2) : 1;
+
+                    // --- LÓGICA DE MULTIPLICADOR DE MOEDAS ---
+                    const expiraMultiplicadorMoedas = dadosUserLocais.statusAtivo?.dobrador_moedas || 0;
+                    const temMoedasAtivo = expiraMultiplicadorMoedas > agora;
+                    const fatorMoedas = temMoedasAtivo ? (dadosUserLocais.statusAtivo?.valor_multiplicador_moedas || 2) : 1;
+                    
+                    const basePDL = 50;
+                    const baseMoedas = 50; 
+                    
+                    let ganhoFinalPDL = basePDL * fatorPDL; 
+                    let ganhoFinalMoedas = baseMoedas * fatorMoedas;
+                    
+                    let textoFlutuante = `+${ganhoFinalPDL} PDL`;
+                    let corFlutuante = "#28a745"; 
+
+                    if (temPDLAtivo) {
+                        let iconePDL = "💥"; 
+                        if (fatorPDL === 4) {
+                            iconePDL = "⚡"; 
+                            corFlutuante = "#c89b3c"; 
+                        } else if (fatorPDL === 6) {
+                            iconePDL = "🩸"; 
+                            corFlutuante = "#a335ee"; 
+                        } else {
+                            corFlutuante = "#c89b3c";
+                        }
+                        textoFlutuante = `${iconePDL} +${ganhoFinalPDL} PDL`;
+                    }
+
+                    if (temMoedasAtivo) {
+                        let iconeMoedas = "🪙"; 
+                        if (fatorMoedas === 4) iconeMoedas = "💰"; 
+                        else if (fatorMoedas === 6) iconeMoedas = "💸"; 
+                        
+                        textoFlutuante += ` | ${iconeMoedas} +${ganhoFinalMoedas} Moedas`;
+                        
+                        if (!temPDLAtivo) {
+                            if (fatorMoedas === 4) corFlutuante = "#00cfbc"; 
+                            else if (fatorMoedas === 6) corFlutuante = "#a335ee"; 
+                            else corFlutuante = "#00cfbc"; 
+                        }
+                    }
+
+                    showFloatingPDL(textoFlutuante, corFlutuante, rect.left + rect.width / 2, rect.top);
+                    
+                    await updateDoc(userRef, { 
+                        saldo: increment(ganhoFinalMoedas), 
+                        acertos: increment(1), 
+                        xp: increment(ganhoFinalPDL), 
+                        pdlSemanal: increment(ganhoFinalPDL) 
+                    });
+
+                } else {
+                    // LÓGICA DE ERRO
+                    b.classList.add('btn-wrong');
+                    const agora = Date.now();
+                    const dataExpiracaoAnjo = dadosUserLocais.statusAtivo?.anjo_guardiao || 0;
+                    const temAnjoAtivo = dataExpiracaoAnjo > agora;
+
+                    if (temAnjoAtivo) {
+                        showFloatingPDL("🛡️ PROTEGIDO", "#00cfbc", rect.left + rect.width / 2, rect.top);
+                    } else {
+                        showFloatingPDL("-10 PDL", "#dc3545", rect.left + rect.width / 2, rect.top);
+                        await updateDoc(userRef, { xp: Math.max(0, pdlInterno - 10) });
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao processar resposta:", error);
+            } finally { 
+                // Delay para o próximo passo - Animação de Elo removida daqui (onSnapshot assume)
+                setTimeout(() => {
+                    carregarQuestao();
+                }, 1200); 
+            }
         };
-    </script>
+        c.appendChild(b);
+    });
+}
+    
+    function atualizarInterface() {
+    if(!document.getElementById('goldAmount')) return;
+    
+    // Atualiza Gold
+    document.getElementById('goldAmount').innerText = Math.floor(goldDB).toLocaleString('pt-BR');
+    
+    // Atualiza Limite Diário
+    const elementoLimite = document.getElementById('txtLimiteBotao');
+    if (elementoLimite) {
+        elementoLimite.innerText = `LIMITE DIÁRIO: ${totalVideosHoje}/35`;
+        elementoLimite.style.color = (totalVideosHoje >= 35) ? "#dc3545" : "inherit";
+    }
+
+    // Atualiza Elo e Badge
+    const info = getEloInfo(pdlInterno);
+    const eloBadge = document.getElementById('txtElo');
+    if(eloBadge) {
+        eloBadge.innerText = info.nome; 
+        eloBadge.style.backgroundColor = info.bg; 
+        eloBadge.style.color = info.color;
+    }
+
+    // Atualiza Barra de XP/PDL
+    const bar = document.getElementById('xpMiniFill');
+    if(bar) {
+        const percXP = ((pdlInterno - info.min) / (info.max - info.min)) * 100;
+        bar.style.width = Math.min(percXP, 100) + "%";
+        bar.style.backgroundColor = info.bar;
+    }
+    
+    // Referências dos Botões e Aviso
+    const btnV = document.getElementById('btnVideo');
+    const btnVXP = document.getElementById('btnVideoXP');
+    const aviso = document.getElementById('avisoStatusQuiz');
+    
+    // LÓGICA DE ATIVAÇÃO
+    const liberadoPeloCiclo = (acertosNoCiclo >= 10);
+    const limiteDiarioDisponivel = (totalVideosHoje < 35);
+
+    // Configuração do Botão de Gold (btnVideo)
+    if(btnV) {
+        if (liberadoPeloCiclo && limiteDiarioDisponivel) {
+            btnV.disabled = false;
+            btnV.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
+            btnV.style.color = "#ffffff";              // Letras Brancas
+            btnV.style.cursor = "pointer";
+            btnV.style.filter = "none";
+        } else {
+            btnV.disabled = true;
+            btnV.style.backgroundColor = "#555";       // Cinza Desativado
+            btnV.style.color = "#aaa";                 // Letras cinza claro
+            btnV.style.cursor = "not-allowed";
+        }
+    }
+
+    // Configuração do Botão de XP (btnVideoXP)
+    if(btnVXP) {
+        if (liberadoPeloCiclo) {
+            btnVXP.disabled = false;
+            btnVXP.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
+            btnVXP.style.color = "#ffffff";              // Letras Brancas
+            btnVXP.style.cursor = "pointer";
+            btnVXP.style.filter = "none";
+        } else {
+            btnVXP.disabled = true;
+            btnVXP.style.backgroundColor = "#555";
+            btnVXP.style.color = "#aaa";
+            btnVXP.style.cursor = "not-allowed";
+        }
+    }
+    
+    // Atualiza os textos de Aviso
+    if (acertosNoCiclo < 10) {
+        aviso.innerHTML = `ACERTE <span style="color:#28a745">${10-acertosNoCiclo}</span> QUESTÕES PARA LIBERAR ANÚNCIOS`;
+    } else if (videosAssistidos < 3) {
+        aviso.innerHTML = `<span style="color:#c89b3c">META ATINGIDA, ASSISTA <span style="color:#28a745; font-weight:bold;">${3-videosAssistidos}</span> ANÚNCIOS</span>`;
+    } else {
+        aviso.innerHTML = `<span style="color:#28a745">ANÚNCIOS LIBERADOS!</span>`;
+    }
+
+    // Lógica do Vídeo Livre (Cooldown)
+    const btnLivre = document.getElementById('btnVideoLivre');
+    const salvoLivre = localStorage.getItem('proximoVideoLivre');
+    const agoraLivre = Date.now();
+    
+    if (btnLivre) {
+        if (salvoLivre && parseInt(salvoLivre) > agoraLivre) {
+            btnLivre.disabled = true;
+            btnLivre.style.backgroundColor = "#555";
+            btnLivre.style.color = "#aaa";
+            cooldownLivreAtivo = true; 
+        } else if (!cooldownLivreAtivo) {
+            btnLivre.disabled = false;
+            btnLivre.style.backgroundColor = "var(--gold)"; // BUSCANDO A VARIÁVEL CSS
+            btnLivre.style.color = "#ffffff";
+        }
+    }
+}
+   
+    function showFloatingPDL(text, color, x, y) {
+        const el = document.createElement('div'); el.className = 'floating-pdl'; el.innerText = text; el.style.color = color; el.style.left = `${x}px`; el.style.top = `${y}px`;
+        document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
+    }
+
+    function exibirAnimacaoElo(infoElo, subiu) {
+        const overlay = document.getElementById('elo-transition-overlay'); if(!overlay) return;
+        const label = document.getElementById('elo-status-label');
+        const text = document.getElementById('elo-ani-text');
+        label.innerText = subiu ? "PROMOÇÃO DE ELO" : "REBAIXAMENTO DE ELO";
+        label.style.color = subiu ? "#c89b3c" : "#dc3545";
+        text.innerText = infoElo.nome; text.style.color = infoElo.color;
+        overlay.style.display = 'flex'; 
+        setTimeout(() => { overlay.style.display = 'none'; }, 5000); 
+    }
+
+    // --- 7. EVENTOS E EXPOSIÇÃO GLOBAL ---
+
+    if(document.getElementById('btnVideo')) document.getElementById('btnVideo').onclick = () => iniciarFluxoAnuncio('moeda');
+    if(document.getElementById('btnVideoXP')) document.getElementById('btnVideoXP').onclick = () => iniciarFluxoAnuncio('pdl');
+    if(document.getElementById('btnVideoLivre')) document.getElementById('btnVideoLivre').onclick = () => iniciarFluxoAnuncio('livre');
+
+    window.abrirStatus = () => openModal("STATUS ATIVO", "Nenhum buff ativo.");
+    
+    // CORRIGIDO: Agora respeita o seu arquivo externo e redireciona corretamente
+    window.abrirRanking = () => {
+        window.location.href = 'ranking-semanal.html';
+    };
+
+    window.abrirPerfil = () => openModal("PERFIL", "Página de perfil em desenvolvimento.");
+    window.abrirConquistas = () => openModal("BAÚS HEXTECH", "Ganhe chaves acertando 50 questões seguidas!");
+
+    if (document.getElementById('btnVerElos')) {
+        document.getElementById('btnVerElos').onclick = () => {
+            let htmlElos = `<div style="text-align:left; max-height:300px; overflow-y:auto; padding:5px;">`;
+            configElo.forEach(e => {
+                htmlElos += `<div style="background:${e.bg}; color:${e.color}; margin-bottom:5px; padding:10px; border-radius:5px; font-weight:bold; font-size:0.8rem;">${e.nome} - ${e.min.toLocaleString()} PDL</div>`;
+            });
+            openModal("TABELA DE ELOS", htmlElos + "</div>");
+        };
+    }
+
+    window.setResgate = (el, v, r) => { 
+        metaAtual = v; 
+        valorReaisMeta = r; 
+        document.querySelectorAll('.resgate-opt').forEach(o => o.classList.remove('active')); 
+        el.classList.add('active'); 
+        atualizarInterface(); 
+    }
+
+    let dadosUserLocais = {};
+    // Esta variável vai impedir o loop infinito
+    let premioJaColetadoNestaSessao = false;
+
+    // --- FUNÇÃO DO MODAL DE PREMIAÇÃO BLINDADA ---
+    async function verificarPremios(data, userRef) {
+        // Se já coletou agora, ou não tem prêmio, ou o modal já está na tela: PARA TUDO.
+        if (premioJaColetadoNestaSessao || !data || !data.notificacaoPremio || document.getElementById('modalPremioAtivo')) {
+            return;
+        }
+
+        const dados = data.notificacaoPremio;
+        
+        const div = document.createElement('div');
+        div.id = 'modalPremioAtivo'; 
+        div.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(1, 10, 19, 0.98); display: flex; align-items: center; justify-content: center; z-index: 10000;
+        `;
+        
+        div.innerHTML = `
+            <div class="modal-content" style="background: #091428; border: 2px solid #c89b3c; padding: 30px; text-align: center; max-width: 350px; width: 85%; box-shadow: 0 0 25px rgba(200, 155, 60, 0.4); animation: fadeIn 0.3s;">
+                <h2 style="color: #c89b3c; text-transform: uppercase; margin: 0 0 15px; font-size: 1.2rem; font-family: sans-serif;">RANKING ENCERRADO</h2>
+                <p style="color:#888; font-size: 13px; font-family: sans-serif;">Sua posição final foi:</p>
+                <div class="pos-destaque" style="font-size: 3.5rem; color: #0ac8b9; font-weight: bold; margin: 10px 0; font-family: sans-serif;">${dados.posicao}º</div>
+                <p style="color: #f0e6d2; font-family: sans-serif;">Você recebeu:</p>
+                <div style="color:#c89b3c; font-size: 1.5rem; font-weight: bold; font-family: sans-serif;">
+                    ${dados.valor.toLocaleString()} <span style="font-size: 12px;">MOEDAS</span>
+                </div>
+                <button id="btnColetar" style="background: #c89b3c; color: #010a13; border: none; padding: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 20px; font-family: sans-serif;">
+                    Coletar Recompensa
+                </button>
+            </div>
+        `;
+        document.body.appendChild(div);
+
+        document.getElementById('btnColetar').onclick = async () => {
+            // 1. Ativa a trava global IMEDIATAMENTE antes de qualquer coisa
+            premioJaColetadoNestaSessao = true;
+
+            // 2. Remove o modal da visão do usuário
+            const modal = document.getElementById('modalPremioAtivo');
+            if (modal) modal.remove();
+
+            try {
+                // 3. Atualiza o banco de dados
+                await updateDoc(userRef, { notificacaoPremio: null });
+                console.log("Prêmio coletado e limpo no banco.");
+            } catch (error) {
+                console.error("Erro ao limpar prêmio:", error);
+                // Se der erro no banco, resetamos a trava para ele tentar de novo ao recarregar
+                premioJaColetadoNestaSessao = false;
+            }
+        };
+    }
+
+    // 1. Defina o rastro como null no topo do script
+let pdlAnterior = null; 
+
+    onAuthStateChanged(auth, (user) => {
+    if (user) { 
+        userRef = doc(db, "usuarios", user.uid); 
+        onSnapshot(userRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                dadosUserLocais = data; 
+                const hoje = new Date().toLocaleDateString('pt-BR');
+
+                verificarPremios(data, userRef);
+
+                if (data.ultimaDataAcesso !== hoje) {
+                    updateDoc(userRef, { totalVideosHoje: 0, videosAssistidos: 0, acertos: 0, ultimaDataAcesso: hoje });
+                } else {
+                    const novoXP = Number(data.xp) || 0;
+
+                    // --- LÓGICA DE ELO CENTRALIZADA ---
+                    if (carregadoPelaPrimeiraVez && pdlInterno !== novoXP) {
+                        const infoEloAntigo = getEloInfo(pdlInterno);
+                        const infoEloNovo = getEloInfo(novoXP);
+
+                        if (infoEloAntigo.nome !== infoEloNovo.nome) {
+                            const subiu = novoXP > pdlInterno;
+                            exibirAnimacaoElo(infoEloNovo, subiu);
+                        }
+                    }
+
+                    goldDB = Number(data.saldo) || 0;
+                    acertosNoCiclo = data.acertos || 0;
+                    videosAssistidos = data.videosAssistidos || 0;
+                    totalVideosHoje = data.totalVideosHoje || 0;
+                    pdlInterno = novoXP; // Atualiza o valor global
+                    
+                    atualizarInterface();
+
+                    if (!carregadoPelaPrimeiraVez) {
+                        carregadoPelaPrimeiraVez = true;
+                        carregarBanco(); 
+                        atualizarPodioSemanal(); 
+                        verificarCooldownLivre(); 
+                    }
+                }
+            }
+        });
+    } else { 
+        if (!window.location.href.includes("index.html")) window.location.href = "index.html"; 
+    }
+});
+   
+    // Pull to Refresh
+    let sY = 0;
+    const pullDiv = document.getElementById('pull-to-refresh');
+    if(pullDiv) {
+        window.addEventListener('touchstart', (e) => { if(window.scrollY === 0) sY = e.touches[0].pageY; }, {passive:true});
+        window.addEventListener('touchmove', (e) => {
+            const p = e.touches[0].pageY - sY;
+            if(window.scrollY === 0 && p > 0) {
+                const move = Math.min(p * 0.4, 70);
+                pullDiv.style.transform = `translateY(${move}px)`;
+                if(move >= 60) pullDiv.querySelector('.refresh-badge').innerText = "Solte para Recarregar";
+            }
+        }, {passive:true});
+        window.addEventListener('touchend', () => {
+            if (new WebKitCSSMatrix(window.getComputedStyle(pullDiv).transform).m42 >= 60) location.reload();
+            else pullDiv.style.transform = 'translateY(0)';
+        });
+    }
+
+    // --- LÓGICA DO INVENTÁRIO (Sincronizada com dadosUserLocais) ---
+
+    window.abrirInventario = async () => {
+        try {
+            if (!auth.currentUser) return;
+            const meusItensIDs = dadosUserLocais.iconesAdquiridos || [];
+            const fotoAtual = dadosUserLocais.fotoPerfil || "0.jpg";
+
+            let html = `<div class="grid-inventario-modal" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px;">`;
+            const itensPossuidos = CATALOGO_ITENS.filter(i => meusItensIDs.includes(i.id));
+
+            if(itensPossuidos.length === 0) {
+                html = `<p style="color:#c89b3c; text-align:center; grid-column: 1/-1; font-size:12px;">Sua coleção está vazia. Visite a Loja Hextech!</p>`;
+            } else {
+                itensPossuidos.forEach(item => {
+                    const estaEquipado = (fotoAtual === item.img);
+                    html += `
+                        <div class="item-inventario" 
+                             onclick="window.equiparIcone('${item.img}')"
+                             style="border: 1px solid ${estaEquipado ? '#c89b3c' : '#1e2328'}; padding:8px; text-align:center; cursor:pointer; background: rgba(9,20,40,0.9); border-radius: 5px;">
+                            <img src="${URL_BASE_ICON + item.img}" style="width:100%; border-radius:4px; margin-bottom:5px; display:block;">
+                            <span style="font-size:10px; display:block; color:white; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.nome}</span>
+                            ${estaEquipado ? '<b style="color:#28a745; font-size:9px; display:block; margin-top:3px;">EQUIPADO</b>' : ''}
+                        </div>`;
+                });
+            }
+            html += `</div>`;
+            openModal("MEUS ITENS", html);
+        } catch (e) {
+            console.error("Erro no Inventário:", e);
+        }
+    };
+
+    // Função para Equipar (Agora com feedback de sucesso)
+window.equiparIcone = async (nomeImg) => {
+    try {
+        const user = auth.currentUser;
+        if(!user) return;
+        
+        await updateDoc(doc(db, "usuarios", user.uid), { 
+            fotoPerfil: nomeImg 
+        });
+
+        if(document.getElementById('custom-modal')) document.getElementById('custom-modal').style.display = 'none';
+        // Feedback para o usuário saber que funcionou
+        openModal("SUCESSO", "Ícone equipado com sucesso!");
+        
+    } catch(e) { 
+        console.error("Erro ao equipar:", e);
+        openModal("ERRO", "Não foi possível equipar o ícone.");
+    }
+};
+
+// Nova Função: Janela de Confirmação
+window.confirmarTroca = (img, nome) => {
+    const previewHtml = `
+        <div style="text-align:center;">
+            <img src="${URL_BASE_ICON + img}" style="width:80px; height:80px; border-radius:50%; border:2px solid var(--gold); margin-bottom:15px;">
+            <p>Deseja equipar o ícone <strong>${nome}</strong>?</p>
+        </div>
+    `;
+    
+    // Usa o tipo 'confirm' que já criamos no seu sistema de modal
+    openModal("CONFIRMAR", previewHtml, 'confirm', () => window.equiparIcone(img));
+};
+</script>
 
     <div id="footer-ad-container" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: rgba(0, 0, 0, 0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; border-top: 2px solid #c89b3c;">
         <div id="adsterra-banner">
